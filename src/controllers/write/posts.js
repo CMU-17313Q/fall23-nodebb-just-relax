@@ -114,3 +114,11 @@ Posts.deleteDiff = async (req, res) => {
 
     helpers.formatApiResponse(200, res, await api.posts.getDiffs(req, { ...req.params }));
 };
+
+// Function for marking posts as resolved.
+// This function is called from the route.
+Posts.resolve = async (req, res) => {
+    const data = await mock(req);
+    await api.posts.resolve(req, data);
+    helpers.formatApiResponse(200, res);
+}
