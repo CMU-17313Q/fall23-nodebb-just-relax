@@ -75,6 +75,42 @@
         <i class="fa fa-fw fa-spin fa-spinner hidden" component="post/replies/loading"></i>
     </a>
     {{{ end }}}
+    <style>
+            .custom-button {
+                display: inline-block;
+                padding: 8px 18px;
+                background-color: white; /* Default blue color */
+                color: #000000;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .custom-button:hover {
+                background-color: #555; /* Grey color on hover */
+            }
+
+            .button-container {
+                text-align: right;
+                margin-top: 20px;
+            }
+
+            .custom-button.red {
+                background-color: #ff0000; /* Red color when set with the 'red' class */
+            }
+        </style>
+    </head>
+    <body>
+    <div class="button-container">
+        <button class="custom-button" id="myButton">Resolve</button>
+    </div>
+    <script>
+        document.getElementById("myButton").addEventListener("click", function() {
+            this.textContent = "Resolved"; /* Change the button's text content */
+            this.classList.add("red"); /* Add the 'red' class */
+            this.disabled = true; /* Optionally disable the button after clicking */
+        });
+    </script>
 
     <small class="pull-right">
         <!-- IMPORT partials/topic/reactions.tpl -->
