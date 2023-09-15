@@ -334,7 +334,7 @@ postsAPI.restoreDiff = async (caller, data) => {
     websockets.in(`topic_${edit.topic.tid}`).emit('event:post_edited', edit);
 };
 
-// For resolving posts.
+// For resolving posts. -huda
 postsAPI.resolve = async function(caller, data) {
     return await apiHelpers.postCommand(caller, 'resolve', 'resolved', '', data);
 }

@@ -117,6 +117,7 @@ Posts.deleteDiff = async (req, res) => {
 
 // Function for marking posts as resolved.
 // This function is called from the route.
+// -huda
 Posts.resolve = async (req, res) => {
     const data = await mock(req);
     await api.posts.resolve(req, data);
