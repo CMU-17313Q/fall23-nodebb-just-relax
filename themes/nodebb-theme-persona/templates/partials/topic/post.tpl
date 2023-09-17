@@ -99,16 +99,15 @@
                 background-color: #ff0000; /* Red color when set with the 'red' class */
             }
         </style>
-    </head>
     <body>
     <div class="button-container">
         <button class="custom-button" id="myButton">Resolve</button>
     </div>
     <script>
         document.getElementById("myButton").addEventListener("click", function() {
-            this.textContent = "Resolved"; /* Change the button's text content */
+            this.textContent = "Resolved!"; /* Change the button's text */
             this.classList.add("red"); /* Add the 'red' class */
-            this.disabled = true; /* Optionally disable the button after clicking */
+            this.disabled = true; /* Disabling the button after clicking */
         });
     </script>
 
