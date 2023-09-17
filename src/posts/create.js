@@ -36,6 +36,7 @@ module.exports = function (Posts) {
             tid: tid,
             content: content,
             timestamp: timestamp,
+            resolved: resolved,
         };
 
         if (data.toPid) {

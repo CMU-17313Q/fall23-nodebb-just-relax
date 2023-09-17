@@ -76,7 +76,7 @@
     </a>
     {{{ end }}}
     <style>
-            .custom-button {
+            .custom-button-unresolved {
                 display: inline-block;
                 padding: 8px 18px;
                 background-color: white; /* Default blue color */
@@ -86,7 +86,7 @@
                 cursor: pointer;
             }
 
-            .custom-button:hover {
+            .custom-button-unresolved:hover {
                 background-color: #555; /* Grey color on hover */
             }
 
@@ -95,19 +95,20 @@
                 margin-top: 20px;
             }
 
-            .custom-button.red {
+            .custom-button-unresolved.red {
                 background-color: #ff0000; /* Red color when set with the 'red' class */
             }
         </style>
     <body>
     <div class="button-container">
-        <button class="custom-button" id="myButton">Resolve</button>
+        <button class="custom-button-unresolved" id="myButton">Resolve</button>
     </div>
     <script>
         document.getElementById("myButton").addEventListener("click", function() {
             this.textContent = "Resolved!"; /* Change the button's text */
             this.classList.add("red"); /* Add the 'red' class */
             this.disabled = true; /* Disabling the button after clicking */
+            post.resolved = true;
         });
     </script>
 
