@@ -10,6 +10,7 @@ const topics = require('../topics');
 const categories = require('../categories');
 const groups = require('../groups');
 const utils = require('../utils');
+// const { checkVisibility } = require('../widgets');
 
 module.exports = function (Posts) {
     Posts.create = async function (data) {
@@ -19,6 +20,8 @@ module.exports = function (Posts) {
         const content = data.content.toString();
         const timestamp = data.timestamp || Date.now();
         const isMain = data.isMain || false;
+
+        const visibility = data.visibilityType;
 
         if (!uid && parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
@@ -35,6 +38,7 @@ module.exports = function (Posts) {
             tid: tid,
             content: content,
             timestamp: timestamp,
+            visibility: visibility,
         };
 
         if (data.toPid) {
