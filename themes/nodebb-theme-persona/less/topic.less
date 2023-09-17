@@ -1,4 +1,21 @@
 .topic {
+
+  .generate-data-index-selectors(@index) when (@index > 0) {
+    [data-index="@{index}"] {
+      background-color: #eceff0b4;
+      padding-left: 60px;
+      padding-right: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-color: #facd74;
+      border-left-width: 4px;
+    } 
+    .generate-data-index-selectors(@index - 1);
+  }
+  
+  .generate-data-index-selectors(1000);
+
 	[component="post/header"] {
 		margin-top: 0px;
 	}
@@ -182,6 +199,12 @@
 		border: 0;
 		font-size: 10px;
 	}
+
+  //[data-index="1"] {
+  //  background-color: #5cb85c;
+  //}
+  
+
 
 	.threaded-replies {
 		margin-left: 60px;
