@@ -12,7 +12,6 @@ const plugins_1 = __importDefault(require("../plugins"));
 const topics_1 = __importDefault(require("../topics"));
 const posts_1 = __importDefault(require("../posts"));
 const helpers_1 = __importDefault(require("./helpers"));
-
 async function get(req, res, callback) {
     res.locals.metaTags = Object.assign(Object.assign({}, res.locals.metaTags), { name: 'robots', content: 'noindex' });
     const data = await plugins_1.default.hooks.fire('filter:composer.build', {
