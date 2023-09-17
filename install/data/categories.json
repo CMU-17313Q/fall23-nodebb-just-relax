@@ -27,9 +27,9 @@
         "order": 4
     },
     {
-        "name": "Questions & Answers",
-        "description": "Got a question? Ask away!",
-        "descriptionParsed": "<p>Got a question? Ask away!</p>\n",
+        "name": "Q&A",
+        "description": "Any questions? Ask away!",
+        "descriptionParsed": "<p>Any questions? Ask away!</p>\n",
         "bgColor": "#e95c5a",
         "color": "#ffffff",
         "icon" : "fa-question",
