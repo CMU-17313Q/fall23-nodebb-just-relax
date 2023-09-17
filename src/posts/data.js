@@ -1,3 +1,8 @@
+/**
+ * Posts and their basic functions are defined in this file.
+ * -huda
+ */
+
 'use strict';
 
 const db = require('../database');
@@ -7,7 +12,7 @@ const utils = require('../utils');
 const intFields = [
     'uid', 'pid', 'tid', 'deleted', 'timestamp',
     'upvotes', 'downvotes', 'deleterUid', 'edited',
-    'replies', 'bookmarks',
+    'replies', 'bookmarks', 'resolved', // added 'resolved' -huda
 ];
 
 module.exports = function (Posts) {
