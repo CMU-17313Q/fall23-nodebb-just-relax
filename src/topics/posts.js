@@ -140,6 +140,18 @@ module.exports = function (Topics) {
                 postObj.replies = replies[i];
                 postObj.selfPost = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
 
+                // Allowing only instructors to see private posts
+                if (postObj.typeOfPost === 'private') {
+                    // make the uid of the obj post = 0
+                    postObj.uid = 0;
+                    postObj.user = {
+                        // var == true
+                        private: true,
+                        username: 'Anonymous',
+                        displayname: 'Anonymous',
+                    };
+                }
+
                 // Username override for guests, if enabled
                 if (meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
                     postObj.user.username = validator.escape(String(postObj.handle));

@@ -3,6 +3,7 @@ yarn.lock
 npm-debug.log
 node_modules/
 !node_modules/nodebb-plugin-composer-default/static/templates/composer.tpl
+!node_modules/nodebb-plugin-composer-default/static/lib/composer.js
 sftp-config.json
 config.json
 jsconfig.json
