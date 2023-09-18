@@ -12,11 +12,11 @@
 
 'use strict';
 
-module.exports = function(Posts) {
-    Posts.resolve = async function(pid, uid) {
+module.exports = function (Posts) {
+    Posts.resolve = async function (pid, uid) {
         return await resolve('resolve', pid, uid);
         // This can maybe become resolveOrUnresolve eventually
-    }
+    };
 
     async function resolve(type, pid, uid) {
         const isResolving = type === 'resolve';
@@ -27,7 +27,7 @@ module.exports = function(Posts) {
         }
         // Fetch the post data (you might need to implement this method)
         const postData = await Posts.getPostFields(pid, ['pid', 'uid', 'resolved']);
-        
+
         // Check if the post is already resolved or not
         if (isResolving && postData.resolved) {
             throw new Error('[[error:already-resolved]]');
@@ -45,4 +45,4 @@ module.exports = function(Posts) {
             isResolved: isResolving,
         };
     }
-}
+};

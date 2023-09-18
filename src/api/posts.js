@@ -335,6 +335,6 @@ postsAPI.restoreDiff = async (caller, data) => {
 };
 
 // For resolving posts. -huda
-postsAPI.resolve = async function(caller, data) {
+postsAPI.resolve = async function (caller, data) {
     return await apiHelpers.postCommand(caller, 'resolve', 'resolved', '', data);
-}
+};
