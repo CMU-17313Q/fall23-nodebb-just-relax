@@ -23,6 +23,8 @@ module.exports = function (Posts) {
         const typeOfPost = String(data.typeOfPost);
         // a print statment to check the type of the post
         // console.log(typeOfPost);
+        // addded a new var --Rama
+        const isAnonymous = String(data.isAnonymous);
 
         if (!uid && parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
@@ -40,6 +42,7 @@ module.exports = function (Posts) {
             content: content,
             timestamp: timestamp,
             typeOfPost: typeOfPost,
+            isAnonymous: isAnonymous,
         };
 
         if (data.toPid) {
