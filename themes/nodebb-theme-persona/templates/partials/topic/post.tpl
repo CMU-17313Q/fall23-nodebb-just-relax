@@ -101,14 +101,16 @@
         </style>
     <body>
     <div class="button-container">
-        <button class="custom-button-unresolved" id="myButton">Resolve</button>
+        <a href="{config.relative_path}/post/{posts.toPid}/resolve">
+            <button class="custom-button-unresolved" id="myButton">Resolve</button>
+        <a>
     </div>
     <script>
         document.getElementById("myButton").addEventListener("click", function() {
             this.textContent = "Resolved!"; /* Change the button's text */
             this.classList.add("red"); /* Add the 'red' class */
             this.disabled = true; /* Disabling the button after clicking */
-            post.resolved = true;
+            post.resolved = true; /* marks post as resolved? this is here until we figure out how to add routes. broken rn */
         });
     </script>
 
