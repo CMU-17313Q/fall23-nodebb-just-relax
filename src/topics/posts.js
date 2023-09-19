@@ -140,6 +140,13 @@ module.exports = function (Topics) {
                 postObj.replies = replies[i];
                 postObj.selfPost = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
 
+                if (postObj.isAnonymous === 'anonymous') {
+                    postObj.uid = 0;
+                    postObj.user = {
+                        username: 'Anonymous',
+                        displayname: 'Anonymous',
+                    };
+                }
                 // Username override for guests, if enabled
                 if (meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
                     postObj.user.username = validator.escape(String(postObj.handle));
@@ -167,7 +174,7 @@ module.exports = function (Topics) {
                 post.display_post_menu = topicPrivileges.isAdminOrMod ||
                     (post.selfPost &&
                         ((!topicData.locked && !post.deleted) ||
-                        (post.deleted && parseInt(post.deleterUid, 10) === parseInt(topicPrivileges.uid, 10)))) ||
+                            (post.deleted && parseInt(post.deleterUid, 10) === parseInt(topicPrivileges.uid, 10)))) ||
                     ((loggedIn || topicData.postSharing.length) && !post.deleted);
                 post.ip = topicPrivileges.isAdminOrMod ? post.ip : undefined;
 
