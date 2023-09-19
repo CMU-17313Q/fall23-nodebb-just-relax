@@ -19,6 +19,10 @@ module.exports = function (Posts) {
         const content = data.content.toString();
         const timestamp = data.timestamp || Date.now();
         const isMain = data.isMain || false;
+        // added a new var --Maria
+        const typeOfPost = String(data.typeOfPost);
+        // a print statment to check the type of the post
+        // console.log(typeOfPost);
 
         if (!uid && parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
@@ -35,6 +39,7 @@ module.exports = function (Posts) {
             tid: tid,
             content: content,
             timestamp: timestamp,
+            typeOfPost: typeOfPost,
         };
 
         if (data.toPid) {
