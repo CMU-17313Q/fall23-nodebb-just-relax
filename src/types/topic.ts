@@ -68,6 +68,7 @@ export type TopicSlimProperties = {
   teaserPid: number | string;
   thumbs: Thumb[];
   visibilityType: string;
+  isAnonymous: string;
 };
 
 export type Thumb = {
