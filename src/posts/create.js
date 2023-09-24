@@ -25,7 +25,7 @@ module.exports = function (Posts) {
         // console.log(typeOfPost);
         // addded a new var --Rama
         const isAnonymous = String(data.isAnonymous);
-
+        //  console.log(isAnonymous);
         if (!uid && parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
         }
