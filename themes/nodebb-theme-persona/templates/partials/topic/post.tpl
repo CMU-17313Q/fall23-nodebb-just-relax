@@ -76,41 +76,103 @@
     </a>
     {{{ end }}}
     <style>
-            .custom-button {
-                display: inline-block;
-                padding: 8px 18px;
-                background-color: white; /* Default blue color */
-                color: #000000;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
+        /* Styles for the overlay background */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
+            // z-index: 1;
+        }
+        /* Styles for the modal content */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 2;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .custom-button {
+            display: inline-block;
+            padding: 8px 18px;
+            background-color: white; /* Default blue color */
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-            .custom-button:hover {
-                background-color: #555; /* Grey color on hover */
-            }
+        .custom-button:hover {
+            background-color: #555; /* Grey color on hover */
+        }
 
-            .button-container {
-                text-align: right;
-                margin-top: 20px;
-            }
+        .button-container {
+            text-align: right;
+            margin-top: 20px;
+        }
 
-            .custom-button.red {
-                background-color: #ff0000; /* Red color when set with the 'red' class */
-            }
+        .custom-button.red {
+            background-color: #ff0000; /* Red color when set with the 'red' class */
+        }
         </style>
     <body>
+
     <div class="button-container">
         <button class="custom-button" id="myButton">Resolve</button>
     </div>
-    <script>
-        document.getElementById("myButton").addEventListener("click", function() {
-            this.textContent = "Resolved!"; /* Change the button's text */
-            this.classList.add("red"); /* Add the 'red' class */
-            this.disabled = true; /* Disabling the button after clicking */
+
+     <!-- The overlay and modal content -->
+    <div class="overlay" id="overlay"></div>
+
+    <div class="modal" id="myModal">
+        <h1>Are you sure you want to resolve this?</h1>
+
+        <!-- Checkbox option -->
+        <label class="checkbox-label">
+            <input type="checkbox" id="resolveCheckbox"> Yes, resolve
+        </label>
+
+        <button class="custom-button" id="cancelButton">Cancel</button>
+    </div>
+
+   <script>
+        document.getElementById("myButton").addEventListener("click", function () {
+            // Show the overlay and modal
+            document.getElementById("overlay").style.display = "block";
+            document.getElementById("myModal").style.display = "block";
+        });
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Add event listener to the cancel button in the modal
+        document.getElementById("cancelButton").addEventListener("click", function () {
+            closeModal();
+        });
+
+        // Add event listener to the resolve checkbox
+        document.getElementById("resolveCheckbox").addEventListener("change", function () {
+            if (this.checked) {
+                // Checkbox is checked, update the button appearance
+                document.getElementById("myButton").textContent = "Resolved!";
+                document.getElementById("myButton").classList.add("red");
+                document.getElementById("myButton").disabled = true;
+                closeModal(); // Close the modal
+            }
         });
     </script>
-
+    
     <small class="pull-right">
         <!-- IMPORT partials/topic/reactions.tpl -->
         <span class="post-tools">
