@@ -76,6 +76,14 @@
     </a>
     {{{ end }}}
     <style>
+        /* Center the checkbox label */
+        .checkbox-label {
+            text-align: center;
+        }
+        /* Add space between the question and options */
+        .modal h2 {
+            margin-bottom: 10px;
+        }
         /* Styles for the modal content */
         .modal {
             display: none;
@@ -85,7 +93,7 @@
             transform: translate(-50%, -50%);
             background-color: white;
             width: 350px; /* Adjust the width as needed */
-            height: 250px; /* Adjust the height as needed */
+            height: 200px; /* Adjust the height as needed */
             padding: 20px;
             border: 2px solid #000; /* Black outline */
             border-radius: 5px;
@@ -105,12 +113,10 @@
         .custom-button:hover {
             background-color: #555; /* Grey color on hover */
         }
-
         .button-container {
             text-align: right;
             margin-top: 20px;
         }
-
         .custom-button.red {
             background-color: #ff0000; /* Red color when set with the 'red' class */
         }
@@ -124,17 +130,28 @@
      <!-- The overlay and modal content -->
 
     <div class="modal" id="myModal">
-        <h2 align="center">Are you sure you want to resolve this?</h2>
-        </br>
+        <h2 style="text-align: center; font-style: italic;">Are you sure you want to resolve this question?</h2>
+        <br>
         <!-- Checkbox option -->
-        <label class="checkbox-label">
-            <input type="checkbox" id="resolveCheckbox"> Yes, resolve
-        </label>
-        </br>
-        <button class="custom-button" id="cancelButton">Cancel</button>
+        <div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="resolveCheckbox"> Yes, resolve
+            </label>
+        </div>
+        <br>
+        <!-- Checkbox for "Cancel" -->
+        <div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="cancelCheckbox"> Cancel
+            </label>
+        </div>
     </div>
 
-   <script>
+    <script>
+        // Store the original button text and class
+        const originalButtonText = document.getElementById("myButton").textContent;
+        const originalButtonClass = document.getElementById("myButton").className;
+
         document.getElementById("myButton").addEventListener("click", function () {
             // Show the overlay and modal
             document.getElementById("myModal").style.display = "block";
@@ -145,11 +162,6 @@
             document.getElementById("myModal").style.display = "none";
         }
 
-        // Add event listener to the cancel button in the modal
-        document.getElementById("cancelButton").addEventListener("click", function () {
-            closeModal();
-        });
-
         // Add event listener to the resolve checkbox
         document.getElementById("resolveCheckbox").addEventListener("change", function () {
             if (this.checked) {
@@ -157,6 +169,17 @@
                 document.getElementById("myButton").textContent = "Resolved!";
                 document.getElementById("myButton").classList.add("red");
                 document.getElementById("myButton").disabled = true;
+                closeModal(); // Close the modal
+            }
+        });
+
+        // Add event listener to the cancel checkbox
+        document.getElementById("cancelCheckbox").addEventListener("change", function () {
+            if (this.checked) {
+                // Revert the button to its original state
+                document.getElementById("myButton").textContent = originalButtonText;
+                document.getElementById("myButton").className = originalButtonClass;
+                document.getElementById("myButton").disabled = false;
                 closeModal(); // Close the modal
             }
         });
