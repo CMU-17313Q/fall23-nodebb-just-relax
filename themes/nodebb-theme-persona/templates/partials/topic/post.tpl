@@ -76,17 +76,6 @@
     </a>
     {{{ end }}}
     <style>
-        /* Styles for the overlay background */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
-            // z-index: 1;
-        }
         /* Styles for the modal content */
         .modal {
             display: none;
@@ -95,7 +84,10 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: white;
-            padding: 10px;
+            width: 350px; /* Adjust the width as needed */
+            height: 250px; /* Adjust the height as needed */
+            padding: 20px;
+            border: 2px solid #000; /* Black outline */
             border-radius: 5px;
             z-index: 2;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -130,29 +122,26 @@
     </div>
 
      <!-- The overlay and modal content -->
-    <div class="overlay" id="overlay"></div>
 
     <div class="modal" id="myModal">
-        <h1>Are you sure you want to resolve this?</h1>
-
+        <h2 align="center">Are you sure you want to resolve this?</h2>
+        </br>
         <!-- Checkbox option -->
         <label class="checkbox-label">
             <input type="checkbox" id="resolveCheckbox"> Yes, resolve
         </label>
-
+        </br>
         <button class="custom-button" id="cancelButton">Cancel</button>
     </div>
 
    <script>
         document.getElementById("myButton").addEventListener("click", function () {
             // Show the overlay and modal
-            document.getElementById("overlay").style.display = "block";
             document.getElementById("myModal").style.display = "block";
         });
 
         // Function to close the modal
         function closeModal() {
-            document.getElementById("overlay").style.display = "none";
             document.getElementById("myModal").style.display = "none";
         }
 
