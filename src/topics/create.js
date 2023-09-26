@@ -33,6 +33,9 @@ module.exports = function (Topics) {
             lastposttime: 0,
             postcount: 0,
             viewcount: 0,
+            // added attributes for private and resolved --maria
+            isPrivate: false,
+            isResolved: false,
         };
 
         if (Array.isArray(data.tags) && data.tags.length) {
