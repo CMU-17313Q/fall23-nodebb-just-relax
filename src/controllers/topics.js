@@ -13,6 +13,9 @@ const helpers = require('./helpers');
 const pagination = require('../pagination');
 const utils = require('../utils');
 const analytics = require('../analytics');
+// imported the db
+const db = require('../database');
+
 
 const topicsController = module.exports;
 
@@ -371,4 +374,19 @@ topicsController.pagination = async function (req, res, next) {
     });
 
     res.json({ pagination: paginationData });
+};
+
+topicsController.setTopicAsResolved = async function (req, res) {
+    try {
+        // Set the topic as urgent first
+        const tid = Number(req.params.topic_id);
+
+        // Now, retrieve the topic details
+        await db.setObjectField(`topic:${tid}`, 'isResolved', true);
+        const topicData = await topicsController.get(req, req.params);
+        helpers.formatApiResponse(200, res, topicData);
+    } catch (error) {
+        // Handle error appropriately
+        helpers.formatApiResponse(500, res, { error: 'An error occurred while setting the topic as resolved.' });
+    }
 };
