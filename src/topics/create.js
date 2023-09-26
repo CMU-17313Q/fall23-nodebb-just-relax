@@ -33,10 +33,16 @@ module.exports = function (Topics) {
             lastposttime: 0,
             postcount: 0,
             viewcount: 0,
-            // added attributes for private and resolved --maria
-            isPrivate: false,
+            // added attribute for resolved --maria
             isResolved: false,
         };
+
+        // added a type for the isResolved attribute | stating thats its a boolean
+        /**
+         * @type {boolean}
+         */
+        topicData.isResolved = data.isResolved || false;
+
 
         if (Array.isArray(data.tags) && data.tags.length) {
             topicData.tags = data.tags.join(',');
