@@ -165,7 +165,12 @@
         // Add event listener to the resolve checkbox
         document.getElementById("resolveCheckbox").addEventListener("change", function () {
             if (this.checked) {
-                // Send an HTTP GET request to a URL formed by appending "/isResolved" to the current page's URL
+                // Checkbox is checked, update the button appearance
+                document.getElementById("myButton").textContent = "Resolved!";
+                document.getElementById("myButton").classList.add("red");
+                document.getElementById("myButton").disabled = true;
+
+                 // Send an HTTP GET request to a URL formed by appending "/isResolved" to the current page's URL
                 fetch(window.location.href + "/isResolved", {
                     method: 'GET', // Use the GET method to retrieve data
                     headers: {
@@ -182,10 +187,7 @@
                     // Handle any errors that occur during the request or response
                     console.error('Error:', error); // Log the error to the console
                 });
-                // Checkbox is checked, update the button appearance
-                document.getElementById("myButton").textContent = "Resolved!";
-                document.getElementById("myButton").classList.add("red");
-                document.getElementById("myButton").disabled = true;
+                
                 closeModal(); // Close the modal
             }
         });
