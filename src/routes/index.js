@@ -58,7 +58,7 @@ _mounts.globalMod = (app, middleware, controllers) => {
 _mounts.topic = (app, name, middleware, controllers) => {
     setupPageRoute(app, `/${name}/:topic_id/:slug/:post_index?`, [], controllers.topics.get);
     setupPageRoute(app, `/${name}/:topic_id/:slug?`, [], controllers.topics.get);
-    // adding a route for the resolved attribute
+    // creating a route for the resolved attribute
     setupPageRoute(app, `/${name}/:topic_id/:slug/isResolved`, [], controllers.topics.postIsResolved);
 };
 
