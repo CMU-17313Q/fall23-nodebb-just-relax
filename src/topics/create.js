@@ -37,13 +37,6 @@ module.exports = function (Topics) {
             isResolved: false,
         };
 
-        // added a type for the isResolved attribute | stating thats its a boolean
-        /**
-         * @type {boolean}
-         */
-        topicData.isResolved = data.isResolved || false;
-
-
         if (Array.isArray(data.tags) && data.tags.length) {
             topicData.tags = data.tags.join(',');
         }
