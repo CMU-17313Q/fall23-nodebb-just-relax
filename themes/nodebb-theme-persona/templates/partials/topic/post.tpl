@@ -165,12 +165,12 @@
             document.getElementById("myModal").style.display = "none";
         }
 
-
         // Add event listener to the resolve checkbox
         document.getElementById("resolveCheckbox").addEventListener("change", function () {
             if (this.checked) {
                 // if the checkbox is pressed the status of the resolve becomes true
                 resolveStatus = true;
+                
                 // Checkbox is checked, update the button appearance
                 document.getElementById("myButton").textContent = "Resolved!";
                 document.getElementById("myButton").classList.add("red");

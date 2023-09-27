@@ -377,13 +377,12 @@ topicsController.pagination = async function (req, res, next) {
 };
 
 topicsController.postIsResolved = async function (req, res) {
-    try {
-        const tid = Number(req.params.topic_id);
-        // Now, retrieve the topic details
-        await db.setObjectField(`topic:${tid}`, 'isResolved', true);
-        const topicData = await topicsController.get(req, req.params);
-        helpers.formatApiResponse(200, res, topicData);
-    } catch (error) {
-        helpers.formatApiResponse(500, res, { error: 'Error' });
-    }
+    // retrieve the topicID
+    const tid = Number(req.params.topic_id);
+    // Now, retrieve the topic details
+    await db.setObjectField(`topic:${tid}`, 'isResolved', true);
+    const topicData = await topicsController.get(req, req.params);
+    // Api Responses
+    helpers.formatApiResponse(200, res, topicData);
+    // helpers.formatApiResponse(500, res, { error: 'Error' });
 };
