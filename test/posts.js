@@ -164,7 +164,7 @@ describe('Post\'s', () => {
     it('should update typeOfPost from public to private', async () => {
         const testUser = await user.create({ username: 'Gogogojo' });
         const post = await posts.create({ uid: testUser, cid: cid, title: 'Test Title', content: 'This is a test post.', typeOfPost: 'private' });
-        const { pid } = post.pid;
+        const { pid } = post;
         const res = await posts.getPostData(pid);
         assert.equal(res.typeOfPost, 'private');
     });
