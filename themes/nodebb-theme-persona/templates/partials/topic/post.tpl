@@ -199,6 +199,7 @@
                     console.error('Error:', error); // Log the error to the console
                 });
                 closeModal(); // Close the modal
+                <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
             }
         });
 
