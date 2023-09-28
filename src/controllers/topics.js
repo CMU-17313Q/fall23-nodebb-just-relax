@@ -376,6 +376,7 @@ topicsController.pagination = async function (req, res, next) {
     res.json({ pagination: paginationData });
 };
 
+// added a controller function for the resolve attribute
 topicsController.postIsResolved = async function (req, res) {
     // retrieve the topicID
     const tid = Number(req.params.topic_id);
