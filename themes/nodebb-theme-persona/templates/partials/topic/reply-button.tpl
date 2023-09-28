@@ -12,10 +12,11 @@
 <!-- IF !privileges.topics:reply -->
 <!-- IF locked -->
 <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
+<!-- ELSE -->
+    <!-- IF topic.isResolved -->
+    <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
+    <!-- ENDIF topic.isResolved -->
 <!-- ENDIF locked -->
-<!-- IF isResolved -->
-<a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
-<!-- ENDIF isResolved -->
 <!-- ENDIF !privileges.topics:reply -->
 
 <!-- IF !locked -->
