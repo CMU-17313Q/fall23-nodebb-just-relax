@@ -170,7 +170,7 @@
             if (this.checked) {
                 // if the checkbox is pressed the status of the resolve becomes true
                 resolveStatus = true;
-                
+
                 // Checkbox is checked, update the button appearance
                 document.getElementById("myButton").textContent = "Resolved!";
                 document.getElementById("myButton").classList.add("red");
@@ -184,10 +184,10 @@
                 // Send an HTTP GET request to a URL formed by appending "/isResolved" to the current page's URL
                 fetch(window.location.href + "/isResolved", {
                     method: 'GET', // Use the GET method to retrieve data
-                    headers: {
+                      headers: {
                         'Accept': 'application/json', // Indicate that the client prefers JSON responses
                         'Content-Type': 'application/json' // Specify that the request body (if any) will be in JSON format
-                    }
+                     }
                 })
                 .then(response => response.json()) // Parse the response as JSON
                 .then(data => {
@@ -198,7 +198,6 @@
                     // Handle any errors that occur during the request or response
                     console.error('Error:', error); // Log the error to the console
                 });
-
                 closeModal(); // Close the modal
             }
         });

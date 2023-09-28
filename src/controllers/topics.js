@@ -376,13 +376,18 @@ topicsController.pagination = async function (req, res, next) {
     res.json({ pagination: paginationData });
 };
 
+// added a controller function for the resolve attribute
 topicsController.postIsResolved = async function (req, res) {
-    // retrieve the topicID
-    const tid = Number(req.params.topic_id);
-    // Now, retrieve the topic details
-    await db.setObjectField(`topic:${tid}`, 'isResolved', true);
-    const topicData = await topicsController.get(req, req.params);
-    // Api Responses
-    helpers.formatApiResponse(200, res, topicData);
-    // helpers.formatApiResponse(500, res, { error: 'Error' });
+    // added a try and catch to test for exceptions
+    try {
+        // retrieve the topicID
+        const tid = Number(req.params.topic_id);
+        await db.setObjectField(`topic:${tid}`, 'isResolved', true);
+        const topicData = await topicsController.get(req, req.params);
+        // an API response for success!
+        helpers.formatApiResponse(200, res, topicData);
+    } catch (error) {
+        // Handling the error from the API
+        helpers.formatApiResponse(500, res, { error: 'Error' });
+    }
 };
