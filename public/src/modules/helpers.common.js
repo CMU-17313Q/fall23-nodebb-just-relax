@@ -333,10 +333,16 @@ module.exports = function (utils, Benchpress, relative_path) {
             return '<img ' + attributes.join(' ') + ' src="' + userObj.picture + '" style="' + styles.join(' ') + '" />';
         }
 
+        // if the user is anonymous
+        if (userObj.isAnonymous) {
+            styles.push('background-color: #666666;');
+            return '<span ' + attributes.join(' ') + ' style="' + styles.join(' ') + '"><i class="fa fa-user"></i></span>';
+        }
+
         styles.push('background-color: ' + userObj['icon:bgColor'] + ';');
         return '<span ' + attributes.join(' ') + ' style="' + styles.join(' ') + '">' + userObj['icon:text'] + '</span>';
     }
-
+    
     function register() {
         Object.keys(helpers).forEach(function (helperName) {
             Benchpress.registerHelper(helperName, helpers[helperName]);
