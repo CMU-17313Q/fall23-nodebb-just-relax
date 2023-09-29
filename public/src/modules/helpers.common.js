@@ -335,7 +335,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 
         // if the user is anonymous
         if (userObj.anon) {
-            styles.push('background-color: #606060;');
+            styles.push('background-color: #FFA8B7;');
             return '<span ' + attributes.join(' ') + ' style="' + styles.join(' ') + '"><i class="fa fa-user"></i></span>';
         }
 
