@@ -342,7 +342,7 @@ module.exports = function (utils, Benchpress, relative_path) {
         styles.push('background-color: ' + userObj['icon:bgColor'] + ';');
         return '<span ' + attributes.join(' ') + ' style="' + styles.join(' ') + '">' + userObj['icon:text'] + '</span>';
     }
-    
+
     function register() {
         Object.keys(helpers).forEach(function (helperName) {
             Benchpress.registerHelper(helperName, helpers[helperName]);
