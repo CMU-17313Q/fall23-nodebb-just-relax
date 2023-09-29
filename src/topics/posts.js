@@ -145,6 +145,7 @@ module.exports = function (Topics) {
                     postObj.user = {
                         username: 'Anonymous',
                         displayname: 'Anonymous',
+                        anon: true,
                     };
                 }
                 // Username override for guests, if enabled
