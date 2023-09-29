@@ -13,6 +13,9 @@ const helpers = require('./helpers');
 const pagination = require('../pagination');
 const utils = require('../utils');
 const analytics = require('../analytics');
+// imported the db --maria
+const db = require('../database');
+
 
 const topicsController = module.exports;
 
@@ -371,4 +374,20 @@ topicsController.pagination = async function (req, res, next) {
     });
 
     res.json({ pagination: paginationData });
+};
+
+// added a controller function for the resolve attribute
+topicsController.postIsResolved = async function (req, res) {
+    // added a try and catch to test for exceptions
+    try {
+        // retrieve the topicID
+        const tid = Number(req.params.topic_id);
+        await db.setObjectField(`topic:${tid}`, 'isResolved', true);
+        const topicData = await topicsController.get(req, req.params);
+        // an API response for success!
+        helpers.formatApiResponse(200, res, topicData);
+    } catch (error) {
+        // Handling the error from the API
+        helpers.formatApiResponse(500, res, { error: 'Error' });
+    }
 };

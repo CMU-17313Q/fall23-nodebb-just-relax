@@ -33,6 +33,8 @@ module.exports = function (Topics) {
             lastposttime: 0,
             postcount: 0,
             viewcount: 0,
+            // added attribute for resolved --maria
+            isResolved: false,
         };
 
         if (Array.isArray(data.tags) && data.tags.length) {

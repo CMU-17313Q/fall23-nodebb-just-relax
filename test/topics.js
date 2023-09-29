@@ -412,6 +412,15 @@ describe('Topic\'s', () => {
             });
         });
 
+        // added a test case for resolving a post
+        it('should get the resolve attribute of a post [thats resolved]', (done) => {
+            topics.getTopicFields(newTopic.tid, ['isResolved'], (err, data) => {
+                assert.ifError(err);
+                assert(data.hasOwnProperty('isResolved'));
+                done();
+            });
+        });
+
         describe('.getTopicWithPosts', () => {
             let tid;
             before(async () => {

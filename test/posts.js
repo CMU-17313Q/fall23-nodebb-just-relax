@@ -161,6 +161,14 @@ describe('Post\'s', () => {
         });
     });
 
+    it('should update typeOfPost from public to private', async () => {
+        const testUser = await user.create({ username: 'Gogogojo' });
+        const post = await posts.create({ uid: testUser, cid: cid, title: 'Test Title', content: 'This is a test post.', typeOfPost: 'private' });
+        const { pid } = post;
+        const res = await posts.getPostData(pid);
+        assert.equal(res.typeOfPost, 'private');
+    });
+
     describe('voting', () => {
         it('should fail to upvote post if group does not have upvote permission', async () => {
             await privileges.categories.rescind(['groups:posts:upvote', 'groups:posts:downvote'], cid, 'registered-users');
