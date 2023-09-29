@@ -1,4 +1,5 @@
 <div component="topic/reply/container" class="btn-group action-bar bottom-sheet <!-- IF !privileges.topics:reply -->hidden<!-- ENDIF !privileges.topics:reply -->">
+<!-- IF !isResolved -->
     <a href="{config.relative_path}/compose?tid={tid}&title={title}" class="btn btn-sm btn-primary" component="topic/reply" data-ajaxify="false" role="button"><i class="fa fa-reply visible-xs-inline"></i><span class="visible-sm-inline visible-md-inline visible-lg-inline"> [[topic:reply]]</span></a>
     <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
@@ -6,26 +7,27 @@
     <ul class="dropdown-menu pull-right" role="menu">
         <li><a href="#" component="topic/reply-as-topic">[[topic:reply-as-topic]]</a></li>
     </ul>
+<!-- ENDIF !isResolved -->
 </div>
 
 <!-- IF loggedIn -->
 <!-- IF !privileges.topics:reply -->
 <!-- IF locked -->
 <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
-<!-- ELSE -->
-    <!-- IF topic.isResolved -->
-    <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
-    <!-- ENDIF topic.isResolved -->
 <!-- ENDIF locked -->
 <!-- ENDIF !privileges.topics:reply -->
 
 <!-- IF !locked -->
+<!-- IF !isResolved -->
 <a component="topic/reply/locked" class="btn btn-sm btn-primary hidden" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
+<!-- ENDIF !isResolved -->
 <!-- ENDIF !locked -->
 
 <!-- ELSE -->
 
 <!-- IF !privileges.topics:reply -->
+<!-- IF !isResolved -->
 <a component="topic/reply/guest" href="{config.relative_path}/login" class="btn btn-sm btn-primary">[[topic:guest-login-reply]]</a>
+<!-- ENDIF !isResolved -->
 <!-- ENDIF !privileges.topics:reply -->
 <!-- ENDIF loggedIn -->
