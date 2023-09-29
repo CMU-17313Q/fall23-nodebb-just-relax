@@ -160,6 +160,11 @@ module.exports = function (Categories) {
         }
 
         topics.forEach((topic) => {
+            if (topic.isAnonymous === 'anonymous') {
+                topic.user = {
+                    anon: true,
+                };
+            }
             if (!topic.scheduled && topic.deleted && !topic.isOwner) {
                 topic.title = '[[topic:topic_is_deleted]]';
                 if (topic.hasOwnProperty('titleRaw')) {
