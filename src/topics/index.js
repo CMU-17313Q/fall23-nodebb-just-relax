@@ -152,7 +152,7 @@ Topics.getTopicsByTids = async function (tids, options) {
                 Math.min(topic.postcount, bookmarks[i] + 1);
             topic.unreplied = !topic.teaser;
             topic.icons = [];
-            if (topic.isAnonymous && !topic.isOwner) {
+            if (topic.isAnonymous) {// && !topic.isOwner) {
                 console.log('hello');
                 topic.user.displayname = 'anonymous';
                 topic.user.anon = true;
@@ -230,7 +230,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 
     const result = await plugins.hooks.fire('filter:topic.get', { topic: topicData, uid: uid });
 
-    if (topicData.postType === 'anon') {
+    if (topicData.isAnonymous === 'anonymous') {
         topicData.uid = 0;
     }
 
