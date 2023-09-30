@@ -69,6 +69,8 @@ export type TopicSlimProperties = {
   thumbs: Thumb[];
   visibilityType: string;
   isAnonymous: string;
+  displayname: string;
+  userslug: string;
 };
 
 export type Thumb = {

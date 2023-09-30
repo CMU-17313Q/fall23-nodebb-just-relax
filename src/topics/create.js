@@ -19,7 +19,7 @@ module.exports = function (Topics) {
     Topics.create = async function (data) {
         // This is an internal method, consider using Topics.post instead
         const timestamp = data.timestamp || Date.now();
-
+        const isAnonymous = String(data.isAnonymous);
         const tid = await db.incrObjectField('global', 'nextTid');
 
         let topicData = {
@@ -35,6 +35,8 @@ module.exports = function (Topics) {
             viewcount: 0,
             // added attribute for resolved --maria
             isResolved: false,
+            // added attribute for anonymous --rama
+            isAnonymous: isAnonymous,
         };
 
         if (Array.isArray(data.tags) && data.tags.length) {

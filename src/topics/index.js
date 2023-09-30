@@ -144,6 +144,12 @@ Topics.getTopicsByTids = async function (tids, options) {
             topic.unreplied = !topic.teaser;
 
             topic.icons = [];
+            topic.displayname = topic.user.displayname;
+            topic.userslug = topic.user.userslug;
+            if (topic.isAnonymous === 'anonymous') {
+                topic.displayname = 'anonymous';
+                topic.userslug = 'anonymous';
+            }
         }
     });
 
