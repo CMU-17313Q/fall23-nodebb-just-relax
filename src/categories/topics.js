@@ -161,6 +161,7 @@ module.exports = function (Categories) {
 
         topics.forEach((topic) => {
             if (topic.isAnonymous === 'anonymous') {
+                topic.uid = 0;
                 topic.user = {
                     anon: true,
                 };

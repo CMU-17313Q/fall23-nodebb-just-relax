@@ -71,6 +71,8 @@ Topics.getTopicsByTids = async function (tids, options) {
         const topics = await Topics.getTopicsData(tids);
         const uids = _.uniq(topics.map(t => t && t.uid && t.uid.toString()).filter(v => utils.isNumber(v)));
         const cids = _.uniq(topics.map(t => t && t.cid && t.cid.toString()).filter(v => utils.isNumber(v)));
+        // added a new var called pids to capture the pid
+        const pids = _.uniq(topics.map(t => t && t.mainPid && t.mainPid.toString()).filter(v => utils.isNumber(v)));
         const guestTopics = topics.filter(t => t && t.uid === 0);
 
         async function loadGuestHandles() {
@@ -90,8 +92,10 @@ Topics.getTopicsByTids = async function (tids, options) {
             return data;
         }
 
-        const [teasers, users, userSettings, categoriesData, guestHandles, thumbs] = await Promise.all([
+        const [teasers, postData, users, userSettings, categoriesData, guestHandles, thumbs] = await Promise.all([
             Topics.getTeasers(topics, options),
+            // added a new field
+            posts.getPostsFields(pids, ['isAnonymous']),
             user.getUsersFields(uids, ['uid', 'username', 'fullname', 'userslug', 'reputation', 'postcount', 'picture', 'signature', 'banned', 'status']),
             loadShowfullnameSettings(),
             categories.getCategoriesFields(cids, ['cid', 'name', 'slug', 'icon', 'backgroundImage', 'imageClass', 'bgColor', 'color', 'disabled']),
@@ -109,6 +113,8 @@ Topics.getTopicsByTids = async function (tids, options) {
         return {
             topics,
             teasers,
+            // added a new return object
+            postsMap: _.zipObject(pids, postData),
             usersMap: _.zipObject(uids, users),
             categoriesMap: _.zipObject(cids, categoriesData),
             tidToGuestHandle: _.zipObject(guestTopics.map(t => t.tid), guestHandles),
@@ -128,8 +134,16 @@ Topics.getTopicsByTids = async function (tids, options) {
     result.topics.forEach((topic, i) => {
         if (topic) {
             topic.thumbs = result.thumbs[i];
+            // added a new line for the topic
+            topic.isAnonymous = result.postsMap[topic.mainPid].isAnonymous === 'anonymous';
+            // console.log(topic.isAnonymous);
             topic.category = result.categoriesMap[topic.cid];
             topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
+            if (topic.isAnonymous) {
+                console.log('hello');
+                // topic.user.displayname = 'anonymous';
+                topic.user.isAnonymous = true;
+            }
             if (result.tidToGuestHandle[topic.tid]) {
                 topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
                 topic.user.displayname = topic.user.username;
@@ -142,7 +156,6 @@ Topics.getTopicsByTids = async function (tids, options) {
                 Math.max(1, topic.postcount + 2 - bookmarks[i]) :
                 Math.min(topic.postcount, bookmarks[i] + 1);
             topic.unreplied = !topic.teaser;
-
             topic.icons = [];
         }
     });

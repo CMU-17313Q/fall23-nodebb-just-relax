@@ -35,6 +35,8 @@ module.exports = function (Topics) {
             viewcount: 0,
             // added attribute for resolved --maria
             isResolved: false,
+            // new attribute for topic, anon
+            isAnonymous: data.isAnonymous,
         };
 
         if (Array.isArray(data.tags) && data.tags.length) {
