@@ -13,9 +13,6 @@
 <!-- IF locked -->
 <a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
 <!-- ENDIF locked -->
-<!-- IF !topicObj.isResolved -->
-<a component="topic/reply/locked" class="btn btn-sm btn-primary" disabled><i class="fa fa-lock"></i> [[topic:locked]]</a>
-<!-- ENDIF !topicObj.isResolved -->
 <!-- ENDIF !privileges.topics:reply -->
 
 <!-- IF !locked -->
