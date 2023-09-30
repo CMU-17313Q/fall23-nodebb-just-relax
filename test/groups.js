@@ -691,7 +691,7 @@ describe('Groups', () => {
 
         it('should set group title when user joins the group', (done) => {
             const groupName = 'this will be title';
-            User.create({ username: 'needstitle' , 'account-type': 'instructor'}, (err, uid) => {
+            User.create({ username: 'needstitle', 'account-type': 'instructor' }, (err, uid) => {
                 assert.ifError(err);
                 Groups.create({ name: groupName }, (err) => {
                     assert.ifError(err);
