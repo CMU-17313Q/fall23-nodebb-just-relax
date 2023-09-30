@@ -35,7 +35,7 @@ module.exports = function (Categories) {
             return true;
         }
         return false;
-    }
+    };
 
     Categories.getTopicIds = async function (data) {
         const dataForPinned = { ...data };
