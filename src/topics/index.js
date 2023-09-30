@@ -139,11 +139,6 @@ Topics.getTopicsByTids = async function (tids, options) {
             // console.log(topic.isAnonymous);
             topic.category = result.categoriesMap[topic.cid];
             topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
-            if (topic.isAnonymous) {
-                console.log('hello');
-                // topic.user.displayname = 'anonymous';
-                topic.user.isAnonymous = true;
-            }
             if (result.tidToGuestHandle[topic.tid]) {
                 topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
                 topic.user.displayname = topic.user.username;
@@ -157,6 +152,13 @@ Topics.getTopicsByTids = async function (tids, options) {
                 Math.min(topic.postcount, bookmarks[i] + 1);
             topic.unreplied = !topic.teaser;
             topic.icons = [];
+            if (topic.isAnonymous && !topic.isOwner) {
+                console.log('hello');
+                topic.user.displayname = 'anonymous';
+                topic.user.anon = true;
+            } else {
+                console.log('not anon');
+            }
         }
     });
 
@@ -227,8 +229,15 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
     topicData.icons = [];
 
     const result = await plugins.hooks.fire('filter:topic.get', { topic: topicData, uid: uid });
+
+    if (topicData.postType === 'anon') {
+        topicData.uid = 0;
+    }
+
     return result.topic;
 };
+
+
 
 async function getDeleter(topicData) {
     if (!parseInt(topicData.deleterUid, 10)) {
