@@ -98,11 +98,19 @@ module.exports = function (User) {
             bulkAdd.push(['fullname:sorted', 0, `${userData.fullname.toLowerCase()}:${userData.uid}`]);
         }
 
+        const groupData = ['registered-users', 'unverified-users'];
+        const accountType = userData.accounttype.toLowerCase();
+        if (accountType === 'instructor') {
+            groupData.push('instructor');
+        }
+        if (accountType === 'student') {
+            groupData.push('student');
+        }
         await Promise.all([
             db.incrObjectField('global', 'userCount'),
             analytics.increment('registrations'),
             db.sortedSetAddBulk(bulkAdd),
-            groups.join(['registered-users', 'unverified-users'], userData.uid),
+            groups.join(groupData, userData.uid),
             User.notifications.sendWelcomeNotification(userData.uid),
             storePassword(userData.uid, data.password),
             User.updateDigestSetting(userData.uid, meta.config.dailyDigestFreq),

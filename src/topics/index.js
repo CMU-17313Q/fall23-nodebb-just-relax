@@ -105,6 +105,15 @@ Topics.getTopicsByTids = async function (tids, options) {
                 userObj.fullname = undefined;
             }
         });
+        
+        for (let i = 0; i < topics.length; i++) {
+            const mainPost = await Topics.getTopicPosts(topics[i], `tid:${topics[i].tid}:posts`, 0, 0, topics[i].userId, false);
+            if (mainPost.length > 0 && mainPost[0].typeOfPost === 'private') {
+                topics[i].hasPrivateMainPost = true;
+            } else {
+                topics[i].hasPrivateMainPost = false;
+            }
+        }
 
         return {
             topics,
