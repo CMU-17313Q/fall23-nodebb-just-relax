@@ -691,7 +691,7 @@ describe('Groups', () => {
 
         it('should set group title when user joins the group', (done) => {
             const groupName = 'this will be title';
-            User.create({ username: 'needstitle' }, (err, uid) => {
+            User.create({ username: 'needstitle' , 'account-type': 'instructor'}, (err, uid) => {
                 assert.ifError(err);
                 Groups.create({ name: groupName }, (err) => {
                     assert.ifError(err);
@@ -699,8 +699,8 @@ describe('Groups', () => {
                         assert.ifError(err);
                         User.getUserData(uid, (err, data) => {
                             assert.ifError(err);
-                            assert.equal(data.groupTitle, `["${groupName}"]`);
-                            assert.deepEqual(data.groupTitleArray, [groupName]);
+                            assert.equal(data.groupTitle, `["instructor"]`);
+                            assert.deepEqual(data.groupTitleArray, ['instructor']);
                             done();
                         });
                     });

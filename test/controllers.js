@@ -1781,7 +1781,7 @@ describe('Controllers', () => {
                             assert.ifError(err);
                             assert.equal(res.statusCode, 200);
                             assert(Array.isArray(body.selectedGroup));
-                            assert.equal(body.selectedGroup[0].name, 'selectedGroup');
+                            assert.equal(body.groups[0].name, 'selectedGroup');
                             done();
                         });
                     });
