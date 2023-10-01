@@ -106,6 +106,20 @@ Topics.getTopicsByTids = async function (tids, options) {
             }
         });
 
+        function updateTopics(topics) {
+            const promises = topics.map(topic => Topics.getTopicPosts(topic, `tid:${topic.tid}:posts`, 0, 0, topic.userId, false)
+                .then((mainPost) => {
+                    if (mainPost.length > 0 && mainPost[0].typeOfPost === 'private') {
+                        topic.hasPrivateMainPost = true;
+                    } else {
+                        topic.hasPrivateMainPost = false;
+                    }
+                }));
+
+            return Promise.all(promises);
+        }
+
+        await updateTopics(topics);
         return {
             topics,
             teasers,

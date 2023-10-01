@@ -18,9 +18,23 @@ module.exports = function (Categories) {
             return { topics: [], uid: data.uid };
         }
         topics.calculateTopicIndices(topicsData, data.start);
-
+        const isInstructor = await privileges.users.isInstructor(data.uid);
+        topicsData = topicsData.filter(topic => Categories.shouldShowTopic(isInstructor, topic, data.uid));
         results = await plugins.hooks.fire('filter:category.topics.get', { cid: data.cid, topics: topicsData, uid: data.uid });
         return { topics: results.topics, nextStart: data.stop + 1 };
+    };
+
+    Categories.shouldShowTopic = function (isInstructor, topic, uid) {
+        if (isInstructor === true) {
+            return true;
+        }
+        if (topic.hasPrivateMainPost === false) {
+            return true;
+        }
+        if (topic.uid === uid) {
+            return true;
+        }
+        return false;
     };
 
     Categories.getTopicIds = async function (data) {
