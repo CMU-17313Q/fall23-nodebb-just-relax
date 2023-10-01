@@ -160,7 +160,12 @@ describe('Post\'s', () => {
             done();
         });
     });
-
+    it('should update Visibility from none to anonymous', async () => {
+        const newUid = await user.create({ username: 'newuser' });
+        const postResult = await topics.post({ uid: newUid, cid: cid, title: 'Test Anonymity', content: 'This is a test for anonmoity.', isAnonymous: 'anonymous' });
+        const res = postResult.postData.isAnonymous;
+        assert.equal(res, 'anonymous');
+    });
     it('should update typeOfPost from public to private', async () => {
         const testUser = await user.create({ username: 'Gogogojo' });
         const post = await posts.create({ uid: testUser, cid: cid, title: 'Test Title', content: 'This is a test post.', typeOfPost: 'private' });
