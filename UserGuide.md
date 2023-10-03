@@ -25,7 +25,9 @@ This file provides a detailed outline of how to use and user test the new featur
 ### Resolving Posts
 
 #### How to use & user test:
-- Aboud
+- Aboud resolve
 
 #### Automated tests:
-- Maria - You should also provide a link/description of where your added automated tests can be found, along with a description of what is being tested and why you believe the tests are sufficient for covering the changes that you have made
+- We tested this feature by creating a new topic within our test file and setting the topics' _isResolved_ attribute to true, since the default value is false. This test is crucial because it validates recent codebase modifications, including the introduction of the _isResolved_ attribute and its integration into both the backend and frontend, to ensure they function as intended. It also ensures that the controller functions and routes correctly handle the _isResolved_ attribute, which was subsequently saved in the database to reflect the resolved status of the topic.
+- The test can be found in the file located at [https://github.com/CMU-17313Q/fall23-nodebb-just-relax/blob/main/test/topics.js](https://github.com/CMU-17313Q/fall23-nodebb-just-relax/blob/main/test/posts.js) from lines 415-422.
+
