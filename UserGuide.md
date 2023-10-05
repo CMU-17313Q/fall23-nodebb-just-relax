@@ -25,7 +25,7 @@ This file provides a detailed outline of how to use and user test the new featur
 ### Resolving Posts
 
 #### How to use & user test:
-- Aboud resolve
+- The post-resolution feature of NodeBB allows instructors to mark a reply in a topic as "Resolved." This flag is useful to show readers of the topic that the question asked has an answer that successfully addressed the original inquiry. To mark a post as resolved, navigate to any topic under the 'Q&A' section, and find the reply that contains the appropriate solution to the question. In the bottom right corner of the reply, click the button "Resolve." To protect against accidental clicks, a window will pop up asking to confirm your action. Click "Yes, resolve" to continue. The original "Resolve" button will now appear as a red stamp indicting to users that this reply resolves the question.
 
 #### Automated tests:
 - We tested this feature by creating a new topic within our test file and setting the topics' _isResolved_ attribute to true, since the default value is false. This test is crucial because it validates recent codebase modifications, including the introduction of the _isResolved_ attribute and its integration into both the backend and frontend, to ensure they function as intended. It also ensures that the controller functions and routes correctly handle the _isResolved_ attribute, which was subsequently saved in the database to reflect the resolved status of the topic.
