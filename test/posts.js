@@ -166,6 +166,13 @@ describe('Post\'s', () => {
         const res = postResult.postData.isAnonymous;
         assert.equal(res, 'anonymous');
     });
+    it('should check if the typeOfPost is originally public ', async () => {
+        const testUser2 = await user.create({ username: 'mystery' });
+        const post = await posts.create({ uid: testUser2, cid: cid, title: 'Test Title 1', content: 'This is a test post!', typeOfPost: 'public' });
+        const { pid } = post; const res = await posts.getPostData(pid);
+        assert.equal(res.typeOfPost, 'public');
+    });
+
     it('should update typeOfPost from public to private', async () => {
         const testUser = await user.create({ username: 'Gogogojo' });
         const post = await posts.create({ uid: testUser, cid: cid, title: 'Test Title', content: 'This is a test post.', typeOfPost: 'private' });
