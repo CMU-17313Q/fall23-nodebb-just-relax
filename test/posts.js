@@ -160,6 +160,7 @@ describe('Post\'s', () => {
             done();
         });
     });
+    // test case to check that the original value of the isAnonymous attribute is anon
     it('should update Visibility from none to anonymous', async () => {
         const newUid = await user.create({ username: 'newuser' });
         const postResult = await topics.post({ uid: newUid, cid: cid, title: 'Test Anonymity', content: 'This is a test for anonmoity.', isAnonymous: 'anonymous' });

@@ -178,6 +178,7 @@
 
                 // Replace 'unique_topic_id_here' with the actual topic ID
                 const tid = 'unique_topic_id_here'; // Replace with the actual topic ID
+                // sessionStorage 
                 localStorage.setItem(`topic:${tid}_resolved`, 'true');
                 updateButtonAppearance(tid); // Update the button appearance
 
