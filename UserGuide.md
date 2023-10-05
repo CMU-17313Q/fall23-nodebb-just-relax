@@ -7,7 +7,15 @@ This file provides a detailed outline of how to use and user test the new featur
 ### Anonymous Posts
 
 #### How to use & user test:
-- Rama
+1- When selecting "Write Questions," you will be prompted with two options: "Post Anonymously" and "Post Privately."
+
+2- After selecting "Post Anonymously," check the anonymity box before posting your question.
+
+3- Once posted, the author of the post will be displayed as "Anonymous," concealing your identity.
+
+4- Additionally, the profile link of the topic/post user will be disabled, ensuring that others cannot trace the post back to you.
+
+It's important to note that the owner of the post will still be the only one who can edit it.
 
 #### Automated tests:
 - We tested this feature by creating a new user and a new post within the test file and setting that post to anonymous using the isAnonymous attribute and checking if it is set to anonymous, since the default value is None. This is sufficient to check if the feature works because the only way to check whether a post is processed as an anonymous post is to check if the isAnonymous attribute is saved to the database.
