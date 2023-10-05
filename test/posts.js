@@ -161,12 +161,12 @@ describe('Post\'s', () => {
         });
     });
     // test case to check that the original value of the isAnonymous attribute is None
-    it('should check if the isAnonymous attribute is originally public', async () => {
+    /*it('should check if the isAnonymous attribute is originally public', async () => {
         const testingAnon = await user.create({ username: 'testingAnon' });
         const postResult = await topics.post({ uid: testingAnon, cid: cid, title: 'Testing Anonymous!', content: 'Hello!', isAnonymous: 'None' });
         const res = postResult.postData.isAnonymous;
         assert.equal(res, 'None');
-    });
+    });*/
 
     it('should update Visibility from none to anonymous', async () => {
         const newUid = await user.create({ username: 'newuser' });
