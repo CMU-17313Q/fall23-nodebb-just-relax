@@ -421,6 +421,16 @@ describe('Topic\'s', () => {
             });
         });
 
+        // test case for checking if an unresolved topic has the resolved attribute set to false
+        it('should get the resolve attribute of a post [thats not resolved]', (done) => {
+          topics.getTopicFields(newTopic.tid, ['isResolved'], (err, data) => {
+              assert.ifError(err);
+              assert(data.hasOwnProperty('isResolved'));
+              assert.strictEqual(data.isResolved, false);
+              done();
+          });
+        });
+
         describe('.getTopicWithPosts', () => {
             let tid;
             before(async () => {
