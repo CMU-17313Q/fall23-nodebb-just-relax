@@ -4,7 +4,7 @@
 // HW1 translation. It is *not* meant to be run.
 // You do not have to keep your original JavaScript file for this assignment
 
-'use strict';
+
 
 const _ = require('lodash');
 const plugins = require('./plugins');

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const url = require('node:url');
 const plugins = require('../plugins');

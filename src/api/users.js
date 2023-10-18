@@ -1,4 +1,4 @@
-'use strict';
+
 
 const validator = require('validator');
 const winston = require('winston');
@@ -389,7 +389,7 @@ usersAPI.search = async function (caller, data) {
     filters = Array.isArray(filters) ? filters : [filters];
     if (!allowed ||
         ((
-        	data.searchBy === 'ip' ||
+            data.searchBy === 'ip' ||
             data.searchBy === 'email' ||
             filters.includes('banned') ||
             filters.includes('flagged')

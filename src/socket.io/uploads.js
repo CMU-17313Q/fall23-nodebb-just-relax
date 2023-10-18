@@ -1,4 +1,4 @@
-'use strict';
+
 
 const image = require('../image');
 const meta = require('../meta');

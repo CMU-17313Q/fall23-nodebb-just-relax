@@ -1,4 +1,4 @@
-'use strict';
+
 
 const meta = require('../../meta');
 const user = require('../../user');
@@ -20,7 +20,7 @@ module.exports = function (SocketTopics) {
         ]);
         return isPrivileged ||
             (
-            	!systemTags.includes(data.tag) &&
+                !systemTags.includes(data.tag) &&
                 (tagInclude[0].length === 0 || tagInclude[0].includes(data.tag))
             );
     };

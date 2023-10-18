@@ -1,4 +1,4 @@
-'use strict';
+
 
 const qs = require('node:querystring');
 const validator = require('validator');
@@ -23,6 +23,7 @@ categoryController.get = async function (request, res, next) {
     const cid = request.params.category_id;
 
     let currentPage = Number.parseInt(request.query.page, 10) || 1;
+    /* eslint-disable-next-line max-len */
     let topicIndex = utils.isNumber(request.params.topic_index) ? Number.parseInt(request.params.topic_index, 10) - 1 : 0;
     if ((request.params.topic_index && !utils.isNumber(request.params.topic_index)) || !utils.isNumber(cid)) {
         return next();

@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 
-'use strict';
+
 
 const fs = require('fs');
 const path = require('path');

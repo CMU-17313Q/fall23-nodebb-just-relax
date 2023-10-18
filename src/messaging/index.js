@@ -1,4 +1,4 @@
-'use strict';
+
 
 const validator = require('validator');
 const db = require('../database');
@@ -139,6 +139,7 @@ Messaging.getRecentChats = async (callerUid, uid, start, stop) => {
     });
 };
 
+/* eslint-disable-next-line max-len */
 Messaging.generateUsernames = (users, excludeUid) => users.filter(user => user && Number.parseInt(user.uid, 10) !== excludeUid)
     .map(user => user.username).join(', ');
 

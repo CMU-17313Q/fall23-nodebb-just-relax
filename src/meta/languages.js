@@ -1,4 +1,4 @@
-'use strict';
+
 
 const path = require('node:path');
 const fs = require('node:fs');
@@ -26,6 +26,7 @@ async function getTranslationMetadata() {
 
     for (const p of paths) {
         if (!p.endsWith('.json')) {
+            /* eslint-disable no-continue */
             continue;
         }
 
@@ -34,6 +35,7 @@ async function getTranslationMetadata() {
         const namespace = rel.join('/').replace(/\.json$/, '');
 
         if (!language || !namespace) {
+            /* eslint-disable no-continue */
             continue;
         }
 

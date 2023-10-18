@@ -1,7 +1,6 @@
-'use strict';
+
 
 const nconf = require('nconf');
-const _ = require('lodash');
 const categories = require('../categories');
 const meta = require('../meta');
 const pagination = require('../pagination');

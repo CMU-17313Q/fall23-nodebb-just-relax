@@ -1,4 +1,4 @@
-'use strict';
+
 
 const groups = require('../groups');
 const user = require('../user');

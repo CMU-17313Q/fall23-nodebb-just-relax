@@ -42,6 +42,9 @@ function find_compiled_js() {
     }
     
     module.exports = {
+        parserOptions: {
+            sourceType: "module",
+        },
         extends: ["nodebb"],
         root: true,
         ignorePatterns: find_compiled_js(),

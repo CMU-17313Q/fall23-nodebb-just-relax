@@ -1,49 +1,49 @@
-'use strict';
+
 
 const meta = require('./meta');
 const pubsub = require('./pubsub');
 
 function expandObjectBy(object1, object2) {
-	let changed = false;
-	if (!object1 || !object2) {
-		return changed;
-	}
+    let changed = false;
+    if (!object1 || !object2) {
+        return changed;
+    }
 
-	for (const [key, value2] of Object.entries(object2)) {
-		const value1 = object1[key];
-		const xorIsArray = Array.isArray(value1) !== Array.isArray(value2);
-		if (xorIsArray || !object1.hasOwnProperty(key) || typeof value2 !== typeof value1) {
-			object1[key] = value2;
-			changed = true;
-		} else if (typeof value2 === 'object' && !Array.isArray(value2) && expandObjectBy(value1, value2)) {
-			changed = true;
-		}
-	}
+    for (const [key, value2] of Object.entries(object2)) {
+        const value1 = object1[key];
+        const xorIsArray = Array.isArray(value1) !== Array.isArray(value2);
+        if (xorIsArray || !object1.hasOwnProperty(key) || typeof value2 !== typeof value1) {
+            object1[key] = value2;
+            changed = true;
+        } else if (typeof value2 === 'object' && !Array.isArray(value2) && expandObjectBy(value1, value2)) {
+            changed = true;
+        }
+    }
 
-	return changed;
+    return changed;
 }
 
 function trim(object1, object2) {
-	for (const [key, value1] of Object.entries(object1)) {
-		if (!object2.hasOwnProperty(key)) {
-			delete object1[key];
-		} else if (typeof value1 === 'object' && !Array.isArray(value1)) {
-			trim(value1, object2[key]);
-		}
-	}
+    for (const [key, value1] of Object.entries(object1)) {
+        if (!object2.hasOwnProperty(key)) {
+            delete object1[key];
+        } else if (typeof value1 === 'object' && !Array.isArray(value1)) {
+            trim(value1, object2[key]);
+        }
+    }
 }
 
 function mergeSettings(cfg, defCfg) {
-	if (typeof defCfg !== 'object') {
-		return;
-	}
+    if (typeof defCfg !== 'object') {
+        return;
+    }
 
-	if (typeof cfg._ === 'object') {
-		expandObjectBy(cfg._, defCfg);
-		trim(cfg._, defCfg);
-	} else {
-		cfg._ = defCfg;
-	}
+    if (typeof cfg._ === 'object') {
+        expandObjectBy(cfg._, defCfg);
+        trim(cfg._, defCfg);
+    } else {
+        cfg._ = defCfg;
+    }
 }
 
 /**
@@ -58,24 +58,24 @@ function mergeSettings(cfg, defCfg) {
  @param reset Whether to reset the settings.
  */
 function Settings(hash, version, defCfg, callback, forceUpdate, reset) {
-	this.hash = hash;
-	this.version = version || this.version;
-	this.defCfg = defCfg;
-	const self = this;
+    this.hash = hash;
+    this.version = version || this.version;
+    this.defCfg = defCfg;
+    const self = this;
 
-	if (reset) {
-		this.reset(callback);
-	} else {
-		this.sync(function () {
-			this.checkStructure(callback, forceUpdate);
-		});
-	}
+    if (reset) {
+        this.reset(callback);
+    } else {
+        this.sync(function () {
+            this.checkStructure(callback, forceUpdate);
+        });
+    }
 
-	pubsub.on(`action:settings.set.${hash}`, data => {
-		try {
-			self.cfg._ = JSON.parse(data._);
-		} catch {}
-	});
+    pubsub.on(`action:settings.set.${hash}`, (data) => {
+        try {
+            self.cfg._ = JSON.parse(data._);
+        } catch (error) {}
+    });
 }
 
 Settings.prototype.hash = '';
@@ -88,24 +88,24 @@ Settings.prototype.version = '0.0.0';
  @param callback Gets called when done.
  */
 Settings.prototype.sync = function (callback) {
-	const _this = this;
-	meta.settings.get(this.hash, (error, settings) => {
-		try {
-			if (settings._) {
-				settings._ = JSON.parse(settings._);
-			}
-		} catch {}
+    const _this = this;
+    meta.settings.get(this.hash, (error, settings) => {
+        try {
+            if (settings._) {
+                settings._ = JSON.parse(settings._);
+            }
+        } catch (error) {}
 
-		_this.cfg = settings;
-		if (typeof _this.cfg._ !== 'object') {
-			_this.cfg._ = _this.defCfg;
-			_this.persist(callback);
-		} else if (expandObjectBy(_this.cfg._, _this.defCfg)) {
-			_this.persist(callback);
-		} else if (typeof callback === 'function') {
-			callback.apply(_this, error);
-		}
-	});
+        _this.cfg = settings;
+        if (typeof _this.cfg._ !== 'object') {
+            _this.cfg._ = _this.defCfg;
+            _this.persist(callback);
+        } else if (expandObjectBy(_this.cfg._, _this.defCfg)) {
+            _this.persist(callback);
+        } else if (typeof callback === 'function') {
+            callback.apply(_this, error);
+        }
+    });
 };
 
 /**
@@ -113,18 +113,18 @@ Settings.prototype.sync = function (callback) {
  @param callback Gets called when done.
  */
 Settings.prototype.persist = function (callback) {
-	let conf = this.cfg._;
-	const _this = this;
-	if (typeof conf === 'object') {
-		conf = JSON.stringify(conf);
-	}
+    let conf = this.cfg._;
+    const _this = this;
+    if (typeof conf === 'object') {
+        conf = JSON.stringify(conf);
+    }
 
-	meta.settings.set(this.hash, this.createWrapper(this.cfg.v, conf), (...args) => {
-		if (typeof callback === 'function') {
-			callback.apply(_this, args || []);
-		}
-	});
-	return this;
+    meta.settings.set(this.hash, this.createWrapper(this.cfg.v, conf), (...args) => {
+        if (typeof callback === 'function') {
+            callback.apply(_this, args || []);
+        }
+    });
+    return this;
 };
 
 /**
@@ -134,31 +134,31 @@ Settings.prototype.persist = function (callback) {
  @returns Object The setting to be used.
  */
 Settings.prototype.get = function (key, def) {
-	let object = this.cfg._;
-	const parts = (key || '').split('.');
-	let part;
-	for (const part_ of parts) {
-		part = part_;
-		if (part && object != null) {
-			object = object[part];
-		}
-	}
+    let object = this.cfg._;
+    const parts = (key || '').split('.');
+    let part;
+    for (const part_ of parts) {
+        part = part_;
+        if (part && object != null) {
+            object = object[part];
+        }
+    }
 
-	if (object === undefined) {
-		if (def === undefined) {
-			def = this.defCfg;
-			for (const part_ of parts) {
-				part = part_;
-				if (part && def != null) {
-					def = def[part];
-				}
-			}
-		}
+    if (object === undefined) {
+        if (def === undefined) {
+            def = this.defCfg;
+            for (const part_ of parts) {
+                part = part_;
+                if (part && def != null) {
+                    def = def[part];
+                }
+            }
+        }
 
-		return def;
-	}
+        return def;
+    }
 
-	return object;
+    return object;
 };
 
 /**
@@ -166,7 +166,7 @@ Settings.prototype.get = function (key, def) {
  @returns Object The settings-wrapper.
  */
 Settings.prototype.getWrapper = function () {
-	return this.cfg;
+    return this.cfg;
 };
 
 /**
@@ -174,10 +174,10 @@ Settings.prototype.getWrapper = function () {
  @returns Object The new settings-wrapper.
  */
 Settings.prototype.createWrapper = function (version, settings) {
-	return {
-		v: version,
-		_: settings,
-	};
+    return {
+        v: version,
+        _: settings,
+    };
 };
 
 /**
@@ -185,7 +185,7 @@ Settings.prototype.createWrapper = function (version, settings) {
  @returns Object The new settings-wrapper.
  */
 Settings.prototype.createDefaultWrapper = function () {
-	return this.createWrapper(this.version, this.defCfg);
+    return this.createWrapper(this.version, this.defCfg);
 };
 
 /**
@@ -194,30 +194,30 @@ Settings.prototype.createDefaultWrapper = function () {
  @param val The value to set.
  */
 Settings.prototype.set = function (key, value) {
-	let part;
-	let object;
-	let parts;
-	this.cfg.v = this.version;
-	if (value == null || !key) {
-		this.cfg._ = value || key;
-	} else {
-		object = this.cfg._;
-		parts = key.split('.');
-		for (let i = 0, _length = parts.length - 1; i < _length; i += 1) {
-			part = parts[i];
-			if (part) {
-				if (!object.hasOwnProperty(part)) {
-					object[part] = {};
-				}
+    let part;
+    let object;
+    let parts;
+    this.cfg.v = this.version;
+    if (value == null || !key) {
+        this.cfg._ = value || key;
+    } else {
+        object = this.cfg._;
+        parts = key.split('.');
+        for (let i = 0, _length = parts.length - 1; i < _length; i += 1) {
+            part = parts[i];
+            if (part) {
+                if (!object.hasOwnProperty(part)) {
+                    object[part] = {};
+                }
 
-				object = object[part];
-			}
-		}
+                object = object[part];
+            }
+        }
 
-		object[parts.at(-1)] = value;
-	}
+        object[parts.at(-1)] = value;
+    }
 
-	return this;
+    return this;
 };
 
 /**
@@ -225,8 +225,8 @@ Settings.prototype.set = function (key, value) {
  @param callback Gets called when done.
  */
 Settings.prototype.reset = function (callback) {
-	this.set(this.defCfg).persist(callback);
-	return this;
+    this.set(this.defCfg).persist(callback);
+    return this;
 };
 
 /**
@@ -235,17 +235,17 @@ Settings.prototype.reset = function (callback) {
  @param force Whether to update and persist the settings even if the versions ara equal.
  */
 Settings.prototype.checkStructure = function (callback, force) {
-	if (!force && this.cfg.v === this.version) {
-		if (typeof callback === 'function') {
-			callback();
-		}
-	} else {
-		mergeSettings(this.cfg, this.defCfg);
-		this.cfg.v = this.version;
-		this.persist(callback);
-	}
+    if (!force && this.cfg.v === this.version) {
+        if (typeof callback === 'function') {
+            callback();
+        }
+    } else {
+        mergeSettings(this.cfg, this.defCfg);
+        this.cfg.v = this.version;
+        this.persist(callback);
+    }
 
-	return this;
+    return this;
 };
 
 module.exports = Settings;

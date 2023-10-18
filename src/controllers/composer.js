@@ -11,7 +11,8 @@ const user_1 = __importDefault(require("../user"));
 const plugins_1 = __importDefault(require("../plugins"));
 const topics_1 = __importDefault(require("../topics"));
 const posts_1 = __importDefault(require("../posts"));
-const helpers_js_1 = __importDefault(require("./helpers.js"));
+const helpers_1 = __importDefault(require("./helpers"));
+/* eslint-disable-next-line max-len */
 async function get(request, res, callback) {
     res.locals.metaTags = Object.assign(Object.assign({}, res.locals.metaTags), { name: 'robots', content: 'noindex' });
     const data = await plugins_1.default.hooks.fire('filter:composer.build', {
@@ -38,6 +39,7 @@ async function get(request, res, callback) {
     }
 }
 exports.get = get;
+/* eslint-disable-next-line max-len */
 async function post(request, res) {
     const { body } = request;
     const data = {
@@ -49,7 +51,7 @@ async function post(request, res) {
     };
     request.body.noscript = 'true';
     if (!data.content) {
-        return await helpers_js_1.default.noScriptErrors(request, res, '[[error:invalid-data]]', 400);
+        return await helpers_1.default.noScriptErrors(request, res, '[[error:invalid-data]]', 400);
     }
     async function queueOrPost(postFn, data) {
         // The next line calls a function in a module that has not been updated to TS yet
@@ -92,7 +94,7 @@ async function post(request, res) {
     }
     catch (error) {
         if (error instanceof Error) {
-            await helpers_js_1.default.noScriptErrors(request, res, error.message, 400);
+            await helpers_1.default.noScriptErrors(request, res, error.message, 400);
         }
     }
 }

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const util = require('node:util');
 const nconf = require('nconf');

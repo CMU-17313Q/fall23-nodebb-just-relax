@@ -1,4 +1,4 @@
-'use strict';
+
 
 const querystring = require('node:querystring');
 const posts = require('../posts');

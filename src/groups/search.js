@@ -1,4 +1,4 @@
-'use strict';
+
 
 const user = require('../user');
 const db = require('../database');
@@ -21,6 +21,7 @@ module.exports = function (Groups) {
         groupNames = groupNames.slice(0, 100);
 
         let groupsData;
+        /* eslint-disable-next-line max-len */
         groupsData = await (options.showMembers ? Groups.getGroupsAndMembers(groupNames) : Groups.getGroupsData(groupNames));
 
         groupsData = groupsData.filter(Boolean);

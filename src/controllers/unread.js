@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const querystring = require('node:querystring');
 const nconf = require('nconf');

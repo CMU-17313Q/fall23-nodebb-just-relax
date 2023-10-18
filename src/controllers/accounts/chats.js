@@ -1,4 +1,4 @@
-'use strict';
+
 
 const messaging = require('../../messaging');
 const meta = require('../../meta');

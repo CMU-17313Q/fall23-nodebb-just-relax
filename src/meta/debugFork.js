@@ -1,4 +1,4 @@
-'use strict';
+
 
 const { fork } = require('node:child_process');
 

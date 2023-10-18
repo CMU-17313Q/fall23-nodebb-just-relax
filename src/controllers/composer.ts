@@ -8,7 +8,7 @@ import user from '../user';
 import plugins from '../plugins';
 import topics from '../topics';
 import posts from '../posts';
-import helpers from './helpers.js';
+import helpers from './helpers';
 
 type ComposerBuildData = {
 	templateData: TemplateData;
@@ -23,6 +23,7 @@ type Locals = {
 	metaTags: Record<string, string>;
 };
 
+/* eslint-disable-next-line max-len */
 export async function get(request: Request, res: Response<Record<string, unknown>, Locals>, callback: NextFunction): Promise<void> {
     res.locals.metaTags = {
         ...res.locals.metaTags,
@@ -78,6 +79,7 @@ type QueueResult = {
 
 type PostFnType = (data: ComposerData) => Promise<QueueResult>;
 
+/* eslint-disable-next-line max-len */
 export async function post(request: Request<Record<string, unknown>, Record<string, unknown>, ComposerData> & {uid: number}, res: Response): Promise<void> {
     const { body } = request;
     const data: ComposerData = {

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const util = require('node:util');
 const { EventEmitter } = require('node:events');

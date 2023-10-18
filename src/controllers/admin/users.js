@@ -1,4 +1,4 @@
-'use strict';
+
 
 const validator = require('validator');
 const user = require('../../user');
@@ -42,6 +42,7 @@ async function getUsers(request, res) {
     }
 
     let sortBy = validator.escape(request.query.sortBy || '');
+    /* eslint-disable-next-line max-len */
     const filterBy = Array.isArray(request.query.filters || []) ? (request.query.filters || []) : [request.query.filters];
     const start = Math.max(0, page - 1) * resultsPerPage;
     const stop = start + resultsPerPage - 1;
@@ -259,12 +260,14 @@ async function render(request, res, data) {
         data[`searchBy_${validator.escape(String(request.query.searchBy))}`] = true;
     }
 
+    /* eslint-disable-next-line max-len */
     const filterBy = Array.isArray(request.query.filters || []) ? (request.query.filters || []) : [request.query.filters];
     for (const filter of filterBy) {
         data[`filterBy_${validator.escape(String(filter))}`] = true;
     }
 
     data.userCount = Number.parseInt(await db.getObjectField('global', 'userCount'), 10);
+    /* eslint-disable-next-line max-len */
     data.showInviteButton = await (data.adminInviteOnly ? privileges.users.isAdministrator(request.uid) : privileges.users.hasInvitePrivilege(request.uid));
 
     res.render('admin/manage/users', data);

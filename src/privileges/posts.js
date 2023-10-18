@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const _ = require('lodash');
 const meta = require('../meta');
@@ -101,8 +101,8 @@ privsPosts.filter = async function (privilege, pids, uid) {
         post.topic &&
         cidsSet.has(post.topic.cid) &&
         (privsTopics.canViewDeletedScheduled({
-        	deleted: post.topic.deleted || post.deleted,
-        	scheduled: post.topic.scheduled,
+            deleted: post.topic.deleted || post.deleted,
+            scheduled: post.topic.scheduled,
         }, {}, canViewDeleted[post.topic.cid], canViewScheduled[post.topic.cid]) || results.isAdmin)
     )).map(post => post.pid);
 
@@ -152,6 +152,7 @@ privsPosts.canEdit = async function (pid, uid) {
         return { flag: false, message: '[[error:topic-locked]]' };
     }
 
+    /* eslint-disable-next-line max-len */
     if (!results.isMod && results.postData.deleted && Number.parseInt(uid, 10) !== Number.parseInt(results.postData.deleterUid, 10)) {
         return { flag: false, message: '[[error:post-deleted]]' };
     }

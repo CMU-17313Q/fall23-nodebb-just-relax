@@ -1,4 +1,4 @@
-'use strict';
+
 
 const path = require('node:path');
 const util = require('node:util');

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const os = require('node:os');
 const util = require('node:util');

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const crypto = require('node:crypto');
 const nconf = require('nconf');

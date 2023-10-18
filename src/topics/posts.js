@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const _ = require('lodash');
 const validator = require('validator');
@@ -183,6 +183,7 @@ module.exports = function (Topics) {
                 post.display_post_menu = topicPrivileges.isAdminOrMod ||
                     (post.selfPost &&
                         ((!topicData.locked && !post.deleted) ||
+                            /* eslint-disable-next-line max-len */
                             (post.deleted && Number.parseInt(post.deleterUid, 10) === Number.parseInt(topicPrivileges.uid, 10)))) ||
                     ((loggedIn || topicData.postSharing.length) && !post.deleted);
                 post.ip = topicPrivileges.isAdminOrMod ? post.ip : undefined;

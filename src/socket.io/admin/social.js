@@ -1,4 +1,4 @@
-'use strict';
+
 
 const social = require('../../social');
 

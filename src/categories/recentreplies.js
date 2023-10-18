@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const winston = require('winston');
 const _ = require('lodash');
@@ -154,6 +154,7 @@ module.exports = function (Categories) {
         for (const category of categoryData) {
             if (category) {
                 if (category.posts.length > 0) {
+                    /* eslint-disable no-continue */
                     continue;
                 }
 

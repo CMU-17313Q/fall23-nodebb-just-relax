@@ -1,10 +1,9 @@
-'use strict';
+
 
 const path = require('node:path');
 const fs = require('node:fs');
 const nconf = require('nconf');
 const winston = require('winston');
-const _ = require('lodash');
 const file = require('../file');
 const events = require('../events');
 const utils = require('../utils');

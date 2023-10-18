@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const fs = require('node:fs');
 const util = require('node:util');

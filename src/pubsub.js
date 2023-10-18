@@ -1,4 +1,4 @@
-'use strict';
+
 
 const EventEmitter = require('node:events');
 const nconf = require('nconf');

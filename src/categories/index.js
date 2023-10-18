@@ -1,5 +1,5 @@
 
-'use strict';
+
 
 const _ = require('lodash');
 const db = require('../database');
@@ -334,6 +334,7 @@ Categories.getTree = function (categories, parentCid) {
         if (category) {
             category.children = category.children || [];
             if (!category.cid) {
+                /* eslint-disable no-continue */
                 continue;
             }
 

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function (module) {
     const helpers = require('../helpers');
@@ -49,6 +49,7 @@ module.exports = function (module) {
 
         const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
         for (const [i, score] of scores.entries()) {
+            /* eslint-disable-next-line max-len */
             bulk.find({ _key: key, value: values[i] }).upsert().updateOne({ $set: { score: Number.parseFloat(score) } });
         }
 

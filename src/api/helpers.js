@@ -1,4 +1,4 @@
-'use strict';
+
 
 const url = require('node:url');
 const user = require('../user');

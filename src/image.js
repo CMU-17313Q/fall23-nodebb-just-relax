@@ -1,4 +1,4 @@
-'use strict';
+
 
 const os = require('node:os');
 const fs = require('node:fs');

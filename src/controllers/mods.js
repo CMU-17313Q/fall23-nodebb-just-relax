@@ -1,4 +1,4 @@
-'use strict';
+
 
 const user = require('../user');
 const posts = require('../posts');

@@ -1,4 +1,4 @@
-'use strict';
+
 
 /**
  * Database Mock - wrapper for database.js, makes system use separate test db, instead of production
