@@ -132,6 +132,7 @@ define('admin/manage/category', [
                             className: 'btn-primary',
                             callback() {
                                 if (!selectedCid ||
+                                    /* eslint-disable-next-line max-len */
                                     Number.parseInt(selectedCid, 10) === Number.parseInt(ajaxify.data.category.cid, 10)) {
                                     return;
                                 }
@@ -276,6 +277,7 @@ define('admin/manage/category', [
             trimValue: true,
         });
 
+        /* eslint-disable no-restricted-syntax */
         for (const tag of ajaxify.data.category.tagWhitelist) {
             tagElement.tagsinput('add', tag);
         }

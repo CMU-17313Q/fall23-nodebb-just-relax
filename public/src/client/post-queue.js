@@ -179,6 +179,7 @@ define('forum/post-queue', [
                     ajaxify.refresh();
                 }
 
+                /* eslint-disable no-restricted-syntax */
                 for (const res of errors) {
                     alerts.error(res.reason);
                 }

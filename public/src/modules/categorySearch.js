@@ -38,6 +38,7 @@ define('categorySearch', ['alerts'], (alerts) => {
                         renderList(categories);
                     });
                 } else if (!value && categoriesList) {
+                    /* eslint-disable no-restricted-syntax */
                     for (const c of categoriesList) {
                         c.selected = options.selectedCids.includes(c.cid);
                     }

@@ -62,6 +62,7 @@ define('forum/header/unread', () => {
 
         $(window).on('action:ajaxify.end', () => {
             if (ajaxify.data.template.topic) {
+                /* eslint-disable no-restricted-syntax */
                 for (const filter of ['', 'new', 'watched', 'unreplied']) {
                     delete unreadTopics[filter][ajaxify.data.tid];
                 }

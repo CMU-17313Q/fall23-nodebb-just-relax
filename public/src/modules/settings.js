@@ -126,6 +126,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
                 return array;
             }
 
+            /* eslint-disable no-restricted-syntax */
             for (let value of array) {
                 if (trim) {
                     if (value === Boolean(value)) {
@@ -233,6 +234,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
                     hook.call(Settings, field);
                 }
 
+                /* eslint-disable no-restricted-syntax */
                 for (const part of keyParts) {
                     if (part && value != null) {
                         value = value[part];
@@ -263,6 +265,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
             if (waitingJobs > 0) {
                 waitingJobs -= amount;
                 if (waitingJobs <= 0) {
+                    /* eslint-disable no-restricted-syntax */
                     for (const element of onReady) {
                         element();
                     }
@@ -386,6 +389,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
                 service.use.call(Settings);
             }
 
+            /* eslint-disable no-restricted-syntax */
             for (const type_ of types) {
                 const type = type_.toLowerCase();
                 if (Settings.plugins[type] == null) {
@@ -451,6 +455,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
                 notify = true;
             }
 
+            /* eslint-disable no-restricted-syntax */
             for (const field_ of fields) {
                 const field = $(field_);
                 const value = helper.readValue(field);
@@ -627,6 +632,7 @@ define('settings', ['hooks', 'alerts'], (hooks, alerts) => {
         'settings/object',
         'settings/sorted-list',
     ], function () {
+        /* eslint-disable no-restricted-syntax */
         for (const argument of arguments) {
             Settings.registerPlugin(argument);
         }

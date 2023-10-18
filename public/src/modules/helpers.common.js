@@ -112,6 +112,7 @@ module.exports = function (utils, Benchpress, relative_path) {
             return html;
         }
 
+        /* eslint-disable no-restricted-syntax */
         for (const child of category.children) {
             if (child && !child.isSection) {
                 const link = child.link ? child.link : (relative_path + '/category/' + child.slug);
@@ -379,6 +380,7 @@ module.exports = function (utils, Benchpress, relative_path) {
     }
 
     function register() {
+        /* eslint-disable no-restricted-syntax */
         for (const helperName of Object.keys(helpers)) {
             Benchpress.registerHelper(helperName, helpers[helperName]);
         }

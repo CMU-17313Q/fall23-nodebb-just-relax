@@ -31,6 +31,7 @@ define('forum/chats/search', ['components', 'api', 'alerts'], (components, api, 
             return chatsListElement.translateHtml('<li><div><span>[[users:no-users-found]]</span></div></li>');
         }
 
+        /* eslint-disable no-restricted-syntax */
         for (const userObject of data.users) {
             const chatElement = displayUser(chatsListElement, userObject);
             onUserClick(chatElement, userObject);

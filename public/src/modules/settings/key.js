@@ -166,6 +166,7 @@ define('settings/key', () => {
         const key = new Key();
         const sep = /([^CtrlAShifMea#\d]+)[#\d]/.exec(string_);
         const parts = sep == null ? [string_] : string_.split(sep[1]);
+        /* eslint-disable no-restricted-syntax */
         for (const part of parts) {
             switch (part) {
             case 'C':

@@ -118,6 +118,7 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
                     return quickSearchResults.addClass('hidden').find('.quick-search-results-container').html('');
                 }
 
+                /* eslint-disable no-restricted-syntax */
                 for (const p of data.posts) {
                     const text = $('<div>' + p.content + '</div>').text();
                     const query = inputEl.val().toLowerCase().replace(/^in:topic-\d+/, '');
@@ -333,6 +334,7 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
 
             result.html(result.html().replace(regex, (match, p1) => '<strong class="search-match">' + p1 + '</strong>'));
 
+            /* eslint-disable no-restricted-syntax */
             for (const [i, nestedElement] of nested.entries()) {
                 result.html(result.html().replace('<!-- ' + i + ' -->', () => nestedElement.html()));
             }

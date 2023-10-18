@@ -164,6 +164,7 @@ define('admin/extend/plugins', [
             });
 
             const tabEls = document.querySelectorAll('.plugins .tab-pane');
+            /* eslint-disable no-restricted-syntax */
             for (const tabElement of tabEls) {
                 const remaining = tabElement.querySelectorAll('li:not(.hide)').length;
                 const noticeElement = tabElement.querySelector('.no-plugins');
@@ -191,6 +192,7 @@ define('admin/extend/plugins', [
                 }
 
                 let html = '';
+                /* eslint-disable no-restricted-syntax */
                 for (const plugin of activePlugins) {
                     html += '<li class="">' + plugin + '<span class="pull-right"><i class="fa fa-chevron-up"></i><i class="fa fa-chevron-down"></i></span></li>';
                 }

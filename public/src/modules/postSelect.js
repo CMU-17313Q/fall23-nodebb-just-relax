@@ -29,6 +29,7 @@ define('postSelect', ['components'], (components) => {
     }
 
     PostSelect.disable = function () {
+        /* eslint-disable no-restricted-syntax */
         for (const pid of PostSelect.pids) {
             components.get('post', 'pid', pid).toggleClass('bg-success', false);
         }

@@ -67,6 +67,7 @@ define('uploadHelpers', ['alerts'], (alerts) => {
                 let formData;
                 if (window.FormData) {
                     formData = new FormData();
+                    /* eslint-disable no-restricted-syntax */
                     for (const file of files) {
                         formData.append('files[]', file, file.name);
                     }
@@ -138,6 +139,7 @@ define('uploadHelpers', ['alerts'], (alerts) => {
     uploadHelpers.ajaxSubmit = function (options) {
         const files = [...options.upload.files];
 
+        /* eslint-disable no-restricted-syntax */
         for (const file of files) {
             const isImage = file.type.match(/image./);
             if ((isImage && !app.user.privileges['upload:post:image']) || (!isImage && !app.user.privileges['upload:post:file'])) {
@@ -182,6 +184,7 @@ define('uploadHelpers', ['alerts'], (alerts) => {
                 success(res) {
                     const uploads = res.response.images;
                     if (uploads && uploads.length > 0) {
+                        /* eslint-disable no-restricted-syntax */
                         for (const [i, upload] of uploads.entries()) {
                             upload.filename = files[i].name;
                             upload.isImage = /image./.test(files[i].type);

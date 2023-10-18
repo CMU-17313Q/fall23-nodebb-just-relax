@@ -190,6 +190,7 @@ define('forum/topic/events', [
         const isDeleted = postElement.hasClass('deleted');
         postTools.toggle(data.pid, isDeleted);
 
+        /* eslint-disable-next-line max-len */
         if (!ajaxify.data.privileges.isAdminOrMod && Number.parseInt(data.uid, 10) !== Number.parseInt(app.user.uid, 10)) {
             postElement.find('[component="post/tools"]').toggleClass('hidden', isDeleted);
             if (isDeleted) {

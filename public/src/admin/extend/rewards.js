@@ -89,11 +89,13 @@ define('admin/extend/rewards', ['alerts'], (alerts) => {
             return alerts.error('[[admin/extend/rewards:alert.no-inputs-found]] ' + element.attr('data-selected'));
         }
 
+        /* eslint-disable no-restricted-syntax */
         for (const input of inputs) {
             html += '<label for="' + input.name + '">' + input.label + '<br />';
             switch (input.type) {
             case 'select': {
                 html += '<select class="form-control" name="' + input.name + '">';
+                /* eslint-disable no-restricted-syntax */
                 for (const value of input.values) {
                     html += '<option value="' + value.value + '">' + value.name + '</option>';
                 }
@@ -156,10 +158,12 @@ define('admin/extend/rewards', ['alerts'], (alerts) => {
             const main = $(this).find('form.main').serializeArray();
             const rewards = $(this).find('form.rewards').serializeArray();
 
+            /* eslint-disable no-restricted-syntax */
             for (const object of main) {
                 data[object.name] = object.value;
             }
 
+            /* eslint-disable no-restricted-syntax */
             for (const object of rewards) {
                 data.rewards[object.name] = object.value;
             }

@@ -1,177 +1,178 @@
 'use strict';
 
 define('forum/topic/move-post', [
-	'components', 'postSelect', 'translator', 'alerts', 'api',
+    'components', 'postSelect', 'translator', 'alerts', 'api',
 ], (components, postSelect, translator, alerts, api) => {
-	const MovePost = {};
+    const MovePost = {};
 
-	let moveModal;
-	let moveCommit;
-	let fromTid;
+    let moveModal;
+    let moveCommit;
+    let fromTid;
 
-	MovePost.init = function (postElement) {
-		if (moveModal) {
-			return;
-		}
+    MovePost.init = function (postElement) {
+        if (moveModal) {
+            return;
+        }
 
-		fromTid = ajaxify.data.tid;
-		app.parseAndTranslate('modals/move-post', {}, html => {
-			moveModal = html;
+        fromTid = ajaxify.data.tid;
+        app.parseAndTranslate('modals/move-post', {}, (html) => {
+            moveModal = html;
 
-			moveCommit = moveModal.find('#move_posts_confirm');
+            moveCommit = moveModal.find('#move_posts_confirm');
 
-			$('body').append(moveModal);
+            $('body').append(moveModal);
 
-			moveModal.find('.close,#move_posts_cancel').on('click', closeMoveModal);
-			moveModal.find('#topicId').on('keyup', utils.debounce(checkMoveButtonEnable, 200));
-			postSelect.init(onPostToggled);
-			showPostsSelected();
+            moveModal.find('.close,#move_posts_cancel').on('click', closeMoveModal);
+            moveModal.find('#topicId').on('keyup', utils.debounce(checkMoveButtonEnable, 200));
+            postSelect.init(onPostToggled);
+            showPostsSelected();
 
-			if (postElement) {
-				postSelect.togglePostSelection(postElement, postElement.attr('data-pid'));
-			}
+            if (postElement) {
+                postSelect.togglePostSelection(postElement, postElement.attr('data-pid'));
+            }
 
-			$(window).off('action:ajaxify.end', onAjaxifyEnd)
-				.on('action:ajaxify.end', onAjaxifyEnd);
+            $(window).off('action:ajaxify.end', onAjaxifyEnd)
+                .on('action:ajaxify.end', onAjaxifyEnd);
 
-			moveCommit.on('click', () => {
-				const targetTid = getTargetTid();
-				if (!targetTid) {
-					return;
-				}
+            moveCommit.on('click', () => {
+                const targetTid = getTargetTid();
+                if (!targetTid) {
+                    return;
+                }
 
-				moveCommit.attr('disabled', true);
-				const data = {
-					pids: [...postSelect.pids],
-					tid: targetTid,
-				};
-				if (config.undoTimeout > 0) {
-					return alerts.alert({
-						alert_id: 'pids_move_' + postSelect.pids.join('-'),
-						title: '[[topic:thread_tools.move-posts]]',
-						message: '[[topic:topic_move_posts_success]]',
-						type: 'success',
-						timeout: 10_000,
-						timeoutfn() {
-							movePosts(data);
-						},
-						clickfn(alert, parameters) {
-							delete parameters.timeoutfn;
-							alerts.success('[[topic:topic_move_posts_undone]]');
-							moveCommit.removeAttr('disabled');
-						},
-					});
-				}
+                moveCommit.attr('disabled', true);
+                const data = {
+                    pids: [...postSelect.pids],
+                    tid: targetTid,
+                };
+                if (config.undoTimeout > 0) {
+                    return alerts.alert({
+                        alert_id: 'pids_move_' + postSelect.pids.join('-'),
+                        title: '[[topic:thread_tools.move-posts]]',
+                        message: '[[topic:topic_move_posts_success]]',
+                        type: 'success',
+                        timeout: 10000,
+                        timeoutfn() {
+                            movePosts(data);
+                        },
+                        clickfn(alert, parameters) {
+                            delete parameters.timeoutfn;
+                            alerts.success('[[topic:topic_move_posts_undone]]');
+                            moveCommit.removeAttr('disabled');
+                        },
+                    });
+                }
 
-				movePosts(data);
-			});
-		});
-	};
+                movePosts(data);
+            });
+        });
+    };
 
-	function onAjaxifyEnd() {
-		if (!moveModal) {
-			return;
-		}
+    function onAjaxifyEnd() {
+        if (!moveModal) {
+            return;
+        }
 
-		const tidInput = moveModal.find('#topicId');
-		let targetTid = null;
-		if (ajaxify.data.template.topic && ajaxify.data.tid
-            && Number.parseInt(ajaxify.data.tid, 10) !== fromTid
-		) {
-			targetTid = ajaxify.data.tid;
-		}
+        const tidInput = moveModal.find('#topicId');
+        let targetTid = null;
+        if (ajaxify.data.template.topic && ajaxify.data.tid &&
+            Number.parseInt(ajaxify.data.tid, 10) !== fromTid
+        ) {
+            targetTid = ajaxify.data.tid;
+        }
 
-		if (targetTid && !tidInput.val()) {
-			tidInput.val(targetTid);
-		}
+        if (targetTid && !tidInput.val()) {
+            tidInput.val(targetTid);
+        }
 
-		checkMoveButtonEnable();
-	}
+        checkMoveButtonEnable();
+    }
 
-	function getTargetTid() {
-		const tidInput = moveModal.find('#topicId');
-		if (tidInput.length > 0 && tidInput.val()) {
-			return tidInput.val();
-		}
+    function getTargetTid() {
+        const tidInput = moveModal.find('#topicId');
+        if (tidInput.length > 0 && tidInput.val()) {
+            return tidInput.val();
+        }
 
-		return ajaxify.data.template.topic && ajaxify.data.tid;
-	}
+        return ajaxify.data.template.topic && ajaxify.data.tid;
+    }
 
-	function showPostsSelected() {
-		if (!moveModal) {
-			return;
-		}
+    function showPostsSelected() {
+        if (!moveModal) {
+            return;
+        }
 
-		const targetTid = getTargetTid();
-		if (postSelect.pids.length > 0) {
-			if (targetTid && Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)) {
-				api.get('/topics/' + targetTid, {}).then(data => {
-					if (!data || !data.tid) {
-						return alerts.error('[[error:no-topic]]');
-					}
+        const targetTid = getTargetTid();
+        if (postSelect.pids.length > 0) {
+            if (targetTid && Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)) {
+                api.get('/topics/' + targetTid, {}).then((data) => {
+                    if (!data || !data.tid) {
+                        return alerts.error('[[error:no-topic]]');
+                    }
 
-					if (data.scheduled) {
-						return alerts.error('[[error:cant-move-posts-to-scheduled]]');
-					}
+                    if (data.scheduled) {
+                        return alerts.error('[[error:cant-move-posts-to-scheduled]]');
+                    }
 
-					const translateString = translator.compile('topic:x-posts-will-be-moved-to-y', postSelect.pids.length, data.title);
-					moveModal.find('#pids').translateHtml(translateString);
-				});
-			} else {
-				moveModal.find('#pids').translateHtml('[[topic:x-posts-selected, ' + postSelect.pids.length + ']]');
-			}
-		} else {
-			moveModal.find('#pids').translateHtml('[[topic:no-posts-selected]]');
-		}
-	}
+                    const translateString = translator.compile('topic:x-posts-will-be-moved-to-y', postSelect.pids.length, data.title);
+                    moveModal.find('#pids').translateHtml(translateString);
+                });
+            } else {
+                moveModal.find('#pids').translateHtml('[[topic:x-posts-selected, ' + postSelect.pids.length + ']]');
+            }
+        } else {
+            moveModal.find('#pids').translateHtml('[[topic:no-posts-selected]]');
+        }
+    }
 
-	function checkMoveButtonEnable() {
-		if (!moveModal) {
-			return;
-		}
+    function checkMoveButtonEnable() {
+        if (!moveModal) {
+            return;
+        }
 
-		const targetTid = getTargetTid();
-		if (postSelect.pids.length > 0 && targetTid
-            && Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)
-		) {
-			moveCommit.removeAttr('disabled');
-		} else {
-			moveCommit.attr('disabled', true);
-		}
+        const targetTid = getTargetTid();
+        if (postSelect.pids.length > 0 && targetTid &&
+            Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)
+        ) {
+            moveCommit.removeAttr('disabled');
+        } else {
+            moveCommit.attr('disabled', true);
+        }
 
-		showPostsSelected();
-	}
+        showPostsSelected();
+    }
 
-	function onPostToggled() {
-		checkMoveButtonEnable();
-	}
+    function onPostToggled() {
+        checkMoveButtonEnable();
+    }
 
-	function movePosts(data) {
-		if (!data.tid) {
-			return;
-		}
+    function movePosts(data) {
+        if (!data.tid) {
+            return;
+        }
 
-		Promise.all(data.pids.map(pid => api.put(`/posts/${pid}/move`, {
-			tid: data.tid,
-		}))).then(() => {
-			for (const pid of data.pids) {
-				components.get('post', 'pid', pid).fadeOut(500, function () {
-					$(this).remove();
-				});
-			}
+        Promise.all(data.pids.map(pid => api.put(`/posts/${pid}/move`, {
+            tid: data.tid,
+        }))).then(() => {
+            /* eslint-disable no-restricted-syntax */
+            for (const pid of data.pids) {
+                components.get('post', 'pid', pid).fadeOut(500, function () {
+                    $(this).remove();
+                });
+            }
 
-			closeMoveModal();
-		}).catch(alerts.error);
-	}
+            closeMoveModal();
+        }).catch(alerts.error);
+    }
 
-	function closeMoveModal() {
-		if (moveModal) {
-			moveModal.remove();
-			moveModal = null;
-			postSelect.disable();
-			$(window).off('action:ajaxify.end', onAjaxifyEnd);
-		}
-	}
+    function closeMoveModal() {
+        if (moveModal) {
+            moveModal.remove();
+            moveModal = null;
+            postSelect.disable();
+            $(window).off('action:ajaxify.end', onAjaxifyEnd);
+        }
+    }
 
-	return MovePost;
+    return MovePost;
 });

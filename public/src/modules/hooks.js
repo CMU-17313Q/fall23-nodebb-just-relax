@@ -30,6 +30,7 @@ define('hooks', [], () => {
     Hooks.logs.flush = () => {
         if (Hooks.logs._collection && Hooks.logs._collection.size > 0) {
             console.groupCollapsed('[hooks] Changes to hooks on this page …');
+            /* eslint-disable no-restricted-syntax */
             for (const args of Hooks.logs._collection) {
                 console.log.apply(console, args);
             }
@@ -75,6 +76,7 @@ define('hooks', [], () => {
 
     Hooks.onPage = Hooks.registerPage;
     Hooks.register('action:ajaxify.start', () => {
+        /* eslint-disable no-restricted-syntax */
         for (const pair of Hooks.temporary) {
             Hooks.unregister(pair.hookName, pair.method);
             Hooks.temporary.delete(pair);
@@ -122,6 +124,7 @@ define('hooks', [], () => {
 
     const _fireActionHook = (hookName, data) => {
         if (Hooks.hasListeners(hookName)) {
+            /* eslint-disable no-restricted-syntax */
             for (const listener of Hooks.loaded[hookName]) {
                 listener(data);
             }
@@ -168,6 +171,7 @@ define('hooks', [], () => {
         }
         }
 
+        /* eslint-disable no-restricted-syntax */
         for (const pair of Hooks.runOnce) {
             if (pair.hookName === hookName) {
                 Hooks.unregister(hookName, pair.method);

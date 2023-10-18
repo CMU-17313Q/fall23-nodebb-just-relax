@@ -207,6 +207,7 @@ define('taskbar', ['benchpress', 'translator', 'hooks'], (Benchpress, translator
 
         const data = element.data();
 
+        /* eslint-disable no-restricted-syntax */
         for (const key of Object.keys(options)) {
             data[key] = options[key];
             processUpdate(element, key, options[key]);

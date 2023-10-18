@@ -64,6 +64,7 @@ define('settings/sorted-list', [
 
                 // Todo: parse() needs to be refactored to return the html, so multiple calls can be parallelized
 
+                /* eslint-disable no-restricted-syntax */
                 for (const { itemUUID, item } of items) {
                     // eslint-disable-next-line no-await-in-loop
                     await parse($container, itemUUID, item);

@@ -537,6 +537,7 @@ define('admin/manage/users', [
             const filters = getFilters();
             let changed = filters.length !== currentFilters.length;
             if (filters.length === currentFilters.length) {
+                /* eslint-disable no-restricted-syntax */
                 for (const [i, filter] of filters.entries()) {
                     if (filter !== currentFilters[i]) {
                         changed = true;

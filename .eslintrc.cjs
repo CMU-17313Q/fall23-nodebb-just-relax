@@ -49,7 +49,13 @@ function find_compiled_js() {
         root: true,
         ignorePatterns: find_compiled_js(),
         rules: {
-            "indent": ["error", 4]
+            "indent": ["error", 4],
+            'no-restricted-syntax': [
+                'off',
+                {
+                  selector: 'ForOfStatement',
+                }
+            ],
         },
         overrides: [
             {
@@ -66,7 +72,7 @@ function find_compiled_js() {
                 },
                 rules: {
                     "no-use-before-define": "off",
-                    "@typescript-eslint/no-use-before-define": "error",			
+                    "@typescript-eslint/no-use-before-define": "error",            
                 }
             }
         ]

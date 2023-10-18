@@ -167,6 +167,7 @@ define('admin/manage/privileges', [
 
             const rejects = results.filter(r => r.status === 'rejected');
             if (rejects.length > 0) {
+                /* eslint-disable no-restricted-syntax */
                 for (const result of rejects) {
                     alerts.error(result.reason);
                 }
@@ -191,6 +192,7 @@ define('admin/manage/privileges', [
                 const btnIndices = $('.privilege-filters button.btn-warning').map((idx, element) => $(element).index()).get();
                 $('.privilege-table-container').html(html);
                 Privileges.exposeAssumedPrivileges();
+                /* eslint-disable no-restricted-syntax */
                 for (const [i, con] of document.querySelectorAll('.privilege-filters').entries()) {
                     // Three buttons, placed in reverse order
                     const lastIdx = $('.privilege-filters').first().find('button').length - 1;
@@ -300,7 +302,7 @@ define('admin/manage/privileges', [
         const privilegeSubset = getPrivilegeSubset();
         const message = '<br>' +
             (group ? `[[admin/manage/privileges:alert.copyPrivilegesFromGroup-warning, ${privilegeSubset}]]` :
-            	`[[admin/manage/privileges:alert.copyPrivilegesFrom-warning, ${privilegeSubset}]]`) +
+                `[[admin/manage/privileges:alert.copyPrivilegesFrom-warning, ${privilegeSubset}]]`) +
             '<br><br>[[admin/manage/privileges:alert.no-undo]]';
         categorySelector.modal({
             title: '[[admin/manage/privileges:alert.copyPrivilegesFrom-title]]',
@@ -479,10 +481,13 @@ define('admin/manage/privileges', [
     function filterPrivileges(ev) {
         const [startIdx, endIdx] = ev.target.dataset.filter.split(',').map(i => Number.parseInt(i, 10));
         const rows = $(ev.target).closest('table')[0].querySelectorAll('thead tr:last-child, tbody tr ');
+        /* eslint-disable no-restricted-syntax */
         for (const tr of rows) {
+            /* eslint-disable no-restricted-syntax */
             for (const [idx, element] of tr.querySelectorAll('td, th').entries()) {
                 const offset = element.tagName.toUpperCase() === 'TH' ? 1 : 0;
                 if (idx < (SKIP_PRIV_COLS - offset)) {
+                    /* eslint-disable no-continue */
                     continue;
                 }
 
@@ -491,6 +496,7 @@ define('admin/manage/privileges', [
         }
 
         checkboxRowSelector.updateAll();
+        /* eslint-disable no-restricted-syntax */
         for (const btn of $(ev.target).siblings('button').toArray()) {
             btn.classList.remove('btn-warning');
         }
