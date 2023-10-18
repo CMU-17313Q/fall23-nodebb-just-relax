@@ -1,10 +1,9 @@
 'use strict';
 
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 const nconf = require('nconf');
-
 const utils = require('../src/utils');
 const file = require('../src/file');
 
@@ -12,7 +11,7 @@ describe('file', () => {
     const filename = `${utils.generateUUID()}.png`;
     const folder = 'files';
     const uploadPath = path.join(nconf.get('upload_path'), folder, filename);
-    const tempPath = path.join(__dirname, './files/test.png');
+    const temporaryPath = path.join(__dirname, './files/test.png');
 
     afterEach((done) => {
         fs.unlink(uploadPath, () => {
@@ -22,12 +21,12 @@ describe('file', () => {
 
     describe('copyFile', () => {
         it('should copy a file', (done) => {
-            fs.copyFile(tempPath, uploadPath, (err) => {
-                assert.ifError(err);
+            fs.copyFile(temporaryPath, uploadPath, (error) => {
+                assert.ifError(error);
 
                 assert(file.existsSync(uploadPath));
 
-                const srcContent = fs.readFileSync(tempPath, 'utf8');
+                const srcContent = fs.readFileSync(temporaryPath, 'utf8');
                 const destContent = fs.readFileSync(uploadPath, 'utf8');
 
                 assert.strictEqual(srcContent, destContent);
@@ -38,12 +37,12 @@ describe('file', () => {
         it('should override an existing file', (done) => {
             fs.writeFileSync(uploadPath, 'hsdkjhgkjsfhkgj');
 
-            fs.copyFile(tempPath, uploadPath, (err) => {
-                assert.ifError(err);
+            fs.copyFile(temporaryPath, uploadPath, (error) => {
+                assert.ifError(error);
 
                 assert(file.existsSync(uploadPath));
 
-                const srcContent = fs.readFileSync(tempPath, 'utf8');
+                const srcContent = fs.readFileSync(temporaryPath, 'utf8');
                 const destContent = fs.readFileSync(uploadPath, 'utf8');
 
                 assert.strictEqual(srcContent, destContent);
@@ -52,9 +51,9 @@ describe('file', () => {
         });
 
         it('should error if source file does not exist', (done) => {
-            fs.copyFile(`${tempPath}0000000000`, uploadPath, (err) => {
-                assert(err);
-                assert.strictEqual(err.code, 'ENOENT');
+            fs.copyFile(`${temporaryPath}0000000000`, uploadPath, (error) => {
+                assert(error);
+                assert.strictEqual(error.code, 'ENOENT');
 
                 done();
             });
@@ -64,9 +63,9 @@ describe('file', () => {
             fs.writeFileSync(uploadPath, 'hsdkjhgkjsfhkgj');
             fs.chmodSync(uploadPath, '444');
 
-            fs.copyFile(tempPath, uploadPath, (err) => {
-                assert(err);
-                assert(err.code === 'EPERM' || err.code === 'EACCES');
+            fs.copyFile(temporaryPath, uploadPath, (error) => {
+                assert(error);
+                assert(error.code === 'EPERM' || error.code === 'EACCES');
 
                 done();
             });
@@ -75,12 +74,12 @@ describe('file', () => {
 
     describe('saveFileToLocal', () => {
         it('should work', (done) => {
-            file.saveFileToLocal(filename, folder, tempPath, (err) => {
-                assert.ifError(err);
+            file.saveFileToLocal(filename, folder, temporaryPath, (error) => {
+                assert.ifError(error);
 
                 assert(file.existsSync(uploadPath));
 
-                const oldFile = fs.readFileSync(tempPath, 'utf8');
+                const oldFile = fs.readFileSync(temporaryPath, 'utf8');
                 const newFile = fs.readFileSync(uploadPath, 'utf8');
                 assert.strictEqual(oldFile, newFile);
 
@@ -89,26 +88,26 @@ describe('file', () => {
         });
 
         it('should error if source does not exist', (done) => {
-            file.saveFileToLocal(filename, folder, `${tempPath}000000000`, (err) => {
-                assert(err);
-                assert.strictEqual(err.code, 'ENOENT');
+            file.saveFileToLocal(filename, folder, `${temporaryPath}000000000`, (error) => {
+                assert(error);
+                assert.strictEqual(error.code, 'ENOENT');
 
                 done();
             });
         });
 
         it('should error if folder is relative', (done) => {
-            file.saveFileToLocal(filename, '../../text', `${tempPath}000000000`, (err) => {
-                assert(err);
-                assert.strictEqual(err.message, '[[error:invalid-path]]');
+            file.saveFileToLocal(filename, '../../text', `${temporaryPath}000000000`, (error) => {
+                assert(error);
+                assert.strictEqual(error.message, '[[error:invalid-path]]');
                 done();
             });
         });
     });
 
     it('should walk directory', (done) => {
-        file.walk(__dirname, (err, data) => {
-            assert.ifError(err);
+        file.walk(__dirname, (error, data) => {
+            assert.ifError(error);
             assert(Array.isArray(data));
             done();
         });

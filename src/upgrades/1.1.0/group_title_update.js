@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const winston = require('winston');
 const db = require('../../database');
@@ -8,16 +7,17 @@ const db = require('../../database');
 module.exports = {
     name: 'Group title from settings to user profile',
     timestamp: Date.UTC(2016, 3, 14),
-    method: function (callback) {
+    method(callback) {
         const user = require('../../user');
         const batch = require('../../batch');
         let count = 0;
         batch.processSortedSet('users:joindate', (uids, next) => {
             winston.verbose(`upgraded ${count} users`);
-            user.getMultipleUserSettings(uids, (err, settings) => {
-                if (err) {
-                    return next(err);
+            user.getMultipleUserSettings(uids, (error, settings) => {
+                if (error) {
+                    return next(error);
                 }
+
                 count += uids.length;
                 settings = settings.filter(setting => setting && setting.groupTitle);
 

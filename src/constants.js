@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
 
 const baseDir = path.join(__dirname, '../');
 const loader = path.join(baseDir, 'loader.js');

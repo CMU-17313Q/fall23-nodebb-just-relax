@@ -1,7 +1,6 @@
 'use strict';
 
 const validator = require('validator');
-
 const db = require('../database');
 const categories = require('../categories');
 const utils = require('../utils');
@@ -9,15 +8,27 @@ const translator = require('../translator');
 const plugins = require('../plugins');
 
 const intFields = [
-    'tid', 'cid', 'uid', 'mainPid', 'postcount',
-    'viewcount', 'postercount', 'deleted', 'locked', 'pinned',
-    'pinExpiry', 'timestamp', 'upvotes', 'downvotes', 'lastposttime',
+    'tid',
+    'cid',
+    'uid',
+    'mainPid',
+    'postcount',
+    'viewcount',
+    'postercount',
+    'deleted',
+    'locked',
+    'pinned',
+    'pinExpiry',
+    'timestamp',
+    'upvotes',
+    'downvotes',
+    'lastposttime',
     'deleterUid',
 ];
 
 module.exports = function (Topics) {
     Topics.getTopicsFields = async function (tids, fields) {
-        if (!Array.isArray(tids) || !tids.length) {
+        if (!Array.isArray(tids) || tids.length === 0) {
             return [];
         }
 
@@ -29,12 +40,15 @@ module.exports = function (Topics) {
         const keys = tids.map(tid => `topic:${tid}`);
         const topics = await db.getObjects(keys, fields);
         const result = await plugins.hooks.fire('filter:topic.getFields', {
-            tids: tids,
-            topics: topics,
-            fields: fields,
-            keys: keys,
+            tids,
+            topics,
+            fields,
+            keys,
         });
-        result.topics.forEach(topic => modifyTopic(topic, fields));
+        for (const topic of result.topics) {
+            modifyTopic(topic, fields);
+        }
+
         return result.topics;
     };
 
@@ -50,7 +64,7 @@ module.exports = function (Topics) {
 
     Topics.getTopicData = async function (tid) {
         const topics = await Topics.getTopicsFields([tid], []);
-        return topics && topics.length ? topics[0] : null;
+        return topics && topics.length > 0 ? topics[0] : null;
     };
 
     Topics.getTopicsData = async function (tids) {
@@ -84,6 +98,7 @@ function escapeTitle(topicData) {
         if (topicData.title) {
             topicData.title = translator.escape(validator.escape(topicData.title));
         }
+
         if (topicData.titleRaw) {
             topicData.titleRaw = translator.escape(topicData.titleRaw);
         }
@@ -106,7 +121,7 @@ function modifyTopic(topic, fields) {
 
     if (topic.hasOwnProperty('timestamp')) {
         topic.timestampISO = utils.toISOString(topic.timestamp);
-        if (!fields.length || fields.includes('scheduled')) {
+        if (fields.length === 0 || fields.includes('scheduled')) {
             topic.scheduled = topic.timestamp > Date.now();
         }
     }
@@ -123,11 +138,11 @@ function modifyTopic(topic, fields) {
         topic.votes = topic.upvotes - topic.downvotes;
     }
 
-    if (fields.includes('teaserPid') || !fields.length) {
+    if (fields.includes('teaserPid') || fields.length === 0) {
         topic.teaserPid = topic.teaserPid || null;
     }
 
-    if (fields.includes('tags') || !fields.length) {
+    if (fields.includes('tags') || fields.length === 0) {
         const tags = String(topic.tags || '');
         topic.tags = tags.split(',').filter(Boolean).map((tag) => {
             const escaped = validator.escape(String(tag));
@@ -135,7 +150,7 @@ function modifyTopic(topic, fields) {
                 value: tag,
                 valueEscaped: escaped,
                 valueEncoded: encodeURIComponent(escaped),
-                class: escaped.replace(/\s/g, '-'),
+                class: escaped.replaceAll(/\s/g, '-'),
             };
         });
     }

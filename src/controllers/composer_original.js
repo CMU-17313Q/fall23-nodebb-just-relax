@@ -7,14 +7,13 @@
 'use strict';
 
 const nconf = require('nconf');
-
 const user = require('../user');
 const plugins = require('../plugins');
 const topics = require('../topics');
 const posts = require('../posts');
 const helpers = require('./helpers');
 
-exports.get = async function (req, res, callback) {
+exports.get = async function (request, res, callback) {
     res.locals.metaTags = {
         ...res.locals.metaTags,
         name: 'robots',
@@ -22,8 +21,8 @@ exports.get = async function (req, res, callback) {
     };
 
     const data = await plugins.hooks.fire('filter:composer.build', {
-        req: req,
-        res: res,
+        req: request,
+        res,
         next: callback,
         templateData: {},
     });
@@ -31,6 +30,7 @@ exports.get = async function (req, res, callback) {
     if (res.headersSent) {
         return;
     }
+
     if (!data || !data.templateData) {
         return callback(new Error('[[error:invalid-data]]'));
     }
@@ -45,26 +45,28 @@ exports.get = async function (req, res, callback) {
     }
 };
 
-exports.post = async function (req, res) {
-    const { body } = req;
+exports.post = async function (request, res) {
+    const { body } = request;
     const data = {
-        uid: req.uid,
-        req: req,
+        uid: request.uid,
+        req: request,
         timestamp: Date.now(),
         content: body.content,
         fromQueue: false,
     };
-    req.body.noscript = 'true';
+    request.body.noscript = 'true';
 
     if (!data.content) {
-        return helpers.noScriptErrors(req, res, '[[error:invalid-data]]', 400);
+        return helpers.noScriptErrors(request, res, '[[error:invalid-data]]', 400);
     }
+
     async function queueOrPost(postFn, data) {
-        const shouldQueue = await posts.shouldQueue(req.uid, data);
+        const shouldQueue = await posts.shouldQueue(request.uid, data);
         if (shouldQueue) {
             delete data.req;
             return await posts.addToQueue(data);
         }
+
         return await postFn(data);
     }
 
@@ -82,14 +84,16 @@ exports.post = async function (req, res) {
         } else {
             throw new Error('[[error:invalid-data]]');
         }
+
         if (result.queued) {
             return res.redirect(`${nconf.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`);
         }
+
         const uid = result.uid ? result.uid : result.topicData.uid;
         user.updateOnlineUsers(uid);
         const path = result.pid ? `/post/${result.pid}` : `/topic/${result.topicData.slug}`;
         res.redirect(nconf.get('relative_path') + path);
-    } catch (err) {
-        helpers.noScriptErrors(req, res, err.message, 400);
+    } catch (error) {
+        helpers.noScriptErrors(request, res, error.message, 400);
     }
 };

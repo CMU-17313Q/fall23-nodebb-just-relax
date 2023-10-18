@@ -97,8 +97,10 @@ prestart.loadConfig(configFile);
 prestart.versionCheck();
 
 if (!configExists && process.argv[2] !== 'setup') {
-    require('./setup').webInstall();
-    return;
+    // Wrap the code that includes the return statement in a block or function
+    (() => {
+        require('./setup').webInstall();
+    })();
 }
 
 process.env.CONFIG = configFile;

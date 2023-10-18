@@ -1,10 +1,10 @@
 'use strict';
 
+const path = require('node:path');
+const util = require('node:util');
 const async = require('async');
 const _ = require('lodash');
-const path = require('path');
 const nconf = require('nconf');
-const util = require('util');
 const rimrafAsync = util.promisify(require('rimraf'));
 
 const db = require('../database');
@@ -25,12 +25,14 @@ module.exports = function (User) {
     };
 
     User.deleteContent = async function (callerUid, uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             throw new Error('[[error:invalid-uid]]');
         }
+
         if (deletesInProgress[uid]) {
             throw new Error('[[error:already-deleting]]');
         }
+
         deletesInProgress[uid] = 'user.delete';
         await deletePosts(callerUid, uid);
         await deleteTopics(callerUid, uid);
@@ -62,7 +64,7 @@ module.exports = function (User) {
         let deleteIds = [];
         await batch.processSortedSet('post:queue', async (ids) => {
             const data = await db.getObjects(ids.map(id => `post:queue:${id}`));
-            const userQueuedIds = data.filter(d => parseInt(d.uid, 10) === parseInt(uid, 10)).map(d => d.id);
+            const userQueuedIds = data.filter(d => Number.parseInt(d.uid, 10) === Number.parseInt(uid, 10)).map(d => d.id);
             deleteIds = deleteIds.concat(userQueuedIds);
         }, { batch: 500 });
         await async.eachSeries(deleteIds, posts.removeFromQueue);
@@ -88,6 +90,7 @@ module.exports = function (User) {
         if (deletesInProgress[uid] === 'user.deleteAccount') {
             throw new Error('[[error:already-deleting]]');
         }
+
         deletesInProgress[uid] = 'user.deleteAccount';
 
         await removeFromSortedSets(uid);
@@ -98,7 +101,7 @@ module.exports = function (User) {
             throw new Error('[[error:no-user]]');
         }
 
-        await plugins.hooks.fire('static:user.delete', { uid: uid, userData: userData });
+        await plugins.hooks.fire('static:user.delete', { uid, userData });
         await deleteVotes(uid);
         await deleteChats(uid);
         await User.auth.revokeAllSessions(uid);
@@ -115,12 +118,17 @@ module.exports = function (User) {
             `user:${uid}:settings`,
             `user:${uid}:usernames`,
             `user:${uid}:emails`,
-            `uid:${uid}:topics`, `uid:${uid}:posts`,
-            `uid:${uid}:chats`, `uid:${uid}:chats:unread`,
-            `uid:${uid}:chat:rooms`, `uid:${uid}:chat:rooms:unread`,
-            `uid:${uid}:upvote`, `uid:${uid}:downvote`,
+            `uid:${uid}:topics`,
+            `uid:${uid}:posts`,
+            `uid:${uid}:chats`,
+            `uid:${uid}:chats:unread`,
+            `uid:${uid}:chat:rooms`,
+            `uid:${uid}:chat:rooms:unread`,
+            `uid:${uid}:upvote`,
+            `uid:${uid}:downvote`,
             `uid:${uid}:flag:pids`,
-            `uid:${uid}:sessions`, `uid:${uid}:sessionUUID:sessionId`,
+            `uid:${uid}:sessions`,
+            `uid:${uid}:sessionUUID:sessionId`,
             `invitation:uid:${uid}`,
         ];
 
@@ -192,7 +200,7 @@ module.exports = function (User) {
         async function updateCount(uids, name, fieldName) {
             await async.each(uids, async (uid) => {
                 let count = await db.sortedSetCard(name + uid);
-                count = parseInt(count, 10) || 0;
+                count = Number.parseInt(count, 10) || 0;
                 await db.setObjectField(`user:${uid}`, fieldName, count);
             });
         }

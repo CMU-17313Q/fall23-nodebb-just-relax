@@ -2,11 +2,10 @@
 
 const xml = require('xml');
 const nconf = require('nconf');
-
 const plugins = require('../plugins');
 const meta = require('../meta');
 
-module.exports.handle = function (req, res, next) {
+module.exports.handle = function (request, res, next) {
     if (plugins.hooks.hasListeners('filter:search.query')) {
         res.type('application/opensearchdescription+xml').send(generateXML());
     } else {
@@ -53,5 +52,5 @@ function generateXML() {
 }
 
 function trimToLength(string, length) {
-    return string.trim().substring(0, length).trim();
+    return string.trim().slice(0, Math.max(0, length)).trim();
 }

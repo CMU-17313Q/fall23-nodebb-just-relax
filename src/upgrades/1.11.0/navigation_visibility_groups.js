@@ -3,9 +3,9 @@
 module.exports = {
     name: 'Navigation item visibility groups',
     timestamp: Date.UTC(2018, 10, 10),
-    method: async function () {
+    async method() {
         const data = await navigationAdminGet();
-        data.forEach((navItem) => {
+        for (const navItem of data) {
             if (navItem && navItem.properties) {
                 navItem.groups = [];
                 if (navItem.properties.adminOnly) {
@@ -20,11 +20,12 @@ module.exports = {
                     navItem.groups.push('guests');
                 }
             }
-        });
+        }
+
         await navigationAdminSave(data);
     },
 };
-// use navigation.get/save as it was in 1.11.0 so upgrade script doesn't crash on latest nbb
+// Use navigation.get/save as it was in 1.11.0 so upgrade script doesn't crash on latest nbb
 // see https://github.com/NodeBB/NodeBB/pull/11013
 async function navigationAdminGet() {
     const db = require('../../database');
@@ -35,6 +36,7 @@ async function navigationAdminGet() {
         if (item.groups && !Array.isArray(item.groups)) {
             item.groups = [item.groups];
         }
+
         return item;
     });
 }
@@ -44,11 +46,12 @@ async function navigationAdminSave(data) {
     const translator = require('../../translator');
     const order = Object.keys(data);
     const items = data.map((item, index) => {
-        Object.keys(item).forEach((key) => {
+        for (const key of Object.keys(item)) {
             if (item.hasOwnProperty(key) && typeof item[key] === 'string' && (key === 'title' || key === 'text')) {
                 item[key] = translator.escape(item[key]);
             }
-        });
+        }
+
         item.order = order[index];
         return JSON.stringify(item);
     });

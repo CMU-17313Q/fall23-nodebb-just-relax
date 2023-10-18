@@ -4,19 +4,17 @@
  * Logger module: ability to dynamically turn on/off logging for http requests & socket.io events
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
+const util = require('node:util');
 const winston = require('winston');
-const util = require('util');
 const morgan = require('morgan');
-
 const file = require('./file');
 const meta = require('./meta');
 
-
-const opts = {
+const options = {
     /*
-     * state used by Logger
+     * State used by Logger
      */
     express: {
         app: {},
@@ -32,7 +30,7 @@ const opts = {
 const Logger = module.exports;
 
 Logger.init = function (app) {
-    opts.express.app = app;
+    options.express.app = app;
     /* Open log file stream & initialize express logging if meta.config.logger* variables are set */
     Logger.setup();
 };
@@ -59,13 +57,9 @@ Logger.setup_one_log = function (value) {
      */
     if (meta.config.loggerStatus > 0 || meta.config.loggerIOStatus) {
         const stream = Logger.open(value);
-        if (stream) {
-            opts.streams.log.f = stream;
-        } else {
-            opts.streams.log.f = process.stdout;
-        }
+        options.streams.log.f = stream || process.stdout;
     } else {
-        Logger.close(opts.streams.log);
+        Logger.close(options.streams.log);
     }
 };
 
@@ -76,24 +70,21 @@ Logger.open = function (value) {
         if (file.existsSync(value)) {
             const stats = fs.statSync(value);
             if (stats) {
-                if (stats.isDirectory()) {
-                    stream = fs.createWriteStream(path.join(value, 'nodebb.log'), { flags: 'a' });
-                } else {
-                    stream = fs.createWriteStream(value, { flags: 'a' });
-                }
+                stream = stats.isDirectory() ? fs.createWriteStream(path.join(value, 'nodebb.log'), { flags: 'a' }) : fs.createWriteStream(value, { flags: 'a' });
             }
         } else {
             stream = fs.createWriteStream(value, { flags: 'a' });
         }
 
         if (stream) {
-            stream.on('error', (err) => {
-                winston.error(err.stack);
+            stream.on('error', (error) => {
+                winston.error(error.stack);
             });
         }
     } else {
         stream = process.stdout;
     }
+
     return stream;
 };
 
@@ -101,6 +92,7 @@ Logger.close = function (stream) {
     if (stream.f !== process.stdout && stream.f) {
         stream.end();
     }
+
     stream.f = null;
 };
 
@@ -114,25 +106,27 @@ Logger.monitorConfig = function (socket, data) {
 };
 
 Logger.express_open = function () {
-    if (opts.express.set !== 1) {
-        opts.express.set = 1;
-        opts.express.app.use(Logger.expressLogger);
+    if (options.express.set !== 1) {
+        options.express.set = 1;
+        options.express.app.use(Logger.expressLogger);
     }
+
     /*
      * Always initialize "ofn" (original function) with the original logger function
      */
-    opts.express.ofn = morgan('combined', { stream: opts.streams.log.f });
+    options.express.ofn = morgan('combined', { stream: options.streams.log.f });
 };
 
-Logger.expressLogger = function (req, res, next) {
+Logger.expressLogger = function (request, res, next) {
     /*
      * The new express.logger
      *
      * This hijack allows us to turn logger on/off dynamically within express
      */
     if (meta.config.loggerStatus > 0) {
-        return opts.express.ofn(req, res, next);
+        return options.express.ofn(request, res, next);
     }
+
     return next();
 };
 
@@ -144,8 +138,8 @@ Logger.prepare_io_string = function (_type, _uid, _args) {
      */
     try {
         return `io: ${_uid} ${_type} ${util.inspect(Array.prototype.slice.call(_args), { depth: 3 })}\n`;
-    } catch (err) {
-        winston.info('Logger.prepare_io_string: Failed', err);
+    } catch (error) {
+        winston.info('Logger.prepare_io_string: Failed', error);
         return 'error';
     }
 };
@@ -181,8 +175,8 @@ Logger.io = function (socket) {
     }
 
     const clientsMap = socket.io.sockets.sockets;
-    for (const [, socketObj] of clientsMap) {
-        Logger.io_one(socketObj, socketObj.uid);
+    for (const [, socketObject] of clientsMap) {
+        Logger.io_one(socketObject, socketObject.uid);
     }
 };
 
@@ -190,22 +184,22 @@ Logger.io_one = function (socket, uid) {
     /*
      * This function replaces a socket's .emit/.on functions in order to intercept events
      */
-    function override(method, name, errorMsg) {
+    function override(method, name, errorMessage) {
         return (...args) => {
-            if (opts.streams.log.f) {
-                opts.streams.log.f.write(Logger.prepare_io_string(name, uid, args));
+            if (options.streams.log.f) {
+                options.streams.log.f.write(Logger.prepare_io_string(name, uid, args));
             }
 
             try {
                 method.apply(socket, args);
-            } catch (err) {
-                winston.info(errorMsg, err);
+            } catch (error) {
+                winston.info(errorMessage, error);
             }
         };
     }
 
     if (socket && meta.config.loggerIOStatus > 0) {
-        // courtesy of: http://stackoverflow.com/a/9674248
+        // Courtesy of: http://stackoverflow.com/a/9674248
         socket.oEmit = socket.emit;
         const { emit } = socket;
         socket.emit = override(emit, 'emit', 'Logger.io_one: emit.apply: Failed');

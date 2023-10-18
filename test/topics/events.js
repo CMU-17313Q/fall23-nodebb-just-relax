@@ -1,9 +1,7 @@
 'use strict';
 
-const assert = require('assert');
-
+const assert = require('node:assert');
 const db = require('../mocks/databasemock');
-
 const plugins = require('../../src/plugins');
 const categories = require('../../src/categories');
 const topics = require('../../src/topics');
@@ -15,7 +13,7 @@ describe('Topic Events', () => {
     before(async () => {
         fooUid = await user.create({ username: 'foo', password: '123456' });
 
-        const categoryObj = await categories.create({
+        const categoryObject = await categories.create({
             name: 'Test Category',
             description: 'Test category created by testing script',
         });
@@ -35,7 +33,7 @@ describe('Topic Events', () => {
         it('should allow a plugin to expose new event types', async () => {
             await plugins.hooks.register('core', {
                 hook: 'filter:topicEvents.init',
-                method: async ({ types }) => {
+                async method({ types }) {
                     types.foo = {
                         icon: 'bar',
                         text: 'baz',
@@ -65,9 +63,9 @@ describe('Topic Events', () => {
 
             assert(events);
             assert(Array.isArray(events));
-            events.forEach((event) => {
+            for (const event of events) {
                 assert(['id', 'icon', 'text', 'timestamp', 'timestampISO', 'type', 'quux'].every(key => event.hasOwnProperty(key)));
-            });
+            }
         });
     });
 
@@ -78,9 +76,9 @@ describe('Topic Events', () => {
             assert(events);
             assert(Array.isArray(events));
             assert.strictEqual(events.length, 1);
-            events.forEach((event) => {
+            for (const event of events) {
                 assert(['id', 'icon', 'text', 'timestamp', 'timestampISO', 'type', 'quux'].every(key => event.hasOwnProperty(key)));
-            });
+            }
         });
     });
 

@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const utils = require('./utils');
 const { paths } = require('./constants');
 const plugins = require('./plugins');
@@ -17,6 +17,7 @@ Languages.get = async function (language, namespace) {
     if (!pathToLanguageFile.startsWith(languagesPath)) {
         throw new Error('[[error:invalid-path]]');
     }
+
     const data = await fs.promises.readFile(pathToLanguageFile, 'utf8');
     const parsed = JSON.parse(data) || {};
     const result = await plugins.hooks.fire('filter:languages.get', {
@@ -29,26 +30,28 @@ Languages.get = async function (language, namespace) {
 
 let codeCache = null;
 Languages.listCodes = async function () {
-    if (codeCache && codeCache.length) {
+    if (codeCache && codeCache.length > 0) {
         return codeCache;
     }
+
     try {
         const file = await fs.promises.readFile(path.join(languagesPath, 'metadata.json'), 'utf8');
         const parsed = JSON.parse(file);
 
         codeCache = parsed.languages;
         return parsed.languages;
-    } catch (err) {
-        if (err.code === 'ENOENT') {
+    } catch (error) {
+        if (error.code === 'ENOENT') {
             return [];
         }
-        throw err;
+
+        throw error;
     }
 };
 
 let listCache = null;
 Languages.list = async function () {
-    if (listCache && listCache.length) {
+    if (listCache && listCache.length > 0) {
         return listCache;
     }
 
@@ -60,15 +63,16 @@ Languages.list = async function () {
             const file = await fs.promises.readFile(configPath, 'utf8');
             const lang = JSON.parse(file);
             return lang;
-        } catch (err) {
-            if (err.code === 'ENOENT') {
+        } catch (error) {
+            if (error.code === 'ENOENT') {
                 return;
             }
-            throw err;
+
+            throw error;
         }
     }));
 
-    // filter out invalid ones
+    // Filter out invalid ones
     languages = languages.filter(lang => lang && lang.code && lang.name && lang.dir);
 
     listCache = languages;
@@ -81,6 +85,7 @@ Languages.userTimeagoCode = async function (userLang) {
     if (languageCodes.includes(userLang) && Languages.timeagoCodes.includes(timeagoCode)) {
         return timeagoCode;
     }
+
     return '';
 };
 

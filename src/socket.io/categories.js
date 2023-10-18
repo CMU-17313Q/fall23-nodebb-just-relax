@@ -18,6 +18,7 @@ SocketCategories.get = async function (socket) {
         const cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'find');
         return await categories.getCategoriesData(cids);
     }
+
     const [isAdmin, categoriesData] = await Promise.all([
         user.isAdministrator(socket.uid),
         getCategories(),
@@ -37,6 +38,7 @@ SocketCategories.loadMore = async function (socket, data) {
     if (!data) {
         throw new Error('[[error:invalid-data]]');
     }
+
     data.query = data.query || {};
     const [userPrivileges, settings, targetUid] = await Promise.all([
         privileges.categories.get(data.cid, socket.uid),
@@ -51,7 +53,7 @@ SocketCategories.loadMore = async function (socket, data) {
     const infScrollTopicsPerPage = 20;
     const sort = data.sort || data.categoryTopicSort;
 
-    let start = Math.max(0, parseInt(data.after, 10));
+    let start = Math.max(0, Number.parseInt(data.after, 10));
 
     if (data.direction === -1) {
         start -= infScrollTopicsPerPage;
@@ -64,13 +66,13 @@ SocketCategories.loadMore = async function (socket, data) {
     const result = await categories.getCategoryTopics({
         uid: socket.uid,
         cid: data.cid,
-        start: start,
-        stop: stop,
-        sort: sort,
-        settings: settings,
+        start,
+        stop,
+        sort,
+        settings,
         query: data.query,
         tag: data.query.tag,
-        targetUid: targetUid,
+        targetUid,
     });
     categories.modifyTopicsByPrivilege(result.topics, userPrivileges);
 
@@ -106,6 +108,7 @@ SocketCategories.setWatchState = async function (socket, data) {
     if (!data || !data.cid || !data.state) {
         throw new Error('[[error:invalid-data]]');
     }
+
     return await ignoreOrWatch(async (uid, cids) => {
         await user.setCategoryWatchState(uid, cids, categories.watchStates[data.state]);
     }, socket, data);
@@ -121,15 +124,16 @@ SocketCategories.ignore = async function (socket, data) {
 
 async function ignoreOrWatch(fn, socket, data) {
     let targetUid = socket.uid;
-    const cids = Array.isArray(data.cid) ? data.cid.map(cid => parseInt(cid, 10)) : [parseInt(data.cid, 10)];
+    const cids = Array.isArray(data.cid) ? data.cid.map(cid => Number.parseInt(cid, 10)) : [Number.parseInt(data.cid, 10)];
     if (data.hasOwnProperty('uid')) {
         targetUid = data.uid;
     }
+
     await user.isAdminOrGlobalModOrSelf(socket.uid, targetUid);
     const allCids = await categories.getAllCidsFromSet('categories:cid');
     const categoryData = await categories.getCategoriesFields(allCids, ['cid', 'parentCid']);
 
-    // filter to subcategories of cid
+    // Filter to subcategories of cid
     let cat;
     do {
         cat = categoryData.find(c => !cids.includes(c.cid) && cids.includes(c.parentCid));
@@ -148,19 +152,21 @@ SocketCategories.isModerator = async function (socket, cid) {
 };
 
 SocketCategories.loadMoreSubCategories = async function (socket, data) {
-    if (!data || !data.cid || !(parseInt(data.start, 10) > 0)) {
+    if (!data || !data.cid || !(Number.parseInt(data.start, 10) > 0)) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const allowed = await privileges.categories.can('read', data.cid, socket.uid);
     if (!allowed) {
         throw new Error('[[error:no-privileges]]');
     }
+
     const category = await categories.getCategoryData(data.cid);
     await categories.getChildrenTree(category, socket.uid);
     const allCategories = [];
     categories.flattenCategories(allCategories, category.children);
     await categories.getRecentTopicReplies(allCategories, socket.uid);
-    const start = parseInt(data.start, 10);
+    const start = Number.parseInt(data.start, 10);
     return category.children.slice(start, start + category.subCategoriesPerPage);
 };
 

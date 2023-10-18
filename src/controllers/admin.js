@@ -31,28 +31,42 @@ const adminController = {
     info: require('./admin/info'),
 };
 
-adminController.routeIndex = async (req, res) => {
-    const privilegeSet = await privileges.admin.get(req.uid);
+adminController.routeIndex = async (request, res) => {
+    const privilegeSet = await privileges.admin.get(request.uid);
 
     if (privilegeSet.superadmin || privilegeSet['admin:dashboard']) {
-        return adminController.dashboard.get(req, res);
-    } else if (privilegeSet['admin:categories']) {
+        return adminController.dashboard.get(request, res);
+    }
+
+    if (privilegeSet['admin:categories']) {
         return helpers.redirect(res, 'admin/manage/categories');
-    } else if (privilegeSet['admin:privileges']) {
+    }
+
+    if (privilegeSet['admin:privileges']) {
         return helpers.redirect(res, 'admin/manage/privileges');
-    } else if (privilegeSet['admin:users']) {
+    }
+
+    if (privilegeSet['admin:users']) {
         return helpers.redirect(res, 'admin/manage/users');
-    } else if (privilegeSet['admin:groups']) {
+    }
+
+    if (privilegeSet['admin:groups']) {
         return helpers.redirect(res, 'admin/manage/groups');
-    } else if (privilegeSet['admin:admins-mods']) {
+    }
+
+    if (privilegeSet['admin:admins-mods']) {
         return helpers.redirect(res, 'admin/manage/admins-mods');
-    } else if (privilegeSet['admin:tags']) {
+    }
+
+    if (privilegeSet['admin:tags']) {
         return helpers.redirect(res, 'admin/manage/tags');
-    } else if (privilegeSet['admin:settings']) {
+    }
+
+    if (privilegeSet['admin:settings']) {
         return helpers.redirect(res, 'admin/settings/general');
     }
 
-    return helpers.notAllowed(req, res);
+    return helpers.notAllowed(request, res);
 };
 
 module.exports = adminController;

@@ -28,6 +28,7 @@ module.exports = function (Messaging) {
         if (!content) {
             throw new Error('[[error:invalid-chat-message]]');
         }
+
         if (length > maximumChatMessageLength) {
             throw new Error(`[[error:chat-message-too-long, ${maximumChatMessageLength}]]`);
         }
@@ -38,7 +39,7 @@ module.exports = function (Messaging) {
         const timestamp = data.timestamp || Date.now();
         let message = {
             content: String(data.content),
-            timestamp: timestamp,
+            timestamp,
             fromuid: data.uid,
             roomId: data.roomId,
             deleted: 0,
@@ -69,22 +70,22 @@ module.exports = function (Messaging) {
         messages[0].newSet = isNewSet;
         messages[0].mid = mid;
         messages[0].roomId = data.roomId;
-        plugins.hooks.fire('action:messaging.save', { message: messages[0], data: data });
+        plugins.hooks.fire('action:messaging.save', { message: messages[0], data });
         return messages[0];
     };
 
     Messaging.addSystemMessage = async (content, uid, roomId) => {
         const message = await Messaging.addMessage({
-            content: content,
-            uid: uid,
-            roomId: roomId,
+            content,
+            uid,
+            roomId,
             system: 1,
         });
         Messaging.notifyUsersInRoom(uid, roomId, message);
     };
 
     Messaging.addRoomToUsers = async (roomId, uids, timestamp) => {
-        if (!uids.length) {
+        if (uids.length === 0) {
             return;
         }
 
@@ -93,9 +94,10 @@ module.exports = function (Messaging) {
     };
 
     Messaging.addMessageToUsers = async (roomId, uids, mid, timestamp) => {
-        if (!uids.length) {
+        if (uids.length === 0) {
             return;
         }
+
         const keys = uids.map(uid => `uid:${uid}:chat:room:${roomId}:mids`);
         await db.sortedSetsAdd(keys, timestamp, mid);
     };

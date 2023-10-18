@@ -2,7 +2,7 @@
 
 module.exports = function (module) {
     module.sortedSetUnionCard = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return 0;
         }
 
@@ -11,43 +11,44 @@ module.exports = function (module) {
             { $group: { _id: { value: '$value' } } },
             { $group: { _id: null, count: { $sum: 1 } } },
         ]).toArray();
-        return Array.isArray(data) && data.length ? data[0].count : 0;
+        return Array.isArray(data) && data.length > 0 ? data[0].count : 0;
     };
 
-    module.getSortedSetUnion = async function (params) {
-        params.sort = 1;
-        return await getSortedSetUnion(params);
+    module.getSortedSetUnion = async function (parameters) {
+        parameters.sort = 1;
+        return await getSortedSetUnion(parameters);
     };
 
-    module.getSortedSetRevUnion = async function (params) {
-        params.sort = -1;
-        return await getSortedSetUnion(params);
+    module.getSortedSetRevUnion = async function (parameters) {
+        parameters.sort = -1;
+        return await getSortedSetUnion(parameters);
     };
 
-    async function getSortedSetUnion(params) {
-        if (!Array.isArray(params.sets) || !params.sets.length) {
+    async function getSortedSetUnion(parameters) {
+        if (!Array.isArray(parameters.sets) || parameters.sets.length === 0) {
             return;
         }
-        let limit = params.stop - params.start + 1;
+
+        let limit = parameters.stop - parameters.start + 1;
         if (limit <= 0) {
             limit = 0;
         }
 
         const aggregate = {};
-        if (params.aggregate) {
-            aggregate[`$${params.aggregate.toLowerCase()}`] = '$score';
+        if (parameters.aggregate) {
+            aggregate[`$${parameters.aggregate.toLowerCase()}`] = '$score';
         } else {
             aggregate.$sum = '$score';
         }
 
         const pipeline = [
-            { $match: { _key: { $in: params.sets } } },
+            { $match: { _key: { $in: parameters.sets } } },
             { $group: { _id: { value: '$value' }, totalScore: aggregate } },
-            { $sort: { totalScore: params.sort } },
+            { $sort: { totalScore: parameters.sort } },
         ];
 
-        if (params.start) {
-            pipeline.push({ $skip: params.start });
+        if (parameters.start) {
+            pipeline.push({ $skip: parameters.start });
         }
 
         if (limit > 0) {
@@ -55,15 +56,17 @@ module.exports = function (module) {
         }
 
         const project = { _id: 0, value: '$_id.value' };
-        if (params.withScores) {
+        if (parameters.withScores) {
             project.score = '$totalScore';
         }
+
         pipeline.push({ $project: project });
 
         let data = await module.client.collection('objects').aggregate(pipeline).toArray();
-        if (!params.withScores) {
+        if (!parameters.withScores) {
             data = data.map(item => item.value);
         }
+
         return data;
     }
 };

@@ -1,10 +1,9 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const nconf = require('nconf');
-
-const db = require('./mocks/databasemock');
 const pubsub = require('../src/pubsub');
+const db = require('./mocks/databasemock');
 
 describe('pubsub', () => {
     it('should use the plain event emitter', (done) => {

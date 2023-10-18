@@ -6,7 +6,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Create subCategoriesPerPage property for categories',
     timestamp: Date.UTC(2021, 0, 31),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('categories:cid', async (cids) => {
@@ -17,7 +17,7 @@ module.exports = {
             progress.incr(cids.length);
         }, {
             batch: 500,
-            progress: progress,
+            progress,
         });
     },
 };

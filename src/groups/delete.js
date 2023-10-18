@@ -13,20 +13,22 @@ module.exports = function (Groups) {
 
         let groupsData = await Groups.getGroupsData(groupNames);
         groupsData = groupsData.filter(Boolean);
-        if (!groupsData.length) {
+        if (groupsData.length === 0) {
             return;
         }
+
         const keys = [];
-        groupNames.forEach((groupName) => {
+        for (const groupName of groupNames) {
             keys.push(
                 `group:${groupName}`,
                 `group:${groupName}:members`,
                 `group:${groupName}:pending`,
                 `group:${groupName}:invited`,
                 `group:${groupName}:owners`,
-                `group:${groupName}:member:pids`
+                `group:${groupName}:member:pids`,
             );
-        });
+        }
+
         const sets = groupNames.map(groupName => `${groupName.toLowerCase()}:${groupName}`);
         const fields = groupNames.map(groupName => slugify(groupName));
 

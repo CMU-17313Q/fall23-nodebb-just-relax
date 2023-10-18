@@ -4,10 +4,9 @@
 import _ from 'lodash';
 import plugins from './plugins';
 import db from './database';
+import { type Network } from './types';
 
-import { Network } from './types';
-
-let postSharing: Network[] | null = null;
+let postSharing: Network[] | undefined;
 
 export async function getPostSharing(): Promise<Network[]> {
     if (postSharing) {
@@ -16,28 +15,29 @@ export async function getPostSharing(): Promise<Network[]> {
 
     let networks: Network[] = [
         {
-            id: 'facebook',
-            name: 'Facebook',
-            class: 'fa-facebook',
-            activated: null,
+		  id: 'facebook',
+		  name: 'Facebook',
+		  class: 'fa-facebook',
+		  activated: undefined, // Initialize as undefined
         },
         {
-            id: 'twitter',
-            name: 'Twitter',
-            class: 'fa-twitter',
-            activated: null,
+		  id: 'twitter',
+		  name: 'Twitter',
+		  class: 'fa-twitter',
+		  activated: undefined, // Initialize as undefined
         },
-    ];
+	  ];
+
 
     networks = await plugins.hooks.fire('filter:social.posts', networks) as Network[];
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const activated: string[] = await db.getSetMembers('social:posts.activated') as string[];
 
-    networks.forEach((network) => {
+    for (const network of networks) {
         network.activated = activated.includes(network.id);
-    });
+    }
 
     postSharing = networks;
     return _.cloneDeep(networks);
@@ -49,17 +49,18 @@ export async function getActivePostSharing(): Promise<Network[]> {
 }
 
 export async function setActivePostSharingNetworks(networkIDs: string[]): Promise<void> {
-    postSharing = null;
+    postSharing = undefined; // Initialize as undefined
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await db.delete('social:posts.activated');
 
-    if (!networkIDs.length) {
-        return;
+    if (networkIDs.length === 0) {
+	  return;
     }
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await db.setAdd('social:posts.activated', networkIDs);
 }
+

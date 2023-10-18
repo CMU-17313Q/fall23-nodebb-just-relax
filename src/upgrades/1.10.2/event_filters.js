@@ -3,13 +3,12 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 
 module.exports = {
     name: 'add filters to events',
     timestamp: Date.UTC(2018, 9, 4),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('events:time', async (eids) => {
@@ -21,13 +20,15 @@ module.exports = {
                     await db.sortedSetRemove('events:time', eid);
                     return;
                 }
-                // privilege events we're missing type field
+
+                // Privilege events we're missing type field
                 if (!eventData.type && eventData.privilege) {
                     eventData.type = 'privilege-change';
                     await db.setObjectField(`event:${eid}`, 'type', 'privilege-change');
                     await db.sortedSetAdd(`events:time:${eventData.type}`, eventData.timestamp, eid);
                     return;
                 }
+
                 await db.sortedSetAdd(`events:time:${eventData.type || ''}`, eventData.timestamp, eid);
             }
         }, {

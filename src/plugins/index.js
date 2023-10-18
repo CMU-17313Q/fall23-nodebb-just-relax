@@ -1,17 +1,15 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const winston = require('winston');
 const semver = require('semver');
 const nconf = require('nconf');
 const chalk = require('chalk');
 const request = require('request-promise-native');
-
 const user = require('../user');
 const posts = require('../posts');
 const meta = require('../meta');
-
 const { pluginNamePattern, themeNamePattern, paths } = require('../constants');
 
 let app;
@@ -46,12 +44,12 @@ Plugins.initialized = false;
 
 Plugins.requireLibrary = function (pluginData) {
     let libraryPath;
-    // attempt to load a plugin directly with `require("nodebb-plugin-*")`
+    // Attempt to load a plugin directly with `require("nodebb-plugin-*")`
     // Plugins should define their entry point in the standard `main` property of `package.json`
     try {
         libraryPath = pluginData.path;
         Plugins.libraries[pluginData.id] = require(libraryPath);
-    } catch (e) {
+    } catch (error) {
         // DEPRECATED: @1.15.0, remove in version >=1.17
         // for backwards compatibility
         // if that fails, fall back to `pluginData.library`
@@ -62,7 +60,7 @@ Plugins.requireLibrary = function (pluginData) {
             libraryPath = path.join(pluginData.path, pluginData.library);
             Plugins.libraries[pluginData.id] = require(libraryPath);
         } else {
-            throw e;
+            throw error;
         }
     }
 
@@ -114,12 +112,13 @@ Plugins.reload = async function () {
     }
 
     // If some plugins are incompatible, throw the warning here
-    if (Plugins.versionWarning.length && nconf.get('isPrimary')) {
+    if (Plugins.versionWarning.length > 0 && nconf.get('isPrimary')) {
         console.log('');
         winston.warn('[plugins/load] The following plugins may not be compatible with your version of NodeBB. This may cause unintended behaviour or crashing. In the event of an unresponsive NodeBB caused by this plugin, run `./nodebb reset -p PLUGINNAME` to disable it.');
-        for (let x = 0, numPlugins = Plugins.versionWarning.length; x < numPlugins; x += 1) {
+        for (let x = 0, numberPlugins = Plugins.versionWarning.length; x < numberPlugins; x += 1) {
             console.log(`${chalk.yellow('  * ') + Plugins.versionWarning[x]}`);
         }
+
         console.log('');
     }
 
@@ -128,28 +127,30 @@ Plugins.reload = async function () {
     meta.configs.registerHooks();
 
     // Deprecation notices
-    Plugins.hooks._deprecated.forEach((deprecation, hook) => {
-        if (!deprecation.affected || !deprecation.affected.size) {
-            return;
+    for (const [hook, deprecation] of Plugins.hooks._deprecated.entries()) {
+        if (!deprecation.affected || deprecation.affected.size === 0) {
+            continue;
         }
 
         const replacement = deprecation.hasOwnProperty('new') ? `Please use ${chalk.yellow(deprecation.new)} instead.` : 'There is no alternative.';
         winston.warn(`[plugins/load] ${chalk.white.bgRed.bold('DEPRECATION')} The hook ${chalk.yellow(hook)} has been deprecated as of ${deprecation.since}, and slated for removal in ${deprecation.until}. ${replacement} The following plugins are still listening for this hook:`);
-        deprecation.affected.forEach(id => console.log(`  ${chalk.yellow('*')} ${id}`));
-    });
+        for (const id of deprecation.affected) {
+            console.log(`  ${chalk.yellow('*')} ${id}`);
+        }
+    }
 
     // Lower priority runs earlier
-    Object.keys(Plugins.loadedHooks).forEach((hook) => {
+    for (const hook of Object.keys(Plugins.loadedHooks)) {
         Plugins.loadedHooks[hook].sort((a, b) => a.priority - b.priority);
-    });
+    }
 
     // Post-reload actions
     await posts.configureSanitize();
 };
 
-Plugins.reloadRoutes = async function (params) {
+Plugins.reloadRoutes = async function (parameters) {
     const controllers = require('../controllers');
-    await Plugins.hooks.fire('static:app.load', { app: app, router: params.router, middleware: middleware, controllers: controllers });
+    await Plugins.hooks.fire('static:app.load', { app, router: parameters.router, middleware, controllers });
     winston.verbose('[plugins] All plugins reloaded and rerouted');
 };
 
@@ -161,22 +162,23 @@ Plugins.get = async function (id) {
 
     let normalised = await Plugins.normalise([body ? body.payload : {}]);
     normalised = normalised.filter(plugin => plugin.id === id);
-    return normalised.length ? normalised[0] : undefined;
+    return normalised.length > 0 ? normalised[0] : undefined;
 };
 
 Plugins.list = async function (matching) {
     if (matching === undefined) {
         matching = true;
     }
+
     const { version } = require(paths.currentPackage);
-    const url = `${nconf.get('registry') || 'https://packages.nodebb.org'}/api/v1/plugins${matching !== false ? `?version=${version}` : ''}`;
+    const url = `${nconf.get('registry') || 'https://packages.nodebb.org'}/api/v1/plugins${matching === false ? '' : `?version=${version}`}`;
     try {
         const body = await request(url, {
             json: true,
         });
         return await Plugins.normalise(body);
-    } catch (err) {
-        winston.error(`Error loading ${url}`, err);
+    } catch (error) {
+        winston.error(`Error loading ${url}`, error);
         return await Plugins.normalise([]);
     }
 };
@@ -192,24 +194,24 @@ Plugins.normalise = async function (apiReturn) {
     const pluginMap = {};
     const { dependencies } = require(paths.currentPackage);
     apiReturn = Array.isArray(apiReturn) ? apiReturn : [];
-    apiReturn.forEach((packageData) => {
+    for (const packageData of apiReturn) {
         packageData.id = packageData.name;
         packageData.installed = false;
         packageData.active = false;
         packageData.url = packageData.url || (packageData.repository ? packageData.repository.url : '');
         pluginMap[packageData.name] = packageData;
-    });
+    }
 
     let installedPlugins = await Plugins.showInstalled();
     installedPlugins = installedPlugins.filter(plugin => plugin && !plugin.system);
 
-    installedPlugins.forEach((plugin) => {
+    for (const plugin of installedPlugins) {
         // If it errored out because a package.json or plugin.json couldn't be read, no need to do this stuff
         if (plugin.error) {
             pluginMap[plugin.id] = pluginMap[plugin.id] || {};
             pluginMap[plugin.id].installed = true;
             pluginMap[plugin.id].error = true;
-            return;
+            continue;
         }
 
         pluginMap[plugin.id] = pluginMap[plugin.id] || {};
@@ -226,22 +228,22 @@ Plugins.normalise = async function (apiReturn) {
         pluginMap[plugin.id].license = plugin.license;
 
         // If package.json defines a version to use, stick to that
-        if (dependencies.hasOwnProperty(plugin.id) && semver.valid(dependencies[plugin.id])) {
-            pluginMap[plugin.id].latest = dependencies[plugin.id];
-        } else {
-            pluginMap[plugin.id].latest = pluginMap[plugin.id].latest || plugin.version;
-        }
+        pluginMap[plugin.id].latest = dependencies.hasOwnProperty(plugin.id) && semver.valid(dependencies[plugin.id]) ? dependencies[plugin.id] : pluginMap[plugin.id].latest || plugin.version;
+
         pluginMap[plugin.id].outdated = semver.gt(pluginMap[plugin.id].latest, pluginMap[plugin.id].version);
-    });
+    }
 
     const pluginArray = Object.values(pluginMap);
 
     pluginArray.sort((a, b) => {
         if (a.name > b.name) {
             return 1;
-        } else if (a.name < b.name) {
+        }
+
+        if (a.name < b.name) {
             return -1;
         }
+
         return 0;
     });
 
@@ -266,10 +268,11 @@ Plugins.showInstalled = async function () {
             pluginData.installed = true;
             pluginData.error = false;
             return pluginData;
-        } catch (err) {
-            winston.error(err.stack);
+        } catch (error) {
+            winston.error(error.stack);
         }
     }
+
     const plugins = await Promise.all(pluginPaths.map(file => load(file)));
     return plugins.filter(Boolean);
 };
@@ -282,6 +285,7 @@ async function findNodeBBModules(dirs) {
         if (!isDir) {
             return;
         }
+
         if (pluginNamePattern.test(dirname)) {
             pluginPaths.push(dirname);
             return;
@@ -309,10 +313,11 @@ async function isDirectory(dirPath) {
     try {
         const stats = await fs.promises.stat(dirPath);
         return stats.isDirectory();
-    } catch (err) {
-        if (err.code !== 'ENOENT') {
-            throw err;
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            throw error;
         }
+
         return false;
     }
 }

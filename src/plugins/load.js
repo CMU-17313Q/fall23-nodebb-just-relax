@@ -5,48 +5,47 @@ const async = require('async');
 const winston = require('winston');
 const nconf = require('nconf');
 const _ = require('lodash');
-
 const meta = require('../meta');
 const { themeNamePattern } = require('../constants');
 
 module.exports = function (Plugins) {
     async function registerPluginAssets(pluginData, fields) {
-        function add(dest, arr) {
-            dest.push(...(arr || []));
+        function add(dest, array) {
+            dest.push(...(array || []));
         }
 
         const handlers = {
-            staticDirs: function (next) {
+            staticDirs(next) {
                 Plugins.data.getStaticDirectories(pluginData, next);
             },
-            cssFiles: function (next) {
+            cssFiles(next) {
                 Plugins.data.getFiles(pluginData, 'css', next);
             },
-            lessFiles: function (next) {
+            lessFiles(next) {
                 Plugins.data.getFiles(pluginData, 'less', next);
             },
-            acpLessFiles: function (next) {
+            acpLessFiles(next) {
                 Plugins.data.getFiles(pluginData, 'acpLess', next);
             },
-            clientScripts: function (next) {
+            clientScripts(next) {
                 Plugins.data.getScripts(pluginData, 'client', next);
             },
-            acpScripts: function (next) {
+            acpScripts(next) {
                 Plugins.data.getScripts(pluginData, 'acp', next);
             },
-            modules: function (next) {
+            modules(next) {
                 Plugins.data.getModules(pluginData, next);
             },
-            languageData: function (next) {
+            languageData(next) {
                 Plugins.data.getLanguageData(pluginData, next);
             },
         };
 
         let methods = {};
         if (Array.isArray(fields)) {
-            fields.forEach((field) => {
+            for (const field of fields) {
                 methods[field] = handlers[field];
-            });
+            }
         } else {
             methods = handlers;
         }
@@ -65,6 +64,7 @@ module.exports = function (Plugins) {
             Plugins.languageData.namespaces = _.union(Plugins.languageData.namespaces, results.languageData.namespaces);
             pluginData.languageData = results.languageData;
         }
+
         Plugins.pluginsData[pluginData.id] = pluginData;
     }
 
@@ -81,23 +81,26 @@ module.exports = function (Plugins) {
 
         const fields = _.uniq(_.flatMap(targets, target => map[target] || []));
 
-        // clear old data before build
-        fields.forEach((field) => {
+        // Clear old data before build
+        for (const field of fields) {
             switch (field) {
             case 'clientScripts':
             case 'acpScripts':
             case 'cssFiles':
             case 'lessFiles':
-            case 'acpLessFiles':
+            case 'acpLessFiles': {
                 Plugins[field].length = 0;
                 break;
-            case 'languageData':
+            }
+
+            case 'languageData': {
                 Plugins.languageData.languages = [];
                 Plugins.languageData.namespaces = [];
                 break;
-            // do nothing for modules and staticDirs
             }
-        });
+            // Do nothing for modules and staticDirs
+            }
+        }
 
         winston.verbose(`[plugins] loading the following fields from plugin data: ${fields.join(', ')}`);
         const plugins = await Plugins.data.getActive();
@@ -108,22 +111,25 @@ module.exports = function (Plugins) {
         let pluginData;
         try {
             pluginData = await Plugins.data.loadPluginInfo(pluginPath);
-        } catch (err) {
-            if (err.message === '[[error:parse-error]]') {
+        } catch (error) {
+            if (error.message === '[[error:parse-error]]') {
                 return;
             }
+
             if (!themeNamePattern.test(pluginPath)) {
-                throw err;
+                throw error;
             }
+
             return;
         }
+
         checkVersion(pluginData);
 
         try {
             registerHooks(pluginData);
             await registerPluginAssets(pluginData);
-        } catch (err) {
-            winston.error(err.stack);
+        } catch (error) {
+            winston.error(error.stack);
             winston.verbose(`[plugins] Could not load plugin : ${pluginData.id}`);
             return;
         }
@@ -161,11 +167,13 @@ module.exports = function (Plugins) {
             }
 
             if (Array.isArray(pluginData.hooks)) {
-                pluginData.hooks.forEach(hook => Plugins.hooks.register(pluginData.id, hook));
+                for (const hook of pluginData.hooks) {
+                    Plugins.hooks.register(pluginData.id, hook);
+                }
             }
-        } catch (err) {
+        } catch (error) {
             winston.warn(`[plugins] Unable to load library for: ${pluginData.id}`);
-            throw err;
+            throw error;
         }
     }
 };

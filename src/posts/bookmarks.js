@@ -13,7 +13,7 @@ module.exports = function (Posts) {
     };
 
     async function toggleBookmark(type, pid, uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             throw new Error('[[error:not-logged-in]]');
         }
 
@@ -32,18 +32,15 @@ module.exports = function (Posts) {
             throw new Error('[[error:already-unbookmarked]]');
         }
 
-        if (isBookmarking) {
-            await db.sortedSetAdd(`uid:${uid}:bookmarks`, Date.now(), pid);
-        } else {
-            await db.sortedSetRemove(`uid:${uid}:bookmarks`, pid);
-        }
+        await (isBookmarking ? db.sortedSetAdd(`uid:${uid}:bookmarks`, Date.now(), pid) : db.sortedSetRemove(`uid:${uid}:bookmarks`, pid));
+
         await db[isBookmarking ? 'setAdd' : 'setRemove'](`pid:${pid}:users_bookmarked`, uid);
         postData.bookmarks = await db.setCount(`pid:${pid}:users_bookmarked`);
         await Posts.setPostField(pid, 'bookmarks', postData.bookmarks);
 
         plugins.hooks.fire(`action:post.${type}`, {
-            pid: pid,
-            uid: uid,
+            pid,
+            uid,
             owner: postData.uid,
             current: hasBookmarked ? 'bookmarked' : 'unbookmarked',
         });
@@ -55,7 +52,7 @@ module.exports = function (Posts) {
     }
 
     Posts.hasBookmarked = async function (pid, uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             return Array.isArray(pid) ? pid.map(() => false) : false;
         }
 
@@ -63,6 +60,7 @@ module.exports = function (Posts) {
             const sets = pid.map(pid => `pid:${pid}:users_bookmarked`);
             return await db.isMemberOfSets(sets, uid);
         }
+
         return await db.isSetMember(`pid:${pid}:users_bookmarked`, uid);
     };
 };

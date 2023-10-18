@@ -25,18 +25,18 @@ exports.aliases = aliases;
 function buildTargets() {
     let length = 0;
     const output = Object.keys(aliases).map((name) => {
-        const arr = aliases[name];
+        const array = aliases[name];
         if (name.length > length) {
             length = name.length;
         }
 
-        return [name, arr.join(', ')];
+        return [name, array.join(', ')];
     }).map(tuple => `     ${chalk.magenta(_.padEnd(`"${tuple[0]}"`, length + 2))}  |  ${tuple[1]}`).join('\n');
     process.stdout.write(
         '\n\n  Build targets:\n' +
         `${chalk.green(`\n     ${_.padEnd('Target', length + 2)}  |  Aliases`)}` +
         `${chalk.blue('\n     ------------------------------------------------------\n')}` +
-        `${output}\n\n`
+        `${output}\n\n`,
     );
 }
 

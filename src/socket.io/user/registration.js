@@ -9,6 +9,7 @@ module.exports = function (SocketUser) {
         if (!isAdminOrGlobalMod) {
             throw new Error('[[error:no-privileges]]');
         }
+
         const uid = await user.acceptRegistration(data.username);
         await events.log({
             type: 'registration-approved',
@@ -24,6 +25,7 @@ module.exports = function (SocketUser) {
         if (!isAdminOrGlobalMod) {
             throw new Error('[[error:no-privileges]]');
         }
+
         await user.rejectRegistration(data.username);
         await events.log({
             type: 'registration-rejected',
@@ -38,6 +40,7 @@ module.exports = function (SocketUser) {
         if (!isAdminOrGlobalMod) {
             throw new Error('[[error:no-privileges]]');
         }
+
         await user.deleteInvitation(data.invitedBy, data.email);
     };
 };

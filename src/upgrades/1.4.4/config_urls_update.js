@@ -1,12 +1,11 @@
 'use strict';
 
-
 const db = require('../../database');
 
 module.exports = {
     name: 'Upgrading config urls to use assets route',
     timestamp: Date.UTC(2017, 1, 28),
-    method: async function () {
+    async method() {
         const config = await db.getObject('config');
         if (config) {
             const keys = [
@@ -18,15 +17,15 @@ module.exports = {
                 'profile:defaultCovers',
             ];
 
-            keys.forEach((key) => {
+            for (const key of keys) {
                 const oldValue = config[key];
 
                 if (!oldValue || typeof oldValue !== 'string') {
-                    return;
+                    continue;
                 }
 
-                config[key] = oldValue.replace(/(?:\/assets)?\/(images|uploads)\//g, '/assets/$1/');
-            });
+                config[key] = oldValue.replaceAll(/(?:\/assets)?\/(images|uploads)\//g, '/assets/$1/');
+            }
 
             await db.setObject('config', config);
         }

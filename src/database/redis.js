@@ -3,7 +3,6 @@
 const nconf = require('nconf');
 const semver = require('semver');
 const session = require('express-session');
-
 const connection = require('./redis/connection');
 
 const redisModule = module.exports;
@@ -24,7 +23,9 @@ redisModule.questions = [
         description: 'Password of your Redis database',
         hidden: true,
         default: nconf.get('redis:password') || '',
-        before: function (value) { value = value || nconf.get('redis:password') || ''; return value; },
+        before(value) {
+            value = value || nconf.get('redis:password') || ''; return value;
+        },
     },
     {
         name: 'redis:database',
@@ -32,7 +33,6 @@ redisModule.questions = [
         default: nconf.get('redis:database') || 0,
     },
 ];
-
 
 redisModule.init = async function () {
     redisModule.client = await connection.connect(nconf.get('redis'));
@@ -43,7 +43,7 @@ redisModule.createSessionStore = async function (options) {
     const sessionStore = require('connect-redis')(session);
     const client = await connection.connect(options);
     const store = new sessionStore({
-        client: client,
+        client,
         ttl: meta.getSessionTTLSeconds(),
     });
     return store;
@@ -58,6 +58,7 @@ redisModule.checkCompatibilityVersion = function (version, callback) {
     if (semver.lt(version, '2.8.9')) {
         callback(new Error('Your Redis version is not new enough to support NodeBB, please upgrade Redis to v2.8.9 or higher.'));
     }
+
     callback();
 };
 
@@ -69,16 +70,17 @@ redisModule.info = async function (cxn) {
     if (!cxn) {
         cxn = await connection.connect(nconf.get('redis'));
     }
+
     redisModule.client = redisModule.client || cxn;
     const data = await cxn.info();
     const lines = data.toString().split('\r\n').sort();
     const redisData = {};
-    lines.forEach((line) => {
+    for (const line of lines) {
         const parts = line.split(':');
         if (parts[1]) {
             redisData[parts[0]] = parts[1];
         }
-    });
+    }
 
     const keyInfo = redisData[`db${nconf.get('redis:database')}`];
     if (keyInfo) {

@@ -2,20 +2,25 @@
 
 const validator = require('validator');
 const nconf = require('nconf');
-
 const db = require('../database');
 const plugins = require('../plugins');
 const utils = require('../utils');
 const translator = require('../translator');
 
 const intFields = [
-    'createtime', 'memberCount', 'hidden', 'system', 'private',
-    'userTitleEnabled', 'disableJoinRequests', 'disableLeave',
+    'createtime',
+    'memberCount',
+    'hidden',
+    'system',
+    'private',
+    'userTitleEnabled',
+    'disableJoinRequests',
+    'disableLeave',
 ];
 
 module.exports = function (Groups) {
     Groups.getGroupsFields = async function (groupNames, fields) {
-        if (!Array.isArray(groupNames) || !groupNames.length) {
+        if (!Array.isArray(groupNames) || groupNames.length === 0) {
             return [];
         }
 
@@ -23,18 +28,21 @@ module.exports = function (Groups) {
             if (Groups.ephemeralGroups.includes(cur)) {
                 memo.push(idx);
             }
+
             return memo;
         }, []);
 
         const keys = groupNames.map(groupName => `group:${groupName}`);
         const groupData = await db.getObjects(keys, fields);
-        if (ephemeralIdx.length) {
-            ephemeralIdx.forEach((idx) => {
+        if (ephemeralIdx.length > 0) {
+            for (const idx of ephemeralIdx) {
                 groupData[idx] = Groups.getEphemeralGroup(groupNames[idx]);
-            });
+            }
         }
 
-        groupData.forEach(group => modifyGroup(group, fields));
+        for (const group of groupData) {
+            modifyGroup(group, fields);
+        }
 
         const results = await plugins.hooks.fire('filter:groups.get', { groups: groupData });
         return results.groups;
@@ -61,7 +69,7 @@ module.exports = function (Groups) {
 
     Groups.setGroupField = async function (groupName, field, value) {
         await db.setObjectField(`group:${groupName}`, field, value);
-        plugins.hooks.fire('action:group.set', { field: field, value: value, type: 'set' });
+        plugins.hooks.fire('action:group.set', { field, value, type: 'set' });
     };
 };
 
@@ -77,7 +85,7 @@ function modifyGroup(group, fields) {
         group.createtimeISO = utils.toISOString(group.createtime);
         group.private = ([null, undefined].includes(group.private)) ? 1 : group.private;
         group.memberPostCids = group.memberPostCids || '';
-        group.memberPostCidsArray = group.memberPostCids.split(',').map(cid => parseInt(cid, 10)).filter(Boolean);
+        group.memberPostCidsArray = group.memberPostCids.split(',').map(cid => Number.parseInt(cid, 10)).filter(Boolean);
 
         group['cover:thumb:url'] = group['cover:thumb:url'] || group['cover:url'];
 

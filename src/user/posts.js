@@ -14,11 +14,12 @@ module.exports = function (User) {
     };
 
     async function isReady(uid, cid, field) {
-        if (parseInt(uid, 10) === 0) {
+        if (Number.parseInt(uid, 10) === 0) {
             return;
         }
+
         const [userData, isAdminOrMod] = await Promise.all([
-            User.getUserFields(uid, ['uid', 'mutedUntil', 'joindate', 'email', 'reputation'].concat([field])),
+            User.getUserFields(uid, ['uid', 'mutedUntil', 'joindate', 'email', 'reputation', field]),
             privileges.categories.isAdminOrMod(cid, uid),
         ]);
 
@@ -81,7 +82,7 @@ module.exports = function (User) {
         uids = Array.isArray(uids) ? uids : [uids];
         const exists = await User.exists(uids);
         uids = uids.filter((uid, index) => exists[index]);
-        if (uids.length) {
+        if (uids.length > 0) {
             const counts = await db.sortedSetsCard(uids.map(uid => `uid:${uid}:posts`));
             await Promise.all([
                 db.setObjectBulk(uids.map((uid, index) => ([`user:${uid}`, { postcount: counts[index] }]))),
@@ -103,14 +104,16 @@ module.exports = function (User) {
     };
 
     async function incrementUserFieldAndSetBy(uid, field, set, value) {
-        value = parseInt(value, 10);
-        if (!value || !field || !(parseInt(uid, 10) > 0)) {
+        value = Number.parseInt(value, 10);
+        if (!value || !field || !(Number.parseInt(uid, 10) > 0)) {
             return;
         }
+
         const exists = await User.exists(uid);
         if (!exists) {
             return;
         }
+
         const newValue = await User.incrementUserFieldBy(uid, field, value);
         await db.sortedSetAdd(set, newValue, uid);
         return newValue;

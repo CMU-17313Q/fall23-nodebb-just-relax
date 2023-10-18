@@ -1,11 +1,10 @@
 
 'use strict';
 
+const path = require('node:path');
 const _ = require('lodash');
 const nconf = require('nconf');
-const path = require('path');
 const validator = require('validator');
-
 const db = require('../database');
 const file = require('../file');
 const plugins = require('../plugins');
@@ -23,7 +22,7 @@ Thumbs.exists = async function (id, path) {
 };
 
 Thumbs.load = async function (topicData) {
-    const topicsWithThumbs = topicData.filter(t => t && parseInt(t.numThumbs, 10) > 0);
+    const topicsWithThumbs = topicData.filter(t => t && Number.parseInt(t.numThumbs, 10) > 0);
     const tidsWithThumbs = topicsWithThumbs.map(t => t.tid);
     const thumbs = await Thumbs.get(tidsWithThumbs);
     const tidToThumbs = _.zipObject(tidsWithThumbs, thumbs);
@@ -38,7 +37,7 @@ Thumbs.get = async function (tids) {
         singular = true;
     }
 
-    if (!meta.config.allowTopicsThumbnail || !tids.length) {
+    if (!meta.config.allowTopicsThumbnail || tids.length === 0) {
         return singular ? [] : tids.map(() => []);
     }
 
@@ -62,11 +61,12 @@ Thumbs.get = async function (tids) {
 async function getThumbs(set) {
     const cached = cache.get(set);
     if (cached !== undefined) {
-        return cached.slice();
+        return [...cached];
     }
+
     const thumbs = await db.getSortedSetRange(set, 0, -1);
     cache.set(set, thumbs);
-    return thumbs.slice();
+    return [...thumbs];
 }
 
 Thumbs.associate = async function ({ id, path, score }) {
@@ -74,23 +74,25 @@ Thumbs.associate = async function ({ id, path, score }) {
     const isDraft = validator.isUUID(String(id));
     const isLocal = !path.startsWith('http');
     const set = `${isDraft ? 'draft' : 'topic'}:${id}:thumbs`;
-    const numThumbs = await db.sortedSetCard(set);
+    const numberThumbs = await db.sortedSetCard(set);
 
     // Normalize the path to allow for changes in upload_path (and so upload_url can be appended if needed)
     if (isLocal) {
         path = path.replace(nconf.get('upload_path'), '');
     }
+
     const topics = require('.');
-    await db.sortedSetAdd(set, isFinite(score) ? score : numThumbs, path);
+    await db.sortedSetAdd(set, isFinite(score) ? score : numberThumbs, path);
     if (!isDraft) {
-        const numThumbs = await db.sortedSetCard(set);
-        await topics.setTopicField(id, 'numThumbs', numThumbs);
+        const numberThumbs = await db.sortedSetCard(set);
+        await topics.setTopicField(id, 'numThumbs', numberThumbs);
     }
+
     cache.del(set);
 
     // Associate thumbnails with the main pid (only on local upload)
     if (!isDraft && isLocal) {
-        const mainPid = (await topics.getMainPids([id]))[0];
+        const [mainPid] = await topics.getMainPids([id]);
         await posts.uploads.associate(mainPid, path.slice(1));
     }
 };
@@ -115,7 +117,7 @@ Thumbs.delete = async function (id, relativePaths) {
     if (typeof relativePaths === 'string') {
         relativePaths = [relativePaths];
     } else if (!Array.isArray(relativePaths)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
     const absolutePaths = relativePaths.map(relativePath => path.join(nconf.get('upload_path'), relativePath));
@@ -126,7 +128,7 @@ Thumbs.delete = async function (id, relativePaths) {
 
     const toRemove = [];
     const toDelete = [];
-    relativePaths.forEach((relativePath, idx) => {
+    for (const [idx, relativePath] of relativePaths.entries()) {
         if (associated[idx]) {
             toRemove.push(relativePath);
         }
@@ -134,17 +136,17 @@ Thumbs.delete = async function (id, relativePaths) {
         if (existsOnDisk[idx]) {
             toDelete.push(absolutePaths[idx]);
         }
-    });
+    }
 
     await db.sortedSetRemove(set, toRemove);
 
-    if (isDraft && toDelete.length) { // drafts only; post upload dissociation handles disk deletion for topics
+    if (isDraft && toDelete.length > 0) { // Drafts only; post upload dissociation handles disk deletion for topics
         await Promise.all(toDelete.map(async absolutePath => file.delete(absolutePath)));
     }
 
-    if (toRemove.length && !isDraft) {
+    if (toRemove.length > 0 && !isDraft) {
         const topics = require('.');
-        const mainPid = (await topics.getMainPids([id]))[0];
+        const [mainPid] = await topics.getMainPids([id]);
 
         await Promise.all([
             db.incrObjectFieldBy(`topic:${id}`, 'numThumbs', -toRemove.length),

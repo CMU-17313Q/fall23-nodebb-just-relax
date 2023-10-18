@@ -2,8 +2,7 @@
 
 'use strict';
 
-const crypto = require('crypto');
-
+const crypto = require('node:crypto');
 const db = require('../../database');
 const batch = require('../../batch');
 
@@ -12,7 +11,7 @@ const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
 module.exports = {
     name: 'Rename object and sorted sets used in post uploads',
     timestamp: Date.UTC(2022, 1, 10),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('posts:pid', async (pids) => {
@@ -34,22 +33,23 @@ module.exports = {
                 await db.sortedSetAdd(
                     key,
                     uploads.map(upload => upload.score),
-                    uploads.map(upload => `files/${upload.value}`)
+                    uploads.map(upload => `files/${upload.value}`),
                 );
 
                 // Rename the object and pids zsets
                 const hashes = uploads.map(upload => md5(upload.value));
                 const newHashes = uploads.map(upload => md5(`files/${upload.value}`));
 
-                // cant use db.rename since `fix_user_uploads_zset.js` upgrade script already creates
+                // Cant use db.rename since `fix_user_uploads_zset.js` upgrade script already creates
                 // `upload:md5(upload.value) hash, trying to rename to existing key results in dupe error
                 const oldData = await db.getObjects(hashes.map(hash => `upload:${hash}`));
                 const bulkSet = [];
-                oldData.forEach((data, idx) => {
+                for (const [idx, data] of oldData.entries()) {
                     if (data) {
                         bulkSet.push([`upload:${newHashes[idx]}`, data]);
                     }
-                });
+                }
+
                 await db.setObjectBulk(bulkSet);
                 await db.deleteAll(hashes.map(hash => `upload:${hash}`));
 
@@ -57,7 +57,7 @@ module.exports = {
             }
         }, {
             batch: 100,
-            progress: progress,
+            progress,
         });
     },
 };

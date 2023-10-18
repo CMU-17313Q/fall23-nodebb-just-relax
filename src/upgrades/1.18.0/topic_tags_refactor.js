@@ -6,7 +6,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Store tags in topic hash',
     timestamp: Date.UTC(2021, 8, 9),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         async function getTopicsTags(tids) {
@@ -19,7 +19,7 @@ module.exports = {
             const tags = await getTopicsTags(tids);
 
             const topicsWithTags = tids.map((tid, i) => {
-                const topic = { tid: tid };
+                const topic = { tid };
                 topic.tags = tags[i];
                 return topic;
             }).filter(t => t && t.tags.length);
@@ -31,7 +31,7 @@ module.exports = {
             progress.incr(tids.length);
         }, {
             batch: 500,
-            progress: progress,
+            progress,
         });
     },
 };

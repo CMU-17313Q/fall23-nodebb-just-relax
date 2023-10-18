@@ -1,9 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs').promises;
+const path = require('node:path');
+const fs = require('node:fs').promises;
 const nconf = require('nconf');
-
 const db = require('../../database');
 const batch = require('../../batch');
 const file = require('../../file');
@@ -11,7 +10,7 @@ const file = require('../../file');
 module.exports = {
     name: 'Clean up leftover topic thumb sorted sets and files for since-purged topics',
     timestamp: Date.UTC(2022, 1, 7),
-    method: async function () {
+    async method() {
         const { progress } = this;
         const nextTid = await db.getObjectField('global', 'nextTid');
         const tids = [];

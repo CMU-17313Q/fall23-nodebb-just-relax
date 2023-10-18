@@ -9,7 +9,7 @@ const { setupApiRoute } = routeHelpers;
 
 // eslint-disable-next-line no-unused-vars
 function guestRoutes() {
-    // like registration, login...
+    // Like registration, login...
 }
 
 function authenticatedRoutes() {

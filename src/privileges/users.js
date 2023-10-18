@@ -2,7 +2,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const user = require('../user');
 const meta = require('../meta');
 const groups = require('../groups');
@@ -30,14 +29,17 @@ async function isGroupMember(uid, groupName) {
 privsUsers.isModerator = async function (uid, cid) {
     if (Array.isArray(cid)) {
         return await isModeratorOfCategories(cid, uid);
-    } else if (Array.isArray(uid)) {
+    }
+
+    if (Array.isArray(uid)) {
         return await isModeratorsOfCategory(cid, uid);
     }
+
     return await isModeratorOfCategory(cid, uid);
 };
 
 async function isModeratorOfCategories(cids, uid) {
-    if (parseInt(uid, 10) <= 0) {
+    if (Number.parseInt(uid, 10) <= 0) {
         return await filterIsModerator(cids, uid, cids.map(() => false));
     }
 
@@ -45,6 +47,7 @@ async function isModeratorOfCategories(cids, uid) {
     if (isGlobalModerator) {
         return await filterIsModerator(cids, uid, cids.map(() => true));
     }
+
     const uniqueCids = _.uniq(cids);
     const isAllowed = await helpers.isAllowedTo('moderate', uid, uniqueCids);
 
@@ -69,18 +72,19 @@ async function isModeratorOfCategory(cid, uid) {
 }
 
 async function filterIsModerator(cid, uid, isModerator) {
-    const data = await plugins.hooks.fire('filter:user.isModerator', { uid: uid, cid: cid, isModerator: isModerator });
+    const data = await plugins.hooks.fire('filter:user.isModerator', { uid, cid, isModerator });
     if ((Array.isArray(uid) || Array.isArray(cid)) && !Array.isArray(data.isModerator)) {
-        throw new Error('filter:user.isModerator - i/o mismatch');
+        throw new TypeError('filter:user.isModerator - i/o mismatch');
     }
 
     return data.isModerator;
 }
 
 privsUsers.canEdit = async function (callerUid, uid) {
-    if (parseInt(callerUid, 10) === parseInt(uid, 10)) {
+    if (Number.parseInt(callerUid, 10) === Number.parseInt(uid, 10)) {
         return true;
     }
+
     const [isAdmin, isGlobalMod, isTargetAdmin] = await Promise.all([
         privsUsers.isAdministrator(callerUid),
         privsUsers.isGlobalModerator(callerUid),
@@ -88,12 +92,12 @@ privsUsers.canEdit = async function (callerUid, uid) {
     ]);
 
     const data = await plugins.hooks.fire('filter:user.canEdit', {
-        isAdmin: isAdmin,
-        isGlobalMod: isGlobalMod,
-        isTargetAdmin: isTargetAdmin,
+        isAdmin,
+        isGlobalMod,
+        isTargetAdmin,
         canEdit: isAdmin || (isGlobalMod && !isTargetAdmin),
-        callerUid: callerUid,
-        uid: uid,
+        callerUid,
+        uid,
     });
     return data.canEdit;
 };
@@ -107,8 +111,8 @@ privsUsers.canBanUser = async function (callerUid, uid) {
 
     const data = await plugins.hooks.fire('filter:user.canBanUser', {
         canBan: canBan && !isTargetAdmin,
-        callerUid: callerUid,
-        uid: uid,
+        callerUid,
+        uid,
     });
     return data.canBan;
 };
@@ -122,8 +126,8 @@ privsUsers.canMuteUser = async function (callerUid, uid) {
 
     const data = await plugins.hooks.fire('filter:user.canMuteUser', {
         canMute: canMute && !isTargetAdmin,
-        callerUid: callerUid,
-        uid: uid,
+        callerUid,
+        uid,
     });
     return data.canMute;
 };

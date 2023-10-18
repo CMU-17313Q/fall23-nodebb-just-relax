@@ -5,7 +5,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Update global and user language keys',
     timestamp: Date.UTC(2016, 10, 22),
-    method: async function () {
+    async method() {
         const { progress } = this;
         const user = require('../../user');
         const meta = require('../../meta');
@@ -31,7 +31,7 @@ module.exports = {
                 }
             }));
         }, {
-            progress: progress,
+            progress,
         });
     },
 };

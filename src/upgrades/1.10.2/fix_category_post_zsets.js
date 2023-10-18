@@ -8,7 +8,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Fix category post zsets',
     timestamp: Date.UTC(2018, 9, 10),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         const cids = await db.getSortedSetRange('categories:cid', 0, -1);
@@ -25,7 +25,7 @@ module.exports = {
             progress.incr(postData.length);
         }, {
             batch: 500,
-            progress: progress,
+            progress,
             withScores: true,
         });
     },

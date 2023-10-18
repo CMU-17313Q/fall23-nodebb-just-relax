@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 const meta = require('./meta');
 
@@ -13,7 +12,7 @@ coverPhoto.getDefaultGroupCover = function (groupName) {
 };
 
 coverPhoto.getDefaultProfileCover = function (uid) {
-    return getCover('profile', parseInt(uid, 10));
+    return getCover('profile', Number.parseInt(uid, 10));
 };
 
 function getCover(type, id) {
@@ -21,7 +20,7 @@ function getCover(type, id) {
     if (meta.config[`${type}:defaultCovers`]) {
         const covers = String(meta.config[`${type}:defaultCovers`]).trim().split(/[\s,]+/g);
         let coverPhoto = defaultCover;
-        if (!covers.length) {
+        if (covers.length === 0) {
             return coverPhoto;
         }
 
@@ -30,9 +29,11 @@ function getCover(type, id) {
         } else {
             id %= covers.length;
         }
+
         if (covers[id]) {
             coverPhoto = covers[id].startsWith('http') ? covers[id] : (relative_path + covers[id]);
         }
+
         return coverPhoto;
     }
 

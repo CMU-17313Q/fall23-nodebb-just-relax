@@ -1,12 +1,11 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const async = require('async');
-
-const db = require('./mocks/databasemock');
 const meta = require('../src/meta');
 const User = require('../src/user');
 const Groups = require('../src/groups');
+const db = require('./mocks/databasemock');
 
 describe('rewards', () => {
     let adminUid;
@@ -19,9 +18,9 @@ describe('rewards', () => {
             async.apply(User.create, { username: 'foo' }),
             async.apply(User.create, { username: 'baz' }),
             async.apply(User.create, { username: 'herp' }),
-        ], (err, uids) => {
-            if (err) {
-                return done(err);
+        ], (error, uids) => {
+            if (error) {
+                return done(error);
             }
 
             adminUid = uids[0];
@@ -56,8 +55,8 @@ describe('rewards', () => {
                 },
             ];
 
-            socketAdmin.rewards.save({ uid: adminUid }, data, (err) => {
-                assert.ifError(err);
+            socketAdmin.rewards.save({ uid: adminUid }, data, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -66,12 +65,13 @@ describe('rewards', () => {
             function method(next) {
                 next(null, 1);
             }
+
             rewards.checkConditionAndRewardUser({
                 uid: adminUid,
                 condition: 'essentials/user.postcount',
-                method: method,
-            }, (err, data) => {
-                assert.ifError(err);
+                method,
+            }, (error, data) => {
+                assert.ifError(error);
                 done();
             });
         });

@@ -1,10 +1,9 @@
 'use strict';
 
+const path = require('node:path');
 const winston = require('winston');
 const mime = require('mime');
-const path = require('path');
 const nconf = require('nconf');
-
 const db = require('../database');
 const file = require('../file');
 const image = require('../image');
@@ -16,6 +15,7 @@ module.exports = function (User) {
         if (exts.includes('jpeg')) {
             exts.push('jpg');
         }
+
         return exts;
     };
 
@@ -67,7 +67,7 @@ module.exports = function (User) {
         }
     };
 
-    // uploads a image file as profile picture
+    // Uploads a image file as profile picture
     User.uploadCroppedPictureFile = async function (data) {
         const userPhoto = data.file;
         if (!meta.config.allowProfileImageUploads) {
@@ -111,7 +111,7 @@ module.exports = function (User) {
         return uploadedImage;
     };
 
-    // uploads image data in base64 as profile picture
+    // Uploads image data in base64 as profile picture
     User.uploadCroppedPicture = async function (data) {
         const picture = {
             name: 'profileAvatar',
@@ -158,6 +158,7 @@ module.exports = function (User) {
         if (meta.config['profile:keepAllUserImages']) {
             return;
         }
+
         await deletePicture(uid, field);
     }
 
@@ -172,6 +173,7 @@ module.exports = function (User) {
         if (!data.imageData) {
             throw new Error('[[error:invalid-data]]');
         }
+
         const size = image.sizeFromBase64(data.imageData);
         if (size > maxSize * 1024) {
             throw new Error(`[[error:file-too-big, ${maxSize}]]`);
@@ -188,6 +190,7 @@ module.exports = function (User) {
         if (!convertToPNG) {
             return path;
         }
+
         const newPath = await image.normalise(path);
         await file.delete(path);
         return newPath;
@@ -208,7 +211,7 @@ module.exports = function (User) {
         await deletePicture(uid, 'uploadedpicture');
         await User.setUserFields(uid, {
             uploadedpicture: '',
-            // if current picture is uploaded picture, reset to user icon
+            // If current picture is uploaded picture, reset to user icon
             picture: userData.uploadedpicture === userData.picture ? '' : userData.picture,
         });
         return userData;
@@ -227,6 +230,7 @@ module.exports = function (User) {
         if (!value || !value.startsWith(`${nconf.get('relative_path')}/assets/uploads/profile/`)) {
             return false;
         }
+
         const filename = value.split('/').pop();
         return path.join(nconf.get('upload_path'), 'profile', filename);
     }

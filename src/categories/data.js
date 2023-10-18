@@ -1,39 +1,50 @@
 'use strict';
 
 const validator = require('validator');
-
 const db = require('../database');
 const meta = require('../meta');
 const plugins = require('../plugins');
 const utils = require('../utils');
 
 const intFields = [
-    'cid', 'parentCid', 'disabled', 'isSection', 'order',
-    'topic_count', 'post_count', 'numRecentReplies',
-    'minTags', 'maxTags', 'postQueue', 'subCategoriesPerPage',
+    'cid',
+    'parentCid',
+    'disabled',
+    'isSection',
+    'order',
+    'topic_count',
+    'post_count',
+    'numRecentReplies',
+    'minTags',
+    'maxTags',
+    'postQueue',
+    'subCategoriesPerPage',
 ];
 
 module.exports = function (Categories) {
     Categories.getCategoriesFields = async function (cids, fields) {
-        if (!Array.isArray(cids) || !cids.length) {
+        if (!Array.isArray(cids) || cids.length === 0) {
             return [];
         }
 
         const keys = cids.map(cid => `category:${cid}`);
         const categories = await db.getObjects(keys, fields);
         const result = await plugins.hooks.fire('filter:category.getFields', {
-            cids: cids,
-            categories: categories,
-            fields: fields,
-            keys: keys,
+            cids,
+            categories,
+            fields,
+            keys,
         });
-        result.categories.forEach(category => modifyCategory(category, fields));
+        for (const category of result.categories) {
+            modifyCategory(category, fields);
+        }
+
         return result.categories;
     };
 
     Categories.getCategoryData = async function (cid) {
         const categories = await Categories.getCategoriesFields([cid], []);
-        return categories && categories.length ? categories[0] : null;
+        return categories && categories.length > 0 ? categories[0] : null;
     };
 
     Categories.getCategoriesData = async function (cids) {
@@ -65,7 +76,7 @@ module.exports = function (Categories) {
 };
 
 function defaultIntField(category, fields, fieldName, defaultField) {
-    if (!fields.length || fields.includes(fieldName)) {
+    if (fields.length === 0 || fields.includes(fieldName)) {
         const useDefault = !category.hasOwnProperty(fieldName) ||
             category[fieldName] === null ||
             category[fieldName] === '' ||
@@ -87,11 +98,11 @@ function modifyCategory(category, fields) {
     db.parseIntFields(category, intFields, fields);
 
     const escapeFields = ['name', 'color', 'bgColor', 'backgroundImage', 'imageClass', 'class', 'link'];
-    escapeFields.forEach((field) => {
+    for (const field of escapeFields) {
         if (category.hasOwnProperty(field)) {
             category[field] = validator.escape(String(category[field] || ''));
         }
-    });
+    }
 
     if (category.hasOwnProperty('icon')) {
         category.icon = category.icon || 'hidden';

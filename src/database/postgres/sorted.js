@@ -2,7 +2,7 @@
 
 module.exports = function (module) {
     const helpers = require('./helpers');
-    const util = require('util');
+    const util = require('node:util');
     const Cursor = require('pg-cursor');
     Cursor.prototype.readAsync = util.promisify(Cursor.prototype.read);
     const sleep = util.promisify(setTimeout);
@@ -48,9 +48,9 @@ module.exports = function (module) {
             start = Math.abs(stop + 1);
             stop = -1;
         } else if (start < 0 && stop > start) {
-            const tmp1 = Math.abs(stop + 1);
+            const temporary1 = Math.abs(stop + 1);
             stop = Math.abs(start + 1);
-            start = tmp1;
+            start = temporary1;
         }
 
         let limit = stop - start + 1;
@@ -78,11 +78,7 @@ OFFSET $2::INTEGER`,
             res.rows.reverse();
         }
 
-        if (withScores) {
-            res.rows = res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
-        } else {
-            res.rows = res.rows.map(r => r.value);
-        }
+        res.rows = withScores ? res.rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : res.rows.map(r => r.value);
 
         return res.rows;
     }
@@ -112,13 +108,14 @@ OFFSET $2::INTEGER`,
             key = [key];
         }
 
-        if (parseInt(count, 10) === -1) {
+        if (Number.parseInt(count, 10) === -1) {
             count = null;
         }
 
         if (min === '-inf') {
             min = null;
         }
+
         if (max === '+inf') {
             max = null;
         }
@@ -141,11 +138,7 @@ OFFSET $2::INTEGER`,
             values: [key, start, count, min, max],
         });
 
-        if (withScores) {
-            res.rows = res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
-        } else {
-            res.rows = res.rows.map(r => r.value);
-        }
+        res.rows = withScores ? res.rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : res.rows.map(r => r.value);
 
         return res.rows;
     }
@@ -158,6 +151,7 @@ OFFSET $2::INTEGER`,
         if (min === '-inf') {
             min = null;
         }
+
         if (max === '+inf') {
             max = null;
         }
@@ -176,7 +170,7 @@ SELECT COUNT(*) c
             values: [key, min, max],
         });
 
-        return parseInt(res.rows[0].c, 10);
+        return Number.parseInt(res.rows[0].c, 10);
     };
 
     module.sortedSetCard = async function (key) {
@@ -196,11 +190,11 @@ SELECT COUNT(*) c
             values: [key],
         });
 
-        return parseInt(res.rows[0].c, 10);
+        return Number.parseInt(res.rows[0].c, 10);
     };
 
     module.sortedSetsCard = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -218,18 +212,20 @@ SELECT o."_key" k,
             values: [keys],
         });
 
-        return keys.map(k => parseInt((res.rows.find(r => r.k === k) || { c: 0 }).c, 10));
+        return keys.map(k => Number.parseInt((res.rows.find(r => r.k === k) || { c: 0 }).c, 10));
     };
 
     module.sortedSetsCardSum = async function (keys) {
-        if (!keys || (Array.isArray(keys) && !keys.length)) {
+        if (!keys || (Array.isArray(keys) && keys.length === 0)) {
             return 0;
         }
+
         if (!Array.isArray(keys)) {
             keys = [keys];
         }
+
         const counts = await module.sortedSetsCard(keys);
-        const sum = counts.reduce((acc, val) => acc + val, 0);
+        const sum = counts.reduce((acc, value) => acc + value, 0);
         return sum;
     };
 
@@ -264,11 +260,11 @@ SELECT (SELECT r
             values: [keys, values],
         });
 
-        return res.rows.map(r => (r.r === null ? null : parseFloat(r.r)));
+        return res.rows.map(r => (r.r === null ? null : Number.parseFloat(r.r)));
     }
 
     module.sortedSetsRanks = async function (keys, values) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -276,7 +272,7 @@ SELECT (SELECT r
     };
 
     module.sortedSetsRevRanks = async function (keys, values) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -284,19 +280,19 @@ SELECT (SELECT r
     };
 
     module.sortedSetRanks = async function (key, values) {
-        if (!Array.isArray(values) || !values.length) {
+        if (!Array.isArray(values) || values.length === 0) {
             return [];
         }
 
-        return await getSortedSetRank('ASC', new Array(values.length).fill(key), values);
+        return await getSortedSetRank('ASC', Array.from({ length: values.length }).fill(key), values);
     };
 
     module.sortedSetRevRanks = async function (key, values) {
-        if (!Array.isArray(values) || !values.length) {
+        if (!Array.isArray(values) || values.length === 0) {
             return [];
         }
 
-        return await getSortedSetRank('DESC', new Array(values.length).fill(key), values);
+        return await getSortedSetRank('DESC', Array.from({ length: values.length }).fill(key), values);
     };
 
     module.sortedSetScore = async function (key, value) {
@@ -318,14 +314,15 @@ SELECT z."score" s
    AND z."value" = $2::TEXT`,
             values: [key, value],
         });
-        if (res.rows.length) {
-            return parseFloat(res.rows[0].s);
+        if (res.rows.length > 0) {
+            return Number.parseFloat(res.rows[0].s);
         }
+
         return null;
     };
 
     module.sortedSetsScore = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -347,7 +344,7 @@ SELECT o."_key" k,
 
         return keys.map((k) => {
             const s = res.rows.find(r => r.k === k);
-            return s ? parseFloat(s.s) : null;
+            return s ? Number.parseFloat(s.s) : null;
         });
     };
 
@@ -355,9 +352,11 @@ SELECT o."_key" k,
         if (!key) {
             return null;
         }
-        if (!values.length) {
+
+        if (values.length === 0) {
             return [];
         }
+
         values = values.map(helpers.valueToString);
 
         const res = await module.pool.query({
@@ -376,7 +375,7 @@ SELECT z."value" v,
 
         return values.map((v) => {
             const s = res.rows.find(r => r.v === v);
-            return s ? parseFloat(s.s) : null;
+            return s ? Number.parseFloat(s.s) : null;
         });
     };
 
@@ -400,7 +399,7 @@ SELECT 1
             values: [key, value],
         });
 
-        return !!res.rows.length;
+        return res.rows.length > 0;
     };
 
     module.isSortedSetMembers = async function (key, values) {
@@ -408,9 +407,10 @@ SELECT 1
             return;
         }
 
-        if (!values.length) {
+        if (values.length === 0) {
             return [];
         }
+
         values = values.map(helpers.valueToString);
 
         const res = await module.pool.query({
@@ -430,7 +430,7 @@ SELECT z."value" v
     };
 
     module.isMemberOfSortedSets = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -458,7 +458,7 @@ SELECT o."_key" k
     };
 
     module.getSortedSetsMembers = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -480,7 +480,7 @@ SELECT "_key" k,
         }
 
         value = helpers.valueToString(value);
-        increment = parseFloat(increment);
+        increment = Number.parseFloat(increment);
 
         return await module.transaction(async (client) => {
             await helpers.ensureLegacyObjectType(client, key, 'zset');
@@ -494,7 +494,7 @@ DO UPDATE SET "score" = "legacy_zset"."score" + $3::NUMERIC
 RETURNING "score" s`,
                 values: [key, value, increment],
             });
-            return parseFloat(res.rows[0].s);
+            return Number.parseFloat(res.rows[0].s);
         });
     };
 
@@ -526,16 +526,15 @@ SELECT COUNT(*) c
             values: q.values,
         });
 
-        return parseInt(res.rows[0].c, 10);
+        return Number.parseInt(res.rows[0].c, 10);
     };
 
     async function sortedSetLex(key, min, max, sort, start, count) {
-        start = start !== undefined ? start : 0;
-        count = count !== undefined ? count : 0;
+        start = start === undefined ? 0 : start;
+        count = count === undefined ? 0 : count;
 
         const q = buildLexQuery(key, min, max);
-        q.values.push(start);
-        q.values.push(count <= 0 ? null : count);
+        q.values.push(start, count <= 0 ? null : count);
         const res = await module.pool.query({
             name: `sortedSetLex${sort > 0 ? 'Asc' : 'Desc'}${q.suffix}`,
             text: `
@@ -571,16 +570,16 @@ DELETE FROM "legacy_zset" z
     function buildLexQuery(key, min, max) {
         const q = {
             suffix: '',
-            where: `o."_key" = $1::TEXT`,
+            where: 'o."_key" = $1::TEXT',
             values: [key],
         };
 
         if (min !== '-') {
-            if (min.match(/^\(/)) {
+            if (/^\(/.test(min)) {
                 q.values.push(min.slice(1));
                 q.suffix += 'GT';
                 q.where += ` AND z."value" > $${q.values.length}::TEXT COLLATE "C"`;
-            } else if (min.match(/^\[/)) {
+            } else if (/^\[/.test(min)) {
                 q.values.push(min.slice(1));
                 q.suffix += 'GE';
                 q.where += ` AND z."value" >= $${q.values.length}::TEXT COLLATE "C"`;
@@ -592,11 +591,11 @@ DELETE FROM "legacy_zset" z
         }
 
         if (max !== '+') {
-            if (max.match(/^\(/)) {
+            if (/^\(/.test(max)) {
                 q.values.push(max.slice(1));
                 q.suffix += 'LT';
                 q.where += ` AND z."value" < $${q.values.length}::TEXT COLLATE "C"`;
-            } else if (max.match(/^\[/)) {
+            } else if (/^\[/.test(max)) {
                 q.values.push(max.slice(1));
                 q.suffix += 'LE';
                 q.where += ` AND z."value" <= $${q.values.length}::TEXT COLLATE "C"`;
@@ -610,14 +609,14 @@ DELETE FROM "legacy_zset" z
         return q;
     }
 
-    module.getSortedSetScan = async function (params) {
-        let { match } = params;
+    module.getSortedSetScan = async function (parameters) {
+        let { match } = parameters;
         if (match.startsWith('*')) {
-            match = `%${match.substring(1)}`;
+            match = `%${match.slice(1)}`;
         }
 
         if (match.endsWith('*')) {
-            match = `${match.substring(0, match.length - 1)}%`;
+            match = `${match.slice(0, Math.max(0, match.length - 1))}%`;
         }
 
         const res = await module.pool.query({
@@ -631,12 +630,13 @@ SELECT z."value",
  WHERE o."_key" = $1::TEXT
   AND z."value" LIKE '${match}'
   LIMIT $2::INTEGER`,
-            values: [params.key, params.limit],
+            values: [parameters.key, parameters.limit],
         });
-        if (!params.withScores) {
+        if (!parameters.withScores) {
             return res.rows.map(r => r.value);
         }
-        return res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
+
+        return res.rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) }));
     };
 
     module.processSortedSet = async function (setKey, process, options) {
@@ -658,22 +658,20 @@ SELECT z."value", z."score"
         while (true) {
             /* eslint-disable no-await-in-loop */
             let rows = await cursor.readAsync(batchSize);
-            if (!rows.length) {
+            if (rows.length === 0) {
                 client.release();
                 return;
             }
 
-            if (options.withScores) {
-                rows = rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
-            } else {
-                rows = rows.map(r => r.value);
-            }
+            rows = options.withScores ? rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : rows.map(r => r.value);
+
             try {
                 await process(rows);
-            } catch (err) {
+            } catch (error) {
                 await client.release();
-                throw err;
+                throw error;
             }
+
             if (options.interval) {
                 await sleep(options.interval);
             }

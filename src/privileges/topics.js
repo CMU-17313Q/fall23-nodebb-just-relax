@@ -2,24 +2,31 @@
 'use strict';
 
 const _ = require('lodash');
-
 const meta = require('../meta');
 const topics = require('../topics');
 const user = require('../user');
-const helpers = require('./helpers');
 const categories = require('../categories');
 const plugins = require('../plugins');
+const helpers = require('./helpers');
 const privsCategories = require('./categories');
 
 const privsTopics = module.exports;
 
 privsTopics.get = async function (tid, uid) {
-    uid = parseInt(uid, 10);
+    uid = Number.parseInt(uid, 10);
 
     const privs = [
-        'topics:reply', 'topics:read', 'topics:schedule', 'topics:tag',
-        'topics:delete', 'posts:edit', 'posts:history',
-        'posts:delete', 'posts:view_deleted', 'read', 'purge',
+        'topics:reply',
+        'topics:read',
+        'topics:schedule',
+        'topics:tag',
+        'topics:delete',
+        'posts:edit',
+        'posts:history',
+        'posts:delete',
+        'posts:view_deleted',
+        'read',
+        'purge',
     ];
     const topicData = await topics.getTopicFields(tid, ['cid', 'uid', 'locked', 'deleted', 'scheduled']);
     const [userPrivileges, isAdministrator, isModerator, disabled] = await Promise.all([
@@ -49,14 +56,14 @@ privsTopics.get = async function (tid, uid) {
         purge: (privData.purge && (isOwner || isModerator)) || isAdministrator,
 
         view_thread_tools: editable || deletable,
-        editable: editable,
-        deletable: deletable,
+        editable,
+        deletable,
         view_deleted: isAdminOrMod || isOwner || privData['posts:view_deleted'],
         view_scheduled: privData['topics:schedule'] || isAdministrator,
-        isAdminOrMod: isAdminOrMod,
-        disabled: disabled,
-        tid: tid,
-        uid: uid,
+        isAdminOrMod,
+        disabled,
+        tid,
+        uid,
     });
 };
 
@@ -66,7 +73,7 @@ privsTopics.can = async function (privilege, tid, uid) {
 };
 
 privsTopics.filterTids = async function (privilege, tids, uid) {
-    if (!Array.isArray(tids) || !tids.length) {
+    if (!Array.isArray(tids) || tids.length === 0) {
         return [];
     }
 
@@ -89,15 +96,15 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
     )).map(t => t.tid);
 
     const data = await plugins.hooks.fire('filter:privileges.topics.filter', {
-        privilege: privilege,
-        uid: uid,
-        tids: tids,
+        privilege,
+        uid,
+        tids,
     });
     return data ? data.tids : [];
 };
 
 privsTopics.filterUids = async function (privilege, tid, uids) {
-    if (!Array.isArray(uids) || !uids.length) {
+    if (!Array.isArray(uids) || uids.length === 0) {
         return [];
     }
 
@@ -167,9 +174,10 @@ privsTopics.isOwnerOrAdminOrMod = async function (tid, uid) {
 };
 
 privsTopics.isAdminOrMod = async function (tid, uid) {
-    if (parseInt(uid, 10) <= 0) {
+    if (Number.parseInt(uid, 10) <= 0) {
         return false;
     }
+
     const cid = await topics.getTopicField(tid, 'cid');
     return await privsCategories.isAdminOrMod(cid, uid);
 };
@@ -178,13 +186,16 @@ privsTopics.canViewDeletedScheduled = function (topic, privileges = {}, viewDele
     if (!topic) {
         return false;
     }
+
     const { deleted = false, scheduled = false } = topic;
     const { view_deleted = viewDeleted, view_scheduled = viewScheduled } = privileges;
 
-    // conceptually exclusive, scheduled topics deemed to be not deleted (they can only be purged)
+    // Conceptually exclusive, scheduled topics deemed to be not deleted (they can only be purged)
     if (scheduled) {
         return view_scheduled;
-    } else if (deleted) {
+    }
+
+    if (deleted) {
         return view_deleted;
     }
 

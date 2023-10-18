@@ -7,7 +7,7 @@ const flagsApi = module.exports;
 
 flagsApi.create = async (caller, data) => {
     const required = ['type', 'id', 'reason'];
-    if (!required.every(prop => !!data[prop])) {
+    if (!required.every(prop => Boolean(data[prop]))) {
         throw new Error('[[error:invalid-data]]');
     }
 
@@ -15,14 +15,14 @@ flagsApi.create = async (caller, data) => {
 
     await flags.validate({
         uid: caller.uid,
-        type: type,
-        id: id,
+        type,
+        id,
     });
 
-    const flagObj = await flags.create(type, id, caller.uid, reason);
-    flags.notify(flagObj, caller.uid);
+    const flagObject = await flags.create(type, id, caller.uid, reason);
+    flags.notify(flagObject, caller.uid);
 
-    return flagObj;
+    return flagObject;
 };
 
 flagsApi.update = async (caller, data) => {
@@ -43,25 +43,27 @@ flagsApi.appendNote = async (caller, data) => {
     if (!allowed) {
         throw new Error('[[error:no-privileges]]');
     }
+
     if (data.datetime && data.flagId) {
         try {
             const note = await flags.getNote(data.flagId, data.datetime);
             if (note.uid !== caller.uid) {
                 throw new Error('[[error:no-privileges]]');
             }
-        } catch (e) {
+        } catch (error) {
             // Okay if not does not exist in database
-            if (e.message !== '[[error:invalid-data]]') {
-                throw e;
+            if (error.message !== '[[error:invalid-data]]') {
+                throw error;
             }
         }
     }
+
     await flags.appendNote(data.flagId, caller.uid, data.note, data.datetime);
     const [notes, history] = await Promise.all([
         flags.getNotes(data.flagId),
         flags.getHistory(data.flagId),
     ]);
-    return { notes: notes, history: history };
+    return { notes, history };
 };
 
 flagsApi.deleteNote = async (caller, data) => {
@@ -80,5 +82,5 @@ flagsApi.deleteNote = async (caller, data) => {
         flags.getNotes(data.flagId),
         flags.getHistory(data.flagId),
     ]);
-    return { notes: notes, history: history };
+    return { notes, history };
 };

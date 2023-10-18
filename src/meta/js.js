@@ -1,8 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const util = require('util');
+const path = require('node:path');
+const fs = require('node:fs');
+const util = require('node:util');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 
@@ -22,7 +22,7 @@ JS.scripts = {
         'public/vendor/bootbox/wrapper.js',
     ],
 
-    // plugins add entries into this object,
+    // Plugins add entries into this object,
     // they get linked into /build/public/src/modules
     modules: {
         '../admin/plugins/persona.js': 'themes/nodebb-theme-persona/public/admin.js',
@@ -48,11 +48,7 @@ async function linkModules() {
             fs.promises.stat(srcPath),
             mkdirp(path.dirname(destPath)),
         ]);
-        if (stats.isDirectory()) {
-            await file.linkDirs(srcPath, destPath, true);
-        } else {
-            await fs.promises.copyFile(srcPath, destPath);
-        }
+        await (stats.isDirectory() ? file.linkDirs(srcPath, destPath, true) : fs.promises.copyFile(srcPath, destPath));
     }));
 }
 
@@ -60,10 +56,10 @@ const moduleDirs = ['modules', 'admin', 'client'];
 
 async function clearModules() {
     const builtPaths = moduleDirs.map(
-        p => path.join(__dirname, '../../build/public/src', p)
+        p => path.join(__dirname, '../../build/public/src', p),
     );
     await Promise.all(
-        builtPaths.map(builtPath => rimrafAsync(builtPath))
+        builtPaths.map(builtPath => rimrafAsync(builtPath)),
     );
 }
 
@@ -72,8 +68,8 @@ JS.buildModules = async function () {
 
     const fse = require('fs-extra');
     await fse.copy(
-        path.join(__dirname, `../../public/src`),
-        path.join(__dirname, `../../build/public/src`)
+        path.join(__dirname, '../../public/src'),
+        path.join(__dirname, '../../build/public/src'),
     );
 
     await linkModules();
@@ -97,6 +93,7 @@ async function getBundleScriptList(target) {
     if (target === 'admin') {
         target = 'acp';
     }
+
     let pluginScripts = plugins[`${target}Scripts`].filter((path) => {
         if (path.endsWith('.js')) {
             return true;
@@ -112,10 +109,10 @@ async function getBundleScriptList(target) {
     }));
 
     pluginScripts = JS.scripts.base.concat(pluginScripts).map((script) => {
-        const srcPath = path.resolve(basePath, script).replace(/\\/g, '/');
+        const srcPath = path.resolve(basePath, script).replaceAll('\\', '/');
         return {
-            srcPath: srcPath,
-            filename: path.relative(basePath, srcPath).replace(/\\/g, '/'),
+            srcPath,
+            filename: path.relative(basePath, srcPath).replaceAll('\\', '/'),
         };
     });
 
@@ -125,12 +122,12 @@ async function getBundleScriptList(target) {
 JS.buildBundle = async function (target, fork) {
     const filename = `scripts-${target}.js`;
     const files = await getBundleScriptList(target);
-    const minify = false; // webpack will minify in prod
+    const minify = false; // Webpack will minify in prod
     const filePath = path.join(__dirname, '../../build/public', filename);
 
     await minifier.js.bundle({
-        files: files,
-        filename: filename,
+        files,
+        filename,
         destPath: filePath,
     }, minify, fork);
 };

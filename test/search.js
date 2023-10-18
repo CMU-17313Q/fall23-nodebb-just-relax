@@ -1,17 +1,15 @@
 'use strict';
 
-
-const assert = require('assert');
+const assert = require('node:assert');
 const async = require('async');
 const request = require('request');
 const nconf = require('nconf');
-
-const db = require('./mocks/databasemock');
 const topics = require('../src/topics');
 const categories = require('../src/categories');
 const user = require('../src/user');
 const search = require('../src/search');
 const privileges = require('../src/privileges');
+const db = require('./mocks/databasemock');
 
 describe('Search', () => {
     let phoebeUid;
@@ -30,19 +28,19 @@ describe('Search', () => {
         async.waterfall([
             function (next) {
                 async.series({
-                    phoebe: function (next) {
+                    phoebe(next) {
                         user.create({ username: 'phoebe' }, next);
                     },
-                    ginger: function (next) {
+                    ginger(next) {
                         user.create({ username: 'ginger' }, next);
                     },
-                    category1: function (next) {
+                    category1(next) {
                         categories.create({
                             name: 'Test Category',
                             description: 'Test category created by testing script',
                         }, next);
                     },
-                    category2: function (next) {
+                    category2(next) {
                         categories.create({
                             name: 'Test Category',
                             description: 'Test category created by testing script',
@@ -107,13 +105,13 @@ describe('Search', () => {
     it('should search term in titles and posts', (done) => {
         const meta = require('../src/meta');
         const qs = `/api/search?term=cucumber&in=titlesposts&categories[]=${cid1}&by=phoebe&replies=1&repliesFilter=atleast&sortBy=timestamp&sortDirection=desc&showAs=posts`;
-        privileges.global.give(['groups:search:content'], 'guests', (err) => {
-            assert.ifError(err);
+        privileges.global.give(['groups:search:content'], 'guests', (error) => {
+            assert.ifError(error);
             request({
                 url: nconf.get('url') + qs,
                 json: true,
-            }, (err, response, body) => {
-                assert.ifError(err);
+            }, (error, response, body) => {
+                assert.ifError(error);
                 assert(body);
                 assert.equal(body.matchCount, 1);
                 assert.equal(body.posts.length, 1);
@@ -129,8 +127,8 @@ describe('Search', () => {
         search.search({
             query: 'gin',
             searchIn: 'users',
-        }, (err, data) => {
-            assert.ifError(err);
+        }, (error, data) => {
+            assert.ifError(error);
             assert(data);
             assert.equal(data.matchCount, 1);
             assert.equal(data.users.length, 1);
@@ -144,8 +142,8 @@ describe('Search', () => {
         search.search({
             query: 'plug',
             searchIn: 'tags',
-        }, (err, data) => {
-            assert.ifError(err);
+        }, (error, data) => {
+            assert.ifError(error);
             assert(data);
             assert.equal(data.matchCount, 1);
             assert.equal(data.tags.length, 1);
@@ -184,8 +182,8 @@ describe('Search', () => {
         search.search({
             query: 'plug',
             searchIn: '',
-        }, (err) => {
-            assert.equal(err.message, '[[error:unknown-search-filter]]');
+        }, (error) => {
+            assert.equal(error.message, '[[error:unknown-search-filter]]');
             done();
         });
     });
@@ -195,8 +193,8 @@ describe('Search', () => {
             query: 'mongodb',
             searchIn: 'titles',
             hasTags: ['nodebb', 'javascript'],
-        }, (err, data) => {
-            assert.ifError(err);
+        }, (error, data) => {
+            assert.ifError(error);
             assert.equal(data.posts[0].tid, topic2Data.tid);
             done();
         });
@@ -207,8 +205,8 @@ describe('Search', () => {
             query: 'mongodb',
             searchIn: 'titles',
             hasTags: 'nodebb,javascript',
-        }, (err, data) => {
-            assert.ifError(err);
+        }, (error, data) => {
+            assert.ifError(error);
             done();
         });
     });
@@ -217,8 +215,8 @@ describe('Search', () => {
         search.search({
             query: 'xxxxxxxxxxxxxx',
             searchIn: 'titles',
-        }, (err, data) => {
-            assert.ifError(err);
+        }, (error, data) => {
+            assert.ifError(error);
             assert(Array.isArray(data.posts));
             assert(!data.matchCount);
             done();
@@ -256,13 +254,13 @@ describe('Search', () => {
 
     it('should return json search data with no categories', (done) => {
         const qs = '/api/search?term=cucumber&in=titlesposts&searchOnly=1';
-        privileges.global.give(['groups:search:content'], 'guests', (err) => {
-            assert.ifError(err);
+        privileges.global.give(['groups:search:content'], 'guests', (error) => {
+            assert.ifError(error);
             request({
                 url: nconf.get('url') + qs,
                 json: true,
-            }, (err, response, body) => {
-                assert.ifError(err);
+            }, (error, response, body) => {
+                assert.ifError(error);
                 assert(body);
                 assert(body.hasOwnProperty('matchCount'));
                 assert(body.hasOwnProperty('pagination'));
@@ -277,13 +275,13 @@ describe('Search', () => {
 
     it('should not crash without a search term', (done) => {
         const qs = '/api/search';
-        privileges.global.give(['groups:search:content'], 'guests', (err) => {
-            assert.ifError(err);
+        privileges.global.give(['groups:search:content'], 'guests', (error) => {
+            assert.ifError(error);
             request({
                 url: nconf.get('url') + qs,
                 json: true,
-            }, (err, response, body) => {
-                assert.ifError(err);
+            }, (error, response, body) => {
+                assert.ifError(error);
                 assert(body);
                 assert.strictEqual(response.statusCode, 200);
                 privileges.global.rescind(['groups:search:content'], 'guests', done);

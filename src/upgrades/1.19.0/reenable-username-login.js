@@ -5,7 +5,7 @@ const meta = require('../../meta');
 module.exports = {
     name: 'Re-enable username login',
     timestamp: Date.UTC(2021, 10, 23),
-    method: async () => {
+    async method() {
         const setting = await meta.config.allowLoginWith;
 
         if (setting === 'email') {

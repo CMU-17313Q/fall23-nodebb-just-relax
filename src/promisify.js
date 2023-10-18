@@ -1,6 +1,6 @@
 'use strict';
 
-const util = require('util');
+const util = require('node:util');
 
 module.exports = function (theModule, ignoreKeys) {
     ignoreKeys = ignoreKeys || [];
@@ -8,8 +8,9 @@ module.exports = function (theModule, ignoreKeys) {
         if (typeof func !== 'function') {
             return false;
         }
-        const str = func.toString().split('\n')[0];
-        return str.includes('callback)');
+
+        const string_ = func.toString().split('\n')[0];
+        return string_.includes('callback)');
     }
 
     function isAsyncFunction(fn) {
@@ -22,10 +23,11 @@ module.exports = function (theModule, ignoreKeys) {
         }
 
         const keys = Object.keys(module);
-        keys.forEach((key) => {
+        for (const key of keys) {
             if (ignoreKeys.includes(key)) {
-                return;
+                continue;
             }
+
             if (isAsyncFunction(module[key])) {
                 module[key] = wrapCallback(module[key], util.callbackify(module[key]));
             } else if (isCallbackedFunction(module[key])) {
@@ -33,23 +35,24 @@ module.exports = function (theModule, ignoreKeys) {
             } else if (typeof module[key] === 'object') {
                 promisifyRecursive(module[key]);
             }
-        });
+        }
     }
 
     function wrapCallback(origFn, callbackFn) {
         return async function wrapperCallback(...args) {
-            if (args.length && typeof args[args.length - 1] === 'function') {
+            if (args.length > 0 && typeof args.at(-1) === 'function') {
                 const cb = args.pop();
-                args.push((err, res) => (res !== undefined ? cb(err, res) : cb(err)));
+                args.push((error, res) => (res === undefined ? cb(error) : cb(error, res)));
                 return callbackFn(...args);
             }
+
             return origFn(...args);
         };
     }
 
     function wrapPromise(origFn, promiseFn) {
         return function wrapperPromise(...args) {
-            if (args.length && typeof args[args.length - 1] === 'function') {
+            if (args.length > 0 && typeof args.at(-1) === 'function') {
                 return origFn(...args);
             }
 

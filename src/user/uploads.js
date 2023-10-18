@@ -1,10 +1,9 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
+const crypto = require('node:crypto');
 const nconf = require('nconf');
 const winston = require('winston');
-const crypto = require('crypto');
-
 const db = require('../database');
 const posts = require('../posts');
 const file = require('../file');
@@ -16,7 +15,7 @@ const _validatePath = async (relativePaths) => {
     if (typeof relativePaths === 'string') {
         relativePaths = [relativePaths];
     } else if (!Array.isArray(relativePaths)) {
-        throw new Error(`[[error:wrong-parameter-type, relativePaths, ${typeof relativePaths}, array]]`);
+        throw new TypeError(`[[error:wrong-parameter-type, relativePaths, ${typeof relativePaths}, array]]`);
     }
 
     const fullPaths = relativePaths.map(path => _getFullPath(path));
@@ -40,7 +39,7 @@ module.exports = function (User) {
         if (typeof uploadNames === 'string') {
             uploadNames = [uploadNames];
         } else if (!Array.isArray(uploadNames)) {
-            throw new Error(`[[error:wrong-parameter-type, uploadNames, ${typeof uploadNames}, array]]`);
+            throw new TypeError(`[[error:wrong-parameter-type, uploadNames, ${typeof uploadNames}, array]]`);
         }
 
         await _validatePath(uploadNames);
@@ -71,18 +70,18 @@ module.exports = function (User) {
             // Dissociate the upload from pids, if any
             const pids = await db.getSortedSetsMembers(uploadNames.map(relativePath => `upload:${md5(relativePath)}:pids`));
             await Promise.all(pids.map(async (pids, idx) => Promise.all(
-                pids.map(async pid => posts.uploads.dissociate(pid, uploadNames[idx]))
+                pids.map(async pid => posts.uploads.dissociate(pid, uploadNames[idx])),
             )));
         }, { batch: 50 });
     };
 
     User.collateUploads = async function (uid, archive) {
         await batch.processSortedSet(`uid:${uid}:uploads`, (files, next) => {
-            files.forEach((file) => {
+            for (const file of files) {
                 archive.file(_getFullPath(file), {
                     name: path.basename(file),
                 });
-            });
+            }
 
             setImmediate(next);
         }, { batch: 100 });

@@ -8,7 +8,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Update moderation notes to hashes',
     timestamp: Date.UTC(2019, 3, 5),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('users:joindate', async (uids) => {

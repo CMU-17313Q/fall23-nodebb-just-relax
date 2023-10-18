@@ -8,17 +8,22 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         const isValueArray = Array.isArray(value);
-        if (!value || (isValueArray && !value.length)) {
+        if (!value || (isValueArray && value.length === 0)) {
             return;
         }
+
         if (!isValueArray) {
             value = [value];
         }
 
         if (Array.isArray(key)) {
             const batch = module.client.batch();
-            key.forEach(k => batch.zrem(k, value));
+            for (const k of key) {
+                batch.zrem(k, value);
+            }
+
             await helpers.execBatch(batch);
         } else {
             await module.client.zrem(key, value);
@@ -31,16 +36,23 @@ module.exports = function (module) {
 
     module.sortedSetsRemoveRangeByScore = async function (keys, min, max) {
         const batch = module.client.batch();
-        keys.forEach(k => batch.zremrangebyscore(k, min, max));
+        for (const k of keys) {
+            batch.zremrangebyscore(k, min, max);
+        }
+
         await helpers.execBatch(batch);
     };
 
     module.sortedSetRemoveBulk = async function (data) {
-        if (!Array.isArray(data) || !data.length) {
+        if (!Array.isArray(data) || data.length === 0) {
             return;
         }
+
         const batch = module.client.batch();
-        data.forEach(item => batch.zrem(item[0], item[1]));
+        for (const item of data) {
+            batch.zrem(item[0], item[1]);
+        }
+
         await helpers.execBatch(batch);
     };
 };

@@ -2,7 +2,6 @@
 
 const async = require('async');
 const winston = require('winston');
-
 const db = require('../../database');
 const groups = require('../../groups');
 const user = require('../../user');
@@ -14,12 +13,14 @@ const User = module.exports;
 
 User.makeAdmins = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
+
     const isMembersOfBanned = await groups.isMembers(uids, groups.BANNED_USERS);
     if (isMembersOfBanned.includes(true)) {
         throw new Error('[[error:cant-make-banned-users-admin]]');
     }
+
     for (const uid of uids) {
         /* eslint-disable no-await-in-loop */
         await groups.join('administrators', uid);
@@ -34,14 +35,16 @@ User.makeAdmins = async function (socket, uids) {
 
 User.removeAdmins = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
+
     for (const uid of uids) {
         /* eslint-disable no-await-in-loop */
         const count = await groups.getMemberCount('administrators');
         if (count === 1) {
             throw new Error('[[error:cant-remove-last-admin]]');
         }
+
         await groups.leave('administrators', uid);
         await events.log({
             type: 'user-removeAdmin',
@@ -54,14 +57,15 @@ User.removeAdmins = async function (socket, uids) {
 
 User.resetLockouts = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
+
     await Promise.all(uids.map(uid => user.auth.resetLockout(uid)));
 };
 
 User.validateEmail = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
     for (const uid of uids) {
@@ -71,15 +75,15 @@ User.validateEmail = async function (socket, uids) {
 
 User.sendValidationEmail = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
     const failed = [];
     let errorLogged = false;
     await async.eachLimit(uids, 50, async (uid) => {
-        await user.email.sendValidationEmail(uid, { force: true }).catch((err) => {
+        await user.email.sendValidationEmail(uid, { force: true }).catch((error) => {
             if (!errorLogged) {
-                winston.error(`[user.create] Validation email failed to send\n[emailer.send] ${err.stack}`);
+                winston.error(`[user.create] Validation email failed to send\n[emailer.send] ${error.stack}`);
                 errorLogged = true;
             }
 
@@ -87,37 +91,40 @@ User.sendValidationEmail = async function (socket, uids) {
         });
     });
 
-    if (failed.length) {
-        throw Error(`Email sending failed for the following uids, check server logs for more info: ${failed.join(',')}`);
+    if (failed.length > 0) {
+        throw new Error(`Email sending failed for the following uids, check server logs for more info: ${failed.join(',')}`);
     }
 };
 
 User.sendPasswordResetEmail = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
-    uids = uids.filter(uid => parseInt(uid, 10));
+    uids = uids.filter(uid => Number.parseInt(uid, 10));
 
     await Promise.all(uids.map(async (uid) => {
         const userData = await user.getUserFields(uid, ['email', 'username']);
         if (!userData.email) {
             throw new Error(`[[error:user-doesnt-have-email, ${userData.username}]]`);
         }
+
         await user.reset.send(userData.email);
     }));
 };
 
 User.forcePasswordReset = async function (socket, uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
-    uids = uids.filter(uid => parseInt(uid, 10));
+    uids = uids.filter(uid => Number.parseInt(uid, 10));
 
     await db.setObjectField(uids.map(uid => `user:${uid}`), 'passwordExpiry', Date.now());
     await user.auth.revokeAllSessions(uids);
-    uids.forEach(uid => sockets.in(`uid_${uid}`).emit('event:logout'));
+    for (const uid of uids) {
+        sockets.in(`uid_${uid}`).emit('event:logout');
+    }
 };
 
 User.restartJobs = async function () {
@@ -129,12 +136,13 @@ User.loadGroups = async function (socket, uids) {
         user.getUsersData(uids),
         groups.getUserGroupsFromSet('groups:createtime', uids),
     ]);
-    userData.forEach((data, index) => {
+    for (const [index, data] of userData.entries()) {
         data.groups = groupData[index].filter(group => !groups.isPrivilegeGroup(group.name));
-        data.groups.forEach((group) => {
+        for (const group of data.groups) {
             group.nameEscaped = translator.escape(group.displayName);
-        });
-    });
+        }
+    }
+
     return { users: userData };
 };
 
@@ -150,6 +158,7 @@ User.exportUsersCSV = async function (socket) {
             if (socket.emit) {
                 socket.emit('event:export-users-csv');
             }
+
             const notifications = require('../../notifications');
             const n = await notifications.create({
                 bodyShort: '[[notifications:users-csv-exported]]',
@@ -158,8 +167,8 @@ User.exportUsersCSV = async function (socket) {
                 from: socket.uid,
             });
             await notifications.push(n, [socket.uid]);
-        } catch (err) {
-            winston.error(err.stack);
+        } catch (error) {
+            winston.error(error.stack);
         }
     }, 0);
 };

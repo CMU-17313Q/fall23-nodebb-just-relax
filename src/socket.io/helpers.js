@@ -1,9 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
-const websockets = require('./index');
 const user = require('../user');
 const posts = require('../posts');
 const topics = require('../topics');
@@ -13,12 +11,13 @@ const notifications = require('../notifications');
 const plugins = require('../plugins');
 const utils = require('../utils');
 const batch = require('../batch');
+const websockets = require('./index');
 
 const SocketHelpers = module.exports;
 
 SocketHelpers.notifyNew = async function (uid, type, result) {
     let uids = await user.getUidsFromSet('users:online', 0, -1);
-    uids = uids.filter(toUid => parseInt(toUid, 10) !== uid);
+    uids = uids.filter(toUid => Number.parseInt(toUid, 10) !== uid);
     await batch.processArray(uids, async (uids) => {
         await notifyUids(uid, uids, type, result);
     }, {
@@ -43,20 +42,20 @@ async function notifyUids(uid, uids, type, result) {
     const data = await plugins.hooks.fire('filter:sockets.sendNewPostToUids', {
         uidsTo: uids,
         uidFrom: uid,
-        type: type,
-        post: post,
+        type,
+        post,
     });
 
     post.ip = undefined;
 
-    data.uidsTo.forEach((toUid) => {
+    for (const toUid of data.uidsTo) {
         post.categoryWatchState = categoryWatchStates[toUid];
         post.topic.isFollowing = topicFollowState[toUid];
         websockets.in(`uid_${toUid}`).emit('event:new_post', result);
         if (result.topic && type === 'newTopic') {
             websockets.in(`uid_${toUid}`).emit('event:new_topic', result.topic);
         }
-    });
+    }
 }
 
 async function getWatchStates(uids, tid, cid) {
@@ -77,7 +76,8 @@ SocketHelpers.sendNotificationToPostOwner = async function (pid, fromuid, comman
     if (!pid || !fromuid || !notification) {
         return;
     }
-    fromuid = parseInt(fromuid, 10);
+
+    fromuid = Number.parseInt(fromuid, 10);
     const postData = await posts.getPostFields(pid, ['tid', 'uid', 'content']);
     const [canRead, isIgnoring] = await Promise.all([
         privileges.posts.can('topics:read', pid, postData.uid),
@@ -86,7 +86,8 @@ SocketHelpers.sendNotificationToPostOwner = async function (pid, fromuid, comman
     if (!canRead || isIgnoring[0] || !postData.uid || fromuid === postData.uid) {
         return;
     }
-    const [userData, topicTitle, postObj] = await Promise.all([
+
+    const [userData, topicTitle, postObject] = await Promise.all([
         user.getUserFields(fromuid, ['username']),
         topics.getTopicField(postData.tid, 'title'),
         posts.parsePost(postData),
@@ -95,31 +96,30 @@ SocketHelpers.sendNotificationToPostOwner = async function (pid, fromuid, comman
     const { displayname } = userData;
 
     const title = utils.decodeHTMLEntities(topicTitle);
-    const titleEscaped = title.replace(/%/g, '&#37;').replace(/,/g, '&#44;');
+    const titleEscaped = title.replaceAll('%', '&#37;').replaceAll(',', '&#44;');
 
-    const notifObj = await notifications.create({
+    const notifObject = await notifications.create({
         type: command,
         bodyShort: `[[${notification}, ${displayname}, ${titleEscaped}]]`,
-        bodyLong: postObj.content,
-        pid: pid,
+        bodyLong: postObject.content,
+        pid,
         tid: postData.tid,
         path: `/post/${pid}`,
         nid: `${command}:post:${pid}:uid:${fromuid}`,
         from: fromuid,
         mergeId: `${notification}|${pid}`,
-        topicTitle: topicTitle,
+        topicTitle,
     });
 
-    notifications.push(notifObj, [postData.uid]);
+    notifications.push(notifObject, [postData.uid]);
 };
-
 
 SocketHelpers.sendNotificationToTopicOwner = async function (tid, fromuid, command, notification) {
     if (!tid || !fromuid || !notification) {
         return;
     }
 
-    fromuid = parseInt(fromuid, 10);
+    fromuid = Number.parseInt(fromuid, 10);
 
     const [userData, topicData] = await Promise.all([
         user.getUserFields(fromuid, ['username']),
@@ -134,9 +134,9 @@ SocketHelpers.sendNotificationToTopicOwner = async function (tid, fromuid, comma
 
     const ownerUid = topicData.uid;
     const title = utils.decodeHTMLEntities(topicData.title);
-    const titleEscaped = title.replace(/%/g, '&#37;').replace(/,/g, '&#44;');
+    const titleEscaped = title.replaceAll('%', '&#37;').replaceAll(',', '&#44;');
 
-    const notifObj = await notifications.create({
+    const notifObject = await notifications.create({
         bodyShort: `[[${notification}, ${displayname}, ${titleEscaped}]]`,
         path: `/topic/${topicData.slug}`,
         nid: `${command}:tid:${tid}:uid:${fromuid}`,
@@ -144,7 +144,7 @@ SocketHelpers.sendNotificationToTopicOwner = async function (tid, fromuid, comma
     });
 
     if (ownerUid) {
-        notifications.push(notifObj, [ownerUid]);
+        notifications.push(notifObject, [ownerUid]);
     }
 };
 
@@ -159,22 +159,22 @@ SocketHelpers.upvote = async function (data, notification) {
     const { pid } = data.post;
 
     const shouldNotify = {
-        all: function () {
+        all() {
             return votes > 0;
         },
-        first: function () {
+        first() {
             return votes === 1;
         },
-        everyTen: function () {
+        everyTen() {
             return votes > 0 && votes % 10 === 0;
         },
-        threshold: function () {
+        threshold() {
             return [1, 5, 10, 25].includes(votes) || (votes >= 50 && votes % 50 === 0);
         },
-        logarithmic: function () {
+        logarithmic() {
             return votes > 1 && Math.log10(votes) % 1 === 0;
         },
-        disabled: function () {
+        disabled() {
             return false;
         },
     };
@@ -194,7 +194,9 @@ SocketHelpers.rescindUpvoteNotification = async function (pid, fromuid) {
 };
 
 SocketHelpers.emitToUids = async function (event, data, uids) {
-    uids.forEach(toUid => websockets.in(`uid_${toUid}`).emit(event, data));
+    for (const toUid of uids) {
+        websockets.in(`uid_${toUid}`).emit(event, data);
+    }
 };
 
 require('../promisify')(SocketHelpers);

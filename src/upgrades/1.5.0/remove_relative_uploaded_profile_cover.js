@@ -6,7 +6,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Remove relative_path from uploaded profile cover urls',
     timestamp: Date.UTC(2017, 3, 26),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('users:joindate', async (ids) => {

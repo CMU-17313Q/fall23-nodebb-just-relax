@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const user = require('../user');
 const slugify = require('../slugify');
@@ -45,8 +44,12 @@ module.exports = function (Groups) {
         if (!Array.isArray(groupNames)) {
             groupNames = [groupNames];
         }
+
         const sets = [];
-        groupNames.forEach(groupName => sets.push(`group:${groupName}:pending`, `group:${groupName}:invited`));
+        for (const groupName of groupNames) {
+            sets.push(`group:${groupName}:pending`, `group:${groupName}:invited`);
+        }
+
         await db.setsRemove(sets, uid);
     };
 
@@ -67,7 +70,7 @@ module.exports = function (Groups) {
 
     async function inviteOrRequestMembership(groupName, uids, type) {
         uids = Array.isArray(uids) ? uids : [uids];
-        uids = uids.filter(uid => parseInt(uid, 10) > 0);
+        uids = uids.filter(uid => Number.parseInt(uid, 10) > 0);
         const [exists, isMember, isPending, isInvited] = await Promise.all([
             Groups.exists(groupName),
             Groups.isMembers(uids, groupName),
@@ -85,8 +88,8 @@ module.exports = function (Groups) {
         await db.setAdd(set, uids);
         const hookName = type === 'invite' ? 'inviteMember' : 'requestMembership';
         plugins.hooks.fire(`action:group.${hookName}`, {
-            groupName: groupName,
-            uids: uids,
+            groupName,
+            uids,
         });
         return uids;
     }
@@ -102,16 +105,17 @@ module.exports = function (Groups) {
     async function checkInvitePending(uids, set) {
         const isArray = Array.isArray(uids);
         uids = isArray ? uids : [uids];
-        const checkUids = uids.filter(uid => parseInt(uid, 10) > 0);
+        const checkUids = uids.filter(uid => Number.parseInt(uid, 10) > 0);
         const isMembers = await db.isSetMembers(set, checkUids);
         const map = _.zipObject(checkUids, isMembers);
-        return isArray ? uids.map(uid => !!map[uid]) : !!map[uids[0]];
+        return isArray ? uids.map(uid => Boolean(map[uid])) : Boolean(map[uids[0]]);
     }
 
     Groups.getPending = async function (groupName) {
         if (!groupName) {
             return [];
         }
+
         return await db.getSetMembers(`group:${groupName}:pending`);
     };
 };

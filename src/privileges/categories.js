@@ -2,13 +2,12 @@
 'use strict';
 
 const _ = require('lodash');
-
 const categories = require('../categories');
 const user = require('../user');
 const groups = require('../groups');
-const helpers = require('./helpers');
 const plugins = require('../plugins');
 const utils = require('../utils');
+const helpers = require('./helpers');
 
 const privsCategories = module.exports;
 
@@ -36,8 +35,8 @@ const _privilegeMap = new Map([
     ['moderate', { label: '[[admin/manage/privileges:moderate]]' }],
 ]);
 
-privsCategories.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.list', Array.from(_privilegeMap.keys()));
-privsCategories.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.groups.list', Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`));
+privsCategories.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.list', [..._privilegeMap.keys()]);
+privsCategories.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.groups.list', [..._privilegeMap.keys()].map(privilege => `groups:${privilege}`));
 privsCategories.getPrivilegeList = async () => {
     const [user, group] = await Promise.all([
         privsCategories.getUserPrivilegeList(),
@@ -55,10 +54,10 @@ privsCategories.init = async () => {
 
 // Method used in admin/category controller to show all users/groups with privs in that given cid
 privsCategories.list = async function (cid) {
-    let labels = Array.from(_privilegeMap.values()).map(data => data.label);
+    let labels = [..._privilegeMap.values()].map(data => data.label);
     labels = await utils.promiseParallel({
-        users: plugins.hooks.fire('filter:privileges.list_human', labels.slice()),
-        groups: plugins.hooks.fire('filter:privileges.groups.list_human', labels.slice()),
+        users: plugins.hooks.fire('filter:privileges.list_human', [...labels]),
+        groups: plugins.hooks.fire('filter:privileges.groups.list_human', [...labels]),
     });
 
     const keys = await utils.promiseParallel({
@@ -81,8 +80,12 @@ privsCategories.list = async function (cid) {
 
 privsCategories.get = async function (cid, uid) {
     const privs = [
-        'topics:create', 'topics:read', 'topics:schedule',
-        'topics:tag', 'read', 'posts:view_deleted',
+        'topics:create',
+        'topics:read',
+        'topics:schedule',
+        'topics:tag',
+        'read',
+        'posts:view_deleted',
     ];
 
     const [userPrivileges, isAdministrator, isModerator] = await Promise.all([
@@ -97,18 +100,19 @@ privsCategories.get = async function (cid, uid) {
 
     return await plugins.hooks.fire('filter:privileges.categories.get', {
         ...privData,
-        cid: cid,
-        uid: uid,
+        cid,
+        uid,
         editable: isAdminOrMod,
         view_deleted: isAdminOrMod || privData['posts:view_deleted'],
-        isAdminOrMod: isAdminOrMod,
+        isAdminOrMod,
     });
 };
 
 privsCategories.isAdminOrMod = async function (cid, uid) {
-    if (parseInt(uid, 10) <= 0) {
+    if (Number.parseInt(uid, 10) <= 0) {
         return false;
     }
+
     const [isAdmin, isMod] = await Promise.all([
         user.isAdministrator(uid),
         user.isModerator(uid, cid),
@@ -117,17 +121,20 @@ privsCategories.isAdminOrMod = async function (cid, uid) {
 };
 
 privsCategories.isUserAllowedTo = async function (privilege, cid, uid) {
-    if ((Array.isArray(privilege) && !privilege.length) || (Array.isArray(cid) && !cid.length)) {
+    if ((Array.isArray(privilege) && privilege.length === 0) || (Array.isArray(cid) && cid.length === 0)) {
         return [];
     }
+
     if (!cid) {
         return false;
     }
+
     const results = await helpers.isAllowedTo(privilege, uid, Array.isArray(cid) ? cid : [cid]);
 
-    if (Array.isArray(results) && results.length) {
+    if (Array.isArray(results) && results.length > 0) {
         return Array.isArray(cid) ? results : results[0];
     }
+
     return false;
 };
 
@@ -135,6 +142,7 @@ privsCategories.can = async function (privilege, cid, uid) {
     if (!cid) {
         return false;
     }
+
     const [disabled, isAdmin, isAllowed] = await Promise.all([
         categories.getCategoryField(cid, 'disabled'),
         user.isAdministrator(uid),
@@ -144,7 +152,7 @@ privsCategories.can = async function (privilege, cid, uid) {
 };
 
 privsCategories.filterCids = async function (privilege, cids, uid) {
-    if (!Array.isArray(cids) || !cids.length) {
+    if (!Array.isArray(cids) || cids.length === 0) {
         return [];
     }
 
@@ -155,7 +163,7 @@ privsCategories.filterCids = async function (privilege, cids, uid) {
         user.isAdministrator(uid),
     ]);
     return cids.filter(
-        (cid, index) => !!cid && !categoryData[index].disabled && (allowedTo[index] || isAdmin)
+        (cid, index) => Boolean(cid) && !categoryData[index].disabled && (allowedTo[index] || isAdmin),
     );
 };
 
@@ -170,7 +178,7 @@ privsCategories.getBase = async function (privilege, cids, uid) {
 };
 
 privsCategories.filterUids = async function (privilege, cid, uids) {
-    if (!uids.length) {
+    if (uids.length === 0) {
         return [];
     }
 
@@ -186,7 +194,7 @@ privsCategories.filterUids = async function (privilege, cid, uids) {
 privsCategories.give = async function (privileges, cid, members) {
     await helpers.giveOrRescind(groups.join, privileges, cid, members);
     plugins.hooks.fire('action:privileges.categories.give', {
-        privileges: privileges,
+        privileges,
         cids: Array.isArray(cid) ? cid : [cid],
         members: Array.isArray(members) ? members : [members],
     });
@@ -195,7 +203,7 @@ privsCategories.give = async function (privileges, cid, members) {
 privsCategories.rescind = async function (privileges, cid, members) {
     await helpers.giveOrRescind(groups.leave, privileges, cid, members);
     plugins.hooks.fire('action:privileges.categories.rescind', {
-        privileges: privileges,
+        privileges,
         cids: Array.isArray(cid) ? cid : [cid],
         members: Array.isArray(members) ? members : [members],
     });

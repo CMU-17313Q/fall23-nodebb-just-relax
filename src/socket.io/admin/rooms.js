@@ -1,8 +1,7 @@
 'use strict';
 
-const os = require('os');
+const os = require('node:os');
 const nconf = require('nconf');
-
 const topics = require('../../topics');
 const pubsub = require('../../pubsub');
 const utils = require('../../utils');
@@ -18,7 +17,7 @@ SocketRooms.totals = totals;
 pubsub.on('sync:stats:start', () => {
     const stats = SocketRooms.getLocalStats();
     pubsub.publish('sync:stats:end', {
-        stats: stats,
+        stats,
         id: `${os.hostname()}:${nconf.get('port')}`,
     });
 });
@@ -48,7 +47,6 @@ SocketRooms.getTotalGuestCount = function (callback) {
     }, 100);
 };
 
-
 SocketRooms.getAll = async function () {
     pubsub.publish('sync:stats:start');
 
@@ -74,16 +72,16 @@ SocketRooms.getAll = async function () {
         totals.users.topics += instance.users.topics;
         totals.users.category += instance.users.category;
 
-        instance.topics.forEach((topic) => {
+        for (const topic of instance.topics) {
             totals.topics[topic.tid] = totals.topics[topic.tid] || { count: 0, tid: topic.tid };
             totals.topics[topic.tid].count += topic.count;
-        });
+        }
     }
 
     let topTenTopics = [];
-    Object.keys(totals.topics).forEach((tid) => {
-        topTenTopics.push({ tid: tid, count: totals.topics[tid].count || 0 });
-    });
+    for (const tid of Object.keys(totals.topics)) {
+        topTenTopics.push({ tid, count: totals.topics[tid].count || 0 });
+    }
 
     topTenTopics = topTenTopics.sort((a, b) => b.count - a.count).slice(0, 10);
 
@@ -145,7 +143,7 @@ SocketRooms.getLocalStats = function () {
             if (tid) {
                 socketData.users.topics += clients.size;
                 topTenTopics.push({ tid: tid[1], count: clients.size });
-            } else if (room.match(/^category/)) {
+            } else if (room.startsWith('category')) {
                 socketData.users.category += clients.size;
             }
         }

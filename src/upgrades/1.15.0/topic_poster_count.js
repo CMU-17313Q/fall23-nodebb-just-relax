@@ -1,13 +1,12 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 
 module.exports = {
     name: 'Store poster count in topic hash',
     timestamp: Date.UTC(2020, 9, 24),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('topics:tid', async (tids) => {
@@ -16,14 +15,15 @@ module.exports = {
             await db.sortedSetsRemoveRangeByScore(keys, '-inf', 0);
             const counts = await db.sortedSetsCard(keys);
             const bulkSet = [];
-            for (let i = 0; i < tids.length; i++) {
+            for (const [i, tid] of tids.entries()) {
                 if (counts[i] > 0) {
-                    bulkSet.push([`topic:${tids[i]}`, { postercount: counts[i] }]);
+                    bulkSet.push([`topic:${tid}`, { postercount: counts[i] }]);
                 }
             }
+
             await db.setObjectBulk(bulkSet);
         }, {
-            progress: progress,
+            progress,
             batchSize: 500,
         });
     },

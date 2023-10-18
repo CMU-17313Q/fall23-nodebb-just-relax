@@ -1,6 +1,5 @@
 'use strict';
 
-
 const user = require('../user');
 const topics = require('../topics');
 
@@ -14,6 +13,7 @@ SocketMeta.reconnected = function (socket, data, callback) {
         topics.pushUnreadCount(socket.uid);
         user.notifications.pushCount(socket.uid);
     }
+
     callback();
 };
 
@@ -42,6 +42,7 @@ SocketMeta.rooms.enter = function (socket, data, callback) {
         socket.join(data.enter);
         socket.currentRoom = data.enter;
     }
+
     callback();
 };
 
@@ -49,6 +50,7 @@ SocketMeta.rooms.leaveCurrent = function (socket, data, callback) {
     if (!socket.uid || !socket.currentRoom) {
         return callback();
     }
+
     leaveCurrentRoom(socket);
     callback();
 };

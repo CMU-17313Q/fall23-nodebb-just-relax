@@ -1,23 +1,22 @@
 'use strict';
 
-
+const assert = require('node:assert');
 const async = require('async');
-const assert = require('assert');
 const db = require('../mocks/databasemock');
 
 describe('List methods', () => {
     describe('listAppend()', () => {
         it('should append to a list', (done) => {
-            db.listAppend('testList1', 5, function (err) {
-                assert.ifError(err);
+            db.listAppend('testList1', 5, function (error) {
+                assert.ifError(error);
                 assert.equal(arguments.length, 1);
                 done();
             });
         });
 
         it('should not add anyhing if key is falsy', (done) => {
-            db.listAppend(null, 3, (err) => {
-                assert.ifError(err);
+            db.listAppend(null, 3, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -35,8 +34,8 @@ describe('List methods', () => {
 
     describe('listPrepend()', () => {
         it('should prepend to a list', (done) => {
-            db.listPrepend('testList2', 3, function (err) {
-                assert.equal(err, null);
+            db.listPrepend('testList2', 3, function (error) {
+                assert.equal(error, null);
                 assert.equal(arguments.length, 1);
                 done();
             });
@@ -50,15 +49,15 @@ describe('List methods', () => {
                 function (next) {
                     db.listPrepend('testList2', 1, next);
                 },
-            ], (err) => {
-                assert.equal(err, null);
+            ], (error) => {
+                assert.equal(error, null);
                 done();
             });
         });
 
         it('should not add anyhing if key is falsy', (done) => {
-            db.listPrepend(null, 3, (err) => {
-                assert.ifError(err);
+            db.listPrepend(null, 3, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -90,8 +89,8 @@ describe('List methods', () => {
         });
 
         it('should return an empty list', (done) => {
-            db.getListRange('doesnotexist', 0, -1, function (err, list) {
-                assert.equal(err, null);
+            db.getListRange('doesnotexist', 0, -1, function (error, list) {
+                assert.equal(error, null);
                 assert.equal(arguments.length, 2);
                 assert.equal(Array.isArray(list), true);
                 assert.equal(list.length, 0);
@@ -100,8 +99,8 @@ describe('List methods', () => {
         });
 
         it('should return a list with one element', (done) => {
-            db.getListRange('testList4', 0, 0, (err, list) => {
-                assert.equal(err, null);
+            db.getListRange('testList4', 0, 0, (error, list) => {
+                assert.equal(error, null);
                 assert.equal(Array.isArray(list), true);
                 assert.equal(list[0], 5);
                 done();
@@ -109,8 +108,8 @@ describe('List methods', () => {
         });
 
         it('should return a list with 2 elements 3, 7', (done) => {
-            db.getListRange('testList3', 0, -1, (err, list) => {
-                assert.equal(err, null);
+            db.getListRange('testList3', 0, -1, (error, list) => {
+                assert.equal(error, null);
                 assert.equal(Array.isArray(list), true);
                 assert.equal(list.length, 2);
                 assert.deepEqual(list, ['3', '7']);
@@ -119,8 +118,8 @@ describe('List methods', () => {
         });
 
         it('should not get anything if key is falsy', (done) => {
-            db.getListRange(null, 0, -1, (err, data) => {
-                assert.ifError(err);
+            db.getListRange(null, 0, -1, (error, data) => {
+                assert.ifError(error);
                 assert.equal(data, undefined);
                 done();
             });
@@ -140,8 +139,8 @@ describe('List methods', () => {
         });
 
         it('should remove the last element of list and return it', (done) => {
-            db.listRemoveLast('testList7', function (err, lastElement) {
-                assert.equal(err, null);
+            db.listRemoveLast('testList7', function (error, lastElement) {
+                assert.equal(error, null);
                 assert.equal(arguments.length, 2);
                 assert.equal(lastElement, '12');
                 done();
@@ -149,8 +148,8 @@ describe('List methods', () => {
         });
 
         it('should not remove anyhing if key is falsy', (done) => {
-            db.listRemoveLast(null, (err) => {
-                assert.ifError(err);
+            db.listRemoveLast(null, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -168,12 +167,12 @@ describe('List methods', () => {
         });
 
         it('should remove all the matching elements of list', (done) => {
-            db.listRemoveAll('testList5', '1', function (err) {
-                assert.equal(err, null);
+            db.listRemoveAll('testList5', '1', function (error) {
+                assert.equal(error, null);
                 assert.equal(arguments.length, 1);
 
-                db.getListRange('testList5', 0, -1, (err, list) => {
-                    assert.equal(err, null);
+                db.getListRange('testList5', 0, -1, (error, list) => {
+                    assert.equal(error, null);
                     assert.equal(Array.isArray(list), true);
                     assert.equal(list.length, 2);
                     assert.equal(list.indexOf('1'), -1);
@@ -183,8 +182,8 @@ describe('List methods', () => {
         });
 
         it('should not remove anyhing if key is falsy', (done) => {
-            db.listRemoveAll(null, 3, (err) => {
-                assert.ifError(err);
+            db.listRemoveAll(null, 3, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -204,16 +203,16 @@ describe('List methods', () => {
             const list = ['1', '2', '3', '4', '5'];
             async.eachSeries(list, (value, next) => {
                 db.listAppend('testList6', value, next);
-            }, (err) => {
-                if (err) {
-                    return done(err);
+            }, (error) => {
+                if (error) {
+                    return done(error);
                 }
 
-                db.listTrim('testList6', 0, 2, function (err) {
-                    assert.equal(err, null);
+                db.listTrim('testList6', 0, 2, function (error) {
+                    assert.equal(error, null);
                     assert.equal(arguments.length, 1);
-                    db.getListRange('testList6', 0, -1, (err, list) => {
-                        assert.equal(err, null);
+                    db.getListRange('testList6', 0, -1, (error, list) => {
+                        assert.equal(error, null);
                         assert.equal(list.length, 3);
                         assert.deepEqual(list, ['1', '2', '3']);
                         done();
@@ -223,8 +222,8 @@ describe('List methods', () => {
         });
 
         it('should not add anyhing if key is falsy', (done) => {
-            db.listTrim(null, 0, 3, (err) => {
-                assert.ifError(err);
+            db.listTrim(null, 0, 3, (error) => {
+                assert.ifError(error);
                 done();
             });
         });
@@ -232,12 +231,12 @@ describe('List methods', () => {
 
     describe('listLength', () => {
         it('should get the length of a list', (done) => {
-            db.listAppend('getLengthList', 1, (err) => {
-                assert.ifError(err);
-                db.listAppend('getLengthList', 2, (err) => {
-                    assert.ifError(err);
-                    db.listLength('getLengthList', (err, length) => {
-                        assert.ifError(err);
+            db.listAppend('getLengthList', 1, (error) => {
+                assert.ifError(error);
+                db.listAppend('getLengthList', 2, (error) => {
+                    assert.ifError(error);
+                    db.listLength('getLengthList', (error, length) => {
+                        assert.ifError(error);
                         assert.equal(length, 2);
                         done();
                     });
@@ -246,8 +245,8 @@ describe('List methods', () => {
         });
 
         it('should return 0 if list does not have any elements', (done) => {
-            db.listLength('doesnotexist', (err, length) => {
-                assert.ifError(err);
+            db.listLength('doesnotexist', (error, length) => {
+                assert.ifError(error);
                 assert.strictEqual(length, 0);
                 done();
             });

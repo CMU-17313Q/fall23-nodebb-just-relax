@@ -1,40 +1,38 @@
 'use strict';
 
-
-const nconf = require('nconf');
+const qs = require('node:querystring');
 const validator = require('validator');
-const qs = require('querystring');
-
+const nconf = require('nconf');
 const db = require('../database');
 const privileges = require('../privileges');
 const user = require('../user');
 const categories = require('../categories');
 const meta = require('../meta');
 const pagination = require('../pagination');
-const helpers = require('./helpers');
 const utils = require('../utils');
 const translator = require('../translator');
 const analytics = require('../analytics');
+const helpers = require('./helpers');
 
 const categoryController = module.exports;
 
 const url = nconf.get('url');
 const relative_path = nconf.get('relative_path');
 
-categoryController.get = async function (req, res, next) {
-    const cid = req.params.category_id;
+categoryController.get = async function (request, res, next) {
+    const cid = request.params.category_id;
 
-    let currentPage = parseInt(req.query.page, 10) || 1;
-    let topicIndex = utils.isNumber(req.params.topic_index) ? parseInt(req.params.topic_index, 10) - 1 : 0;
-    if ((req.params.topic_index && !utils.isNumber(req.params.topic_index)) || !utils.isNumber(cid)) {
+    let currentPage = Number.parseInt(request.query.page, 10) || 1;
+    let topicIndex = utils.isNumber(request.params.topic_index) ? Number.parseInt(request.params.topic_index, 10) - 1 : 0;
+    if ((request.params.topic_index && !utils.isNumber(request.params.topic_index)) || !utils.isNumber(cid)) {
         return next();
     }
 
     const [categoryFields, userPrivileges, userSettings, rssToken] = await Promise.all([
         categories.getCategoryFields(cid, ['slug', 'disabled', 'link']),
-        privileges.categories.get(cid, req.uid),
-        user.getSettings(req.uid),
-        user.auth.getFeedToken(req.uid),
+        privileges.categories.get(cid, request.uid),
+        user.getSettings(request.uid),
+        user.auth.getFeedToken(request.uid),
     ]);
 
     if (!categoryFields.slug ||
@@ -42,16 +40,17 @@ categoryController.get = async function (req, res, next) {
         (userSettings.usePagination && currentPage < 1)) {
         return next();
     }
+
     if (topicIndex < 0) {
-        return helpers.redirect(res, `/category/${categoryFields.slug}?${qs.stringify(req.query)}`);
+        return helpers.redirect(res, `/category/${categoryFields.slug}?${qs.stringify(request.query)}`);
     }
 
     if (!userPrivileges.read) {
-        return helpers.notAllowed(req, res);
+        return helpers.notAllowed(request, res);
     }
 
-    if (!res.locals.isAPI && !req.params.slug && (categoryFields.slug && categoryFields.slug !== `${cid}/`)) {
-        return helpers.redirect(res, `/category/${categoryFields.slug}?${qs.stringify(req.query)}`, true);
+    if (!res.locals.isAPI && !request.params.slug && (categoryFields.slug && categoryFields.slug !== `${cid}/`)) {
+        return helpers.redirect(res, `/category/${categoryFields.slug}?${qs.stringify(request.query)}`, true);
     }
 
     if (categoryFields.link) {
@@ -61,34 +60,35 @@ categoryController.get = async function (req, res, next) {
 
     if (!userSettings.usePagination) {
         topicIndex = Math.max(0, topicIndex - (Math.ceil(userSettings.topicsPerPage / 2) - 1));
-    } else if (!req.query.page) {
-        const index = Math.max(parseInt((topicIndex || 0), 10), 0);
+    } else if (!request.query.page) {
+        const index = Math.max(Number.parseInt((topicIndex || 0), 10), 0);
         currentPage = Math.ceil((index + 1) / userSettings.topicsPerPage);
         topicIndex = 0;
     }
 
-    const targetUid = await user.getUidByUserslug(req.query.author);
+    const targetUid = await user.getUidByUserslug(request.query.author);
     const start = ((currentPage - 1) * userSettings.topicsPerPage) + topicIndex;
     const stop = start + userSettings.topicsPerPage - 1;
 
     const categoryData = await categories.getCategoryById({
-        uid: req.uid,
-        cid: cid,
-        start: start,
-        stop: stop,
-        sort: req.query.sort || userSettings.categoryTopicSort,
+        uid: request.uid,
+        cid,
+        start,
+        stop,
+        sort: request.query.sort || userSettings.categoryTopicSort,
         settings: userSettings,
-        query: req.query,
-        tag: req.query.tag,
-        targetUid: targetUid,
+        query: request.query,
+        tag: request.query.tag,
+        targetUid,
     });
     if (!categoryData) {
         return next();
     }
 
     if (topicIndex > Math.max(categoryData.topic_count - 1, 0)) {
-        return helpers.redirect(res, `/category/${categoryData.slug}/${categoryData.topic_count}?${qs.stringify(req.query)}`);
+        return helpers.redirect(res, `/category/${categoryData.slug}/${categoryData.topic_count}?${qs.stringify(request.query)}`);
     }
+
     const pageCount = Math.max(1, Math.ceil(categoryData.topic_count / userSettings.topicsPerPage));
     if (userSettings.usePagination && currentPage > pageCount) {
         return next();
@@ -97,21 +97,21 @@ categoryController.get = async function (req, res, next) {
     categories.modifyTopicsByPrivilege(categoryData.topics, userPrivileges);
     categoryData.tagWhitelist = categories.filterTagWhitelist(categoryData.tagWhitelist, userPrivileges.isAdminOrMod);
 
-    await buildBreadcrumbs(req, categoryData);
-    if (categoryData.children.length) {
+    await buildBreadcrumbs(request, categoryData);
+    if (categoryData.children.length > 0) {
         const allCategories = [];
         categories.flattenCategories(allCategories, categoryData.children);
-        await categories.getRecentTopicReplies(allCategories, req.uid, req.query);
+        await categories.getRecentTopicReplies(allCategories, request.uid, request.query);
         categoryData.subCategoriesLeft = Math.max(0, categoryData.children.length - categoryData.subCategoriesPerPage);
         categoryData.hasMoreSubCategories = categoryData.children.length > categoryData.subCategoriesPerPage;
         categoryData.nextSubCategoryStart = categoryData.subCategoriesPerPage;
         categoryData.children = categoryData.children.slice(0, categoryData.subCategoriesPerPage);
-        categoryData.children.forEach((child) => {
+        for (const child of categoryData.children) {
             if (child) {
                 helpers.trimChildren(child);
                 helpers.setCategoryTeaser(child);
             }
-        });
+        }
     }
 
     categoryData.title = translator.escape(categoryData.name);
@@ -122,27 +122,27 @@ categoryController.get = async function (req, res, next) {
     categoryData.showTopicTools = userPrivileges.editable;
     categoryData.topicIndex = topicIndex;
     categoryData.rssFeedUrl = `${url}/category/${categoryData.cid}.rss`;
-    if (parseInt(req.uid, 10)) {
-        categories.markAsRead([cid], req.uid);
-        categoryData.rssFeedUrl += `?uid=${req.uid}&token=${rssToken}`;
+    if (Number.parseInt(request.uid, 10)) {
+        categories.markAsRead([cid], request.uid);
+        categoryData.rssFeedUrl += `?uid=${request.uid}&token=${rssToken}`;
     }
 
     addTags(categoryData, res);
 
     categoryData['feeds:disableRSS'] = meta.config['feeds:disableRSS'] || 0;
     categoryData['reputation:disabled'] = meta.config['reputation:disabled'];
-    categoryData.pagination = pagination.create(currentPage, pageCount, req.query);
-    categoryData.pagination.rel.forEach((rel) => {
+    categoryData.pagination = pagination.create(currentPage, pageCount, request.query);
+    for (const rel of categoryData.pagination.rel) {
         rel.href = `${url}/category/${categoryData.slug}${rel.href}`;
         res.locals.linkTags.push(rel);
-    });
+    }
 
     analytics.increment([`pageviews:byCid:${categoryData.cid}`]);
 
     res.render('category', categoryData);
 };
 
-async function buildBreadcrumbs(req, categoryData) {
+async function buildBreadcrumbs(request, categoryData) {
     const breadcrumbs = [
         {
             text: categoryData.name,
@@ -151,7 +151,7 @@ async function buildBreadcrumbs(req, categoryData) {
         },
     ];
     const crumbs = await helpers.buildCategoryBreadcrumbs(categoryData.parentCid);
-    if (req.originalUrl.startsWith(`${relative_path}/api/category`) || req.originalUrl.startsWith(`${relative_path}/category`)) {
+    if (request.originalUrl.startsWith(`${relative_path}/api/category`) || request.originalUrl.startsWith(`${relative_path}/category`)) {
         categoryData.breadcrumbs = crumbs.concat(breadcrumbs);
     }
 }
@@ -183,6 +183,7 @@ function addTags(categoryData, res) {
         if (!categoryData.backgroundImage.startsWith('http')) {
             categoryData.backgroundImage = url + categoryData.backgroundImage;
         }
+
         res.locals.metaTags.push({
             property: 'og:image',
             content: categoryData.backgroundImage,

@@ -3,44 +3,45 @@
 const winston = require('winston');
 const validator = require('validator');
 const slugify = require('../slugify');
-
 const meta = require('../meta');
 
 const helpers = module.exports;
 
 helpers.try = function (middleware) {
     if (middleware && middleware.constructor && middleware.constructor.name === 'AsyncFunction') {
-        return async function (req, res, next) {
+        return async function (request, res, next) {
             try {
-                await middleware(req, res, next);
-            } catch (err) {
-                next(err);
+                await middleware(request, res, next);
+            } catch (error) {
+                next(error);
             }
         };
     }
-    return function (req, res, next) {
+
+    return function (request, res, next) {
         try {
-            middleware(req, res, next);
-        } catch (err) {
-            next(err);
+            middleware(request, res, next);
+        } catch (error) {
+            next(error);
         }
     };
 };
 
-helpers.buildBodyClass = function (req, res, templateData = {}) {
-    const clean = req.path.replace(/^\/api/, '').replace(/^\/|\/$/g, '');
+helpers.buildBodyClass = function (request, res, templateData = {}) {
+    const clean = request.path.replace(/^\/api/, '').replaceAll(/^\/|\/$/g, '');
     const parts = clean.split('/').slice(0, 3);
-    parts.forEach((p, index) => {
+    for (let [index, p] of parts.entries()) {
         try {
             p = slugify(decodeURIComponent(p));
-        } catch (err) {
+        } catch (error) {
             winston.error(`Error decoding URI: ${p}`);
-            winston.error(err.stack);
+            winston.error(error.stack);
             p = '';
         }
+
         p = validator.escape(String(p));
         parts[index] = index ? `${parts[0]}-${p}` : `page-${p || 'home'}`;
-    });
+    }
 
     if (templateData.template && templateData.template.topic) {
         parts.push(`page-topic-category-${templateData.category.cid}`);
@@ -48,21 +49,22 @@ helpers.buildBodyClass = function (req, res, templateData = {}) {
     }
 
     if (Array.isArray(templateData.breadcrumbs)) {
-        templateData.breadcrumbs.forEach((crumb) => {
+        for (const crumb of templateData.breadcrumbs) {
             if (crumb && crumb.hasOwnProperty('cid')) {
                 parts.push(`parent-category-${crumb.cid}`);
             }
-        });
+        }
     }
 
     parts.push(`page-status-${res.statusCode}`);
 
     parts.push(`theme-${meta.config['theme:id'].split('-')[2]}`);
 
-    if (req.loggedIn) {
+    if (request.loggedIn) {
         parts.push('user-loggedin');
     } else {
         parts.push('user-guest');
     }
+
     return parts.join(' ');
 };

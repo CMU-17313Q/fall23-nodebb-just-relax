@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const winston = require('winston');
 const db = require('../../database');
@@ -8,7 +7,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Store upvotes/downvotes separately',
     timestamp: Date.UTC(2016, 5, 13),
-    method: function (callback) {
+    method(callback) {
         const batch = require('../../batch');
         const posts = require('../../posts');
         let count = 0;
@@ -19,26 +18,28 @@ module.exports = {
             count += pids.length;
             async.each(pids, (pid, next) => {
                 async.parallel({
-                    upvotes: function (next) {
+                    upvotes(next) {
                         db.setCount(`pid:${pid}:upvote`, next);
                     },
-                    downvotes: function (next) {
+                    downvotes(next) {
                         db.setCount(`pid:${pid}:downvote`, next);
                     },
-                }, (err, results) => {
-                    if (err) {
-                        return next(err);
+                }, (error, results) => {
+                    if (error) {
+                        return next(error);
                     }
+
                     const data = {};
 
-                    if (parseInt(results.upvotes, 10) > 0) {
+                    if (Number.parseInt(results.upvotes, 10) > 0) {
                         data.upvotes = results.upvotes;
                     }
-                    if (parseInt(results.downvotes, 10) > 0) {
+
+                    if (Number.parseInt(results.downvotes, 10) > 0) {
                         data.downvotes = results.downvotes;
                     }
 
-                    if (Object.keys(data).length) {
+                    if (Object.keys(data).length > 0) {
                         posts.setPostFields(pid, data, next);
                     } else {
                         next();
@@ -48,7 +49,7 @@ module.exports = {
                 }, next);
             }, next);
         }, {
-            progress: progress,
+            progress,
         }, callback);
     },
 };

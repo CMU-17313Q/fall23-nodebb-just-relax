@@ -30,6 +30,7 @@ categoriesAPI.update = async function (caller, data) {
     if (!data) {
         throw new Error('[[error:invalid-data]]');
     }
+
     await categories.update(data);
 };
 
@@ -41,7 +42,7 @@ categoriesAPI.delete = async function (caller, data) {
         uid: caller.uid,
         ip: caller.ip,
         cid: data.cid,
-        name: name,
+        name,
     });
 };
 
@@ -50,10 +51,10 @@ categoriesAPI.getPrivileges = async (caller, cid) => {
 
     if (cid === 'admin') {
         responsePayload = await privileges.admin.list(caller.uid);
-    } else if (!parseInt(cid, 10)) {
-        responsePayload = await privileges.global.list();
-    } else {
+    } else if (Number.parseInt(cid, 10)) {
         responsePayload = await privileges.categories.list(cid);
+    } else {
+        responsePayload = await privileges.global.list();
     }
 
     return responsePayload;
@@ -68,20 +69,23 @@ categoriesAPI.setPrivilege = async (caller, data) => {
     if (!userExists && !groupExists) {
         throw new Error('[[error:no-user-or-group]]');
     }
+
     const privs = Array.isArray(data.privilege) ? data.privilege : [data.privilege];
     const type = data.set ? 'give' : 'rescind';
-    if (!privs.length) {
+    if (privs.length === 0) {
         throw new Error('[[error:invalid-data]]');
     }
-    if (parseInt(data.cid, 10) === 0) {
+
+    if (Number.parseInt(data.cid, 10) === 0) {
         const adminPrivList = await privileges.admin.getPrivilegeList();
         const adminPrivs = privs.filter(priv => adminPrivList.includes(priv));
-        if (adminPrivs.length) {
+        if (adminPrivs.length > 0) {
             await privileges.admin[type](adminPrivs, data.member);
         }
+
         const globalPrivList = await privileges.global.getPrivilegeList();
         const globalPrivs = privs.filter(priv => globalPrivList.includes(priv));
-        if (globalPrivs.length) {
+        if (globalPrivs.length > 0) {
             await privileges.global[type](globalPrivs, data.member);
         }
     } else {

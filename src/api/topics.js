@@ -5,7 +5,6 @@ const topics = require('../topics');
 const posts = require('../posts');
 const meta = require('../meta');
 const privileges = require('../privileges');
-
 const apiHelpers = require('./helpers');
 
 const { doTopicAction } = apiHelpers;
@@ -40,10 +39,10 @@ topicsAPI.create = async function (caller, data) {
     const payload = { ...data };
     payload.tags = payload.tags || [];
     apiHelpers.setDefaultPostData(caller, payload);
-    const isScheduling = parseInt(data.timestamp, 10) > payload.timestamp;
+    const isScheduling = Number.parseInt(data.timestamp, 10) > payload.timestamp;
     if (isScheduling) {
         if (await privileges.categories.can('topics:schedule', data.cid, caller.uid)) {
-            payload.timestamp = parseInt(data.timestamp, 10);
+            payload.timestamp = Number.parseInt(data.timestamp, 10);
         } else {
             throw new Error('[[error:no-privileges]]');
         }
@@ -69,6 +68,7 @@ topicsAPI.reply = async function (caller, data) {
     if (!data || !data.tid || (meta.config.minimumPostLength !== 0 && !data.content)) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const payload = { ...data };
     apiHelpers.setDefaultPostData(caller, payload);
 
@@ -78,8 +78,8 @@ topicsAPI.reply = async function (caller, data) {
         return await posts.addToQueue(payload);
     }
 
-    const postData = await topics.reply(payload); // postData seems to be a subset of postObj, refactor?
-    const postObj = await posts.getPostSummaryByPids([postData.pid], caller.uid, {});
+    const postData = await topics.reply(payload); // PostData seems to be a subset of postObj, refactor?
+    const postObject = await posts.getPostSummaryByPids([postData.pid], caller.uid, {});
 
     const result = {
         posts: [postData],
@@ -96,7 +96,7 @@ topicsAPI.reply = async function (caller, data) {
 
     socketHelpers.notifyNew(caller.uid, 'newPost', result);
 
-    return postObj[0];
+    return postObject[0];
 };
 
 topicsAPI.delete = async function (caller, data) {

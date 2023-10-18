@@ -6,7 +6,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Fix topics in categories per user if they were moved',
     timestamp: Date.UTC(2018, 0, 22),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('topics:tid', async (tids) => {
@@ -22,7 +22,7 @@ module.exports = {
                 }
             }));
         }, {
-            progress: progress,
+            progress,
             batch: 500,
         });
     },

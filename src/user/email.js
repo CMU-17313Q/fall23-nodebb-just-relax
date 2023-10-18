@@ -3,8 +3,6 @@
 
 const nconf = require('nconf');
 const winston = require('winston');
-
-const user = require('./index');
 const utils = require('../utils');
 const plugins = require('../plugins');
 const db = require('../database');
@@ -12,12 +10,13 @@ const meta = require('../meta');
 const emailer = require('../emailer');
 const groups = require('../groups');
 const events = require('../events');
+const user = require('./index');
 
 const UserEmail = module.exports;
 
 UserEmail.exists = async function (email) {
     const uid = await user.getUidByEmail(email.toLowerCase());
-    return !!uid;
+    return Boolean(uid);
 };
 
 UserEmail.available = async function (email) {
@@ -48,11 +47,11 @@ UserEmail.isValidationPending = async (uid, email) => {
     const code = await db.get(`confirm:byUid:${uid}`);
 
     if (email) {
-        const confirmObj = await db.getObject(`confirm:${code}`);
-        return !!(confirmObj && email === confirmObj.email);
+        const confirmObject = await db.getObject(`confirm:${code}`);
+        return Boolean(confirmObject && email === confirmObject.email);
     }
 
-    return !!code;
+    return Boolean(code);
 };
 
 UserEmail.getValidationExpiry = async (uid) => {
@@ -109,9 +108,10 @@ UserEmail.sendValidationEmail = async function (uid, options) {
     const { emailConfirmInterval, emailConfirmExpiry } = meta.config;
 
     // If no email passed in (default), retrieve email from uid
-    if (!options.email || !options.email.length) {
+    if (!options.email || options.email.length === 0) {
         options.email = await user.getUserField(uid, 'email');
     }
+
     if (!options.email) {
         return;
     }
@@ -138,7 +138,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 
     await db.setObject(`confirm:${confirm_code}`, {
         email: options.email.toLowerCase(),
-        uid: uid,
+        uid,
     });
     await db.pexpire(`confirm:${confirm_code}`, emailConfirmExpiry * 24 * 60 * 60 * 1000);
 
@@ -151,46 +151,44 @@ UserEmail.sendValidationEmail = async function (uid, options) {
     });
 
     if (plugins.hooks.hasListeners('action:user.verify')) {
-        plugins.hooks.fire('action:user.verify', { uid: uid, data: data });
+        plugins.hooks.fire('action:user.verify', { uid, data });
     } else {
         await emailer.send(data.template, uid, data);
     }
+
     return confirm_code;
 };
 
-// confirm email by code sent by confirmation email
+// Confirm email by code sent by confirmation email
 UserEmail.confirmByCode = async function (code, sessionId) {
-    const confirmObj = await db.getObject(`confirm:${code}`);
-    if (!confirmObj || !confirmObj.uid || !confirmObj.email) {
+    const confirmObject = await db.getObject(`confirm:${code}`);
+    if (!confirmObject || !confirmObject.uid || !confirmObject.email) {
         throw new Error('[[error:invalid-data]]');
     }
 
     // If another uid has the same email, remove it
-    const oldUid = await db.sortedSetScore('email:uid', confirmObj.email.toLowerCase());
+    const oldUid = await db.sortedSetScore('email:uid', confirmObject.email.toLowerCase());
     if (oldUid) {
         await UserEmail.remove(oldUid, sessionId);
     }
 
-    const oldEmail = await user.getUserField(confirmObj.uid, 'email');
-    if (oldEmail && confirmObj.email !== oldEmail) {
-        await UserEmail.remove(confirmObj.uid, sessionId);
-    } else {
-        await user.auth.revokeAllSessions(confirmObj.uid, sessionId);
-    }
+    const oldEmail = await user.getUserField(confirmObject.uid, 'email');
+    await (oldEmail && confirmObject.email !== oldEmail ? UserEmail.remove(confirmObject.uid, sessionId) : user.auth.revokeAllSessions(confirmObject.uid, sessionId));
 
-    await user.setUserField(confirmObj.uid, 'email', confirmObj.email);
+    await user.setUserField(confirmObject.uid, 'email', confirmObject.email);
     await Promise.all([
-        UserEmail.confirmByUid(confirmObj.uid),
+        UserEmail.confirmByUid(confirmObject.uid),
         db.delete(`confirm:${code}`),
-        events.log({ type: 'email-change', oldEmail, newEmail: confirmObj.email }),
+        events.log({ type: 'email-change', oldEmail, newEmail: confirmObject.email }),
     ]);
 };
 
-// confirm uid's email via ACP
+// Confirm uid's email via ACP
 UserEmail.confirmByUid = async function (uid) {
-    if (!(parseInt(uid, 10) > 0)) {
+    if (!(Number.parseInt(uid, 10) > 0)) {
         throw new Error('[[error:invalid-uid]]');
     }
+
     const currentEmail = await user.getUserField(uid, 'email');
     if (!currentEmail) {
         throw new Error('[[error:invalid-email]]');
@@ -208,5 +206,5 @@ UserEmail.confirmByUid = async function (uid) {
         user.email.expireValidation(uid),
         user.reset.cleanByUid(uid),
     ]);
-    await plugins.hooks.fire('action:user.email.confirmed', { uid: uid, email: currentEmail });
+    await plugins.hooks.fire('action:user.email.confirmed', { uid, email: currentEmail });
 };

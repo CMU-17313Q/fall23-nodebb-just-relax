@@ -4,12 +4,12 @@ module.exports = function (module) {
     const helpers = require('./helpers');
 
     module.flushdb = async function () {
-        await module.pool.query(`DROP SCHEMA "public" CASCADE`);
-        await module.pool.query(`CREATE SCHEMA "public"`);
+        await module.pool.query('DROP SCHEMA "public" CASCADE');
+        await module.pool.query('CREATE SCHEMA "public"');
     };
 
     module.emptydb = async function () {
-        await module.pool.query(`DELETE FROM "legacy_object"`);
+        await module.pool.query('DELETE FROM "legacy_object"');
     };
 
     module.exists = async function (key) {
@@ -24,6 +24,7 @@ module.exports = function (module) {
                 const members = await Promise.all(key.map(key => module.getSortedSetRange(key, 0, 0)));
                 return members.map(member => member.length > 0);
             }
+
             const members = await module.getSortedSetRange(key, 0, 0);
             return members.length > 0;
         }
@@ -39,6 +40,7 @@ module.exports = function (module) {
             });
             return key.map(k => res.rows.some(r => r.k === k));
         }
+
         const res = await module.pool.query({
             name: 'exists',
             text: `
@@ -51,13 +53,14 @@ module.exports = function (module) {
         return res.rows[0].e;
     };
 
-    module.scan = async function (params) {
-        let { match } = params;
+    module.scan = async function (parameters) {
+        let { match } = parameters;
         if (match.startsWith('*')) {
-            match = `%${match.substring(1)}`;
+            match = `%${match.slice(1)}`;
         }
+
         if (match.endsWith('*')) {
-            match = `${match.substring(0, match.length - 1)}%`;
+            match = `${match.slice(0, Math.max(0, match.length - 1))}%`;
         }
 
         const res = await module.pool.query({
@@ -85,7 +88,7 @@ DELETE FROM "legacy_object"
     };
 
     module.deleteAll = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
@@ -116,7 +119,7 @@ SELECT s."data" t
             values: [key],
         });
 
-        return res.rows.length ? res.rows[0].t : null;
+        return res.rows.length > 0 ? res.rows[0].t : null;
     };
 
     module.set = async function (key, value) {
@@ -155,7 +158,7 @@ DO UPDATE SET "data" = ("legacy_string"."data"::NUMERIC + 1)::TEXT
 RETURNING "data" d`,
                 values: [key],
             });
-            return parseFloat(res.rows[0].d);
+            return Number.parseFloat(res.rows[0].d);
         });
     };
 
@@ -190,7 +193,7 @@ SELECT "type"::TEXT t
             values: [key],
         });
 
-        return res.rows.length ? res.rows[0].t : null;
+        return res.rows.length > 0 ? res.rows[0].t : null;
     };
 
     async function doExpire(key, date) {
@@ -213,7 +216,7 @@ UPDATE "legacy_object"
     };
 
     module.pexpire = async function (key, ms) {
-        await doExpire(key, new Date(Date.now() + parseInt(ms, 10)));
+        await doExpire(key, new Date(Date.now() + Number.parseInt(ms, 10)));
     };
 
     module.pexpireAt = async function (key, timestamp) {
@@ -231,7 +234,7 @@ SELECT "expireAt"::TEXT
             values: [key],
         });
 
-        return res.rows.length ? new Date(res.rows[0].expireAt).getTime() : null;
+        return res.rows.length > 0 ? new Date(res.rows[0].expireAt).getTime() : null;
     }
 
     module.ttl = async function (key) {

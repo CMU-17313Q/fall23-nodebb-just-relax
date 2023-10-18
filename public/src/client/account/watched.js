@@ -1,14 +1,11 @@
-'use strict';
+define('forum/account/watched', ['forum/account/header', 'forum/account/topics'], (header, topics) => {
+	const AccountWatched = {};
 
+	AccountWatched.init = function () {
+		header.init();
 
-define('forum/account/watched', ['forum/account/header', 'forum/account/topics'], function (header, topics) {
-    const AccountWatched = {};
+		topics.handleInfiniteScroll('account/watched');
+	};
 
-    AccountWatched.init = function () {
-        header.init();
-
-        topics.handleInfiniteScroll('account/watched');
-    };
-
-    return AccountWatched;
+	return AccountWatched;
 });

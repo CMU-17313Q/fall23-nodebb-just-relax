@@ -1,13 +1,12 @@
 'use strict';
 
-
 const batch = require('../../batch');
 const db = require('../../database');
 
 module.exports = {
     name: 'Add votes to topics',
     timestamp: Date.UTC(2017, 11, 8),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         batch.processSortedSet('topics:tid', async (tids) => {
@@ -17,25 +16,25 @@ module.exports = {
                 if (topicData.mainPid && topicData.cid) {
                     const postData = await db.getObject(`post:${topicData.mainPid}`);
                     if (postData) {
-                        const upvotes = parseInt(postData.upvotes, 10) || 0;
-                        const downvotes = parseInt(postData.downvotes, 10) || 0;
+                        const upvotes = Number.parseInt(postData.upvotes, 10) || 0;
+                        const downvotes = Number.parseInt(postData.downvotes, 10) || 0;
                         const data = {
-                            upvotes: upvotes,
-                            downvotes: downvotes,
+                            upvotes,
+                            downvotes,
                         };
                         const votes = upvotes - downvotes;
                         await Promise.all([
                             db.setObject(`topic:${tid}`, data),
                             db.sortedSetAdd('topics:votes', votes, tid),
                         ]);
-                        if (parseInt(topicData.pinned, 10) !== 1) {
+                        if (Number.parseInt(topicData.pinned, 10) !== 1) {
                             await db.sortedSetAdd(`cid:${topicData.cid}:tids:votes`, votes, tid);
                         }
                     }
                 }
             }));
         }, {
-            progress: progress,
+            progress,
             batch: 500,
         });
     },

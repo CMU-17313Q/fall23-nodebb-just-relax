@@ -8,8 +8,8 @@ const helpers = require('./helpers');
 
 const globalModsController = module.exports;
 
-globalModsController.ipBlacklist = async function (req, res, next) {
-    const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(req.uid);
+globalModsController.ipBlacklist = async function (request, res, next) {
+    const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(request.uid);
     if (!isAdminOrGlobalMod) {
         return next();
     }
@@ -20,17 +20,17 @@ globalModsController.ipBlacklist = async function (req, res, next) {
     ]);
     res.render('ip-blacklist', {
         title: '[[pages:ip-blacklist]]',
-        rules: rules,
+        rules,
         analytics: analyticsData,
         breadcrumbs: helpers.buildBreadcrumbs([{ text: '[[pages:ip-blacklist]]' }]),
     });
 };
 
-
-globalModsController.registrationQueue = async function (req, res, next) {
-    const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(req.uid);
+globalModsController.registrationQueue = async function (request, res, next) {
+    const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(request.uid);
     if (!isAdminOrGlobalMod) {
         return next();
     }
-    await usersController.registrationQueue(req, res);
+
+    await usersController.registrationQueue(request, res);
 };

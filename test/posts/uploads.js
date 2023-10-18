@@ -1,16 +1,13 @@
 'use strict';
 
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const crypto = require('node:crypto');
 const nconf = require('nconf');
 const async = require('async');
-const crypto = require('crypto');
-
 const db = require('../mocks/databasemock');
-
 const categories = require('../../src/categories');
 const topics = require('../../src/topics');
 const posts = require('../../src/posts');
@@ -22,7 +19,9 @@ const utils = require('../../src/utils');
 const _filenames = ['abracadabra.png', 'shazam.jpg', 'whoa.gif', 'amazeballs.jpg', 'wut.txt', 'test.bmp'];
 const _recreateFiles = () => {
     // Create stub files for testing
-    _filenames.forEach(filename => fs.closeSync(fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w')));
+    for (const filename of _filenames) {
+        fs.closeSync(fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w'));
+    }
 };
 
 describe('upload methods', () => {
@@ -64,11 +63,11 @@ describe('upload methods', () => {
 
     describe('.sync()', () => {
         it('should properly add new images to the post\'s zset', (done) => {
-            posts.uploads.sync(pid, (err) => {
-                assert.ifError(err);
+            posts.uploads.sync(pid, (error) => {
+                assert.ifError(error);
 
-                db.sortedSetCard(`post:${pid}:uploads`, (err, length) => {
-                    assert.ifError(err);
+                db.sortedSetCard(`post:${pid}:uploads`, (error, length) => {
+                    assert.ifError(error);
                     assert.strictEqual(length, 2);
                     done();
                 });
@@ -79,16 +78,16 @@ describe('upload methods', () => {
             async.series([
                 function (next) {
                     posts.edit({
-                        pid: pid,
+                        pid,
                         uid,
                         content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png)... AND NO MORE!',
                     }, next);
                 },
                 async.apply(posts.uploads.sync, pid),
-            ], (err) => {
-                assert.ifError(err);
-                db.sortedSetCard(`post:${pid}:uploads`, (err, length) => {
-                    assert.ifError(err);
+            ], (error) => {
+                assert.ifError(error);
+                db.sortedSetCard(`post:${pid}:uploads`, (error, length) => {
+                    assert.ifError(error);
                     assert.strictEqual(1, length);
                     done();
                 });
@@ -98,8 +97,8 @@ describe('upload methods', () => {
 
     describe('.list()', () => {
         it('should display the uploaded files for a specific post', (done) => {
-            posts.uploads.list(pid, (err, uploads) => {
-                assert.ifError(err);
+            posts.uploads.list(pid, (error, uploads) => {
+                assert.ifError(error);
                 assert.equal(true, Array.isArray(uploads));
                 assert.strictEqual(1, uploads.length);
                 assert.equal('string', typeof uploads[0]);
@@ -110,16 +109,16 @@ describe('upload methods', () => {
 
     describe('.isOrphan()', () => {
         it('should return false if upload is not an orphan', (done) => {
-            posts.uploads.isOrphan('files/abracadabra.png', (err, isOrphan) => {
-                assert.ifError(err);
+            posts.uploads.isOrphan('files/abracadabra.png', (error, isOrphan) => {
+                assert.ifError(error);
                 assert.equal(isOrphan, false);
                 done();
             });
         });
 
         it('should return true if upload is an orphan', (done) => {
-            posts.uploads.isOrphan('files/shazam.jpg', (err, isOrphan) => {
-                assert.ifError(err);
+            posts.uploads.isOrphan('files/shazam.jpg', (error, isOrphan) => {
+                assert.ifError(error);
                 assert.equal(true, isOrphan);
                 done();
             });
@@ -131,8 +130,8 @@ describe('upload methods', () => {
             async.waterfall([
                 async.apply(posts.uploads.associate, pid, 'files/whoa.gif'),
                 async.apply(posts.uploads.list, pid),
-            ], (err, uploads) => {
-                assert.ifError(err);
+            ], (error, uploads) => {
+                assert.ifError(error);
                 assert.strictEqual(2, uploads.length);
                 assert.strictEqual(true, uploads.includes('files/whoa.gif'));
                 done();
@@ -143,8 +142,8 @@ describe('upload methods', () => {
             async.waterfall([
                 async.apply(posts.uploads.associate, pid, ['files/amazeballs.jpg', 'files/wut.txt']),
                 async.apply(posts.uploads.list, pid),
-            ], (err, uploads) => {
-                assert.ifError(err);
+            ], (error, uploads) => {
+                assert.ifError(error);
                 assert.strictEqual(4, uploads.length);
                 assert.strictEqual(true, uploads.includes('files/amazeballs.jpg'));
                 assert.strictEqual(true, uploads.includes('files/wut.txt'));
@@ -160,8 +159,8 @@ describe('upload methods', () => {
                 function (next) {
                     db.getSortedSetRange(`upload:${md5('files/test.bmp')}:pids`, 0, -1, next);
                 },
-            ], (err, pids) => {
-                assert.ifError(err);
+            ], (error, pids) => {
+                assert.ifError(error);
                 assert.strictEqual(true, Array.isArray(pids));
                 assert.strictEqual(true, pids.length > 0);
                 assert.equal(pid, pids[0]);
@@ -173,8 +172,8 @@ describe('upload methods', () => {
             async.waterfall([
                 async.apply(posts.uploads.associate, pid, ['files/nonexistant.xls']),
                 async.apply(posts.uploads.list, pid),
-            ], (err, uploads) => {
-                assert.ifError(err);
+            ], (error, uploads) => {
+                assert.ifError(error);
                 assert.strictEqual(uploads.length, 5);
                 assert.strictEqual(false, uploads.includes('files/nonexistant.xls'));
                 done();
@@ -187,8 +186,8 @@ describe('upload methods', () => {
             async.waterfall([
                 async.apply(posts.uploads.dissociate, pid, 'files/whoa.gif'),
                 async.apply(posts.uploads.list, pid),
-            ], (err, uploads) => {
-                assert.ifError(err);
+            ], (error, uploads) => {
+                assert.ifError(error);
                 assert.strictEqual(4, uploads.length);
                 assert.strictEqual(false, uploads.includes('files/whoa.gif'));
                 done();
@@ -199,8 +198,8 @@ describe('upload methods', () => {
             async.waterfall([
                 async.apply(posts.uploads.dissociate, pid, ['files/amazeballs.jpg', 'files/wut.txt']),
                 async.apply(posts.uploads.list, pid),
-            ], (err, uploads) => {
-                assert.ifError(err);
+            ], (error, uploads) => {
+                assert.ifError(error);
                 assert.strictEqual(2, uploads.length);
                 assert.strictEqual(false, uploads.includes('files/amazeballs.jpg'));
                 assert.strictEqual(false, uploads.includes('files/wut.txt'));
@@ -306,9 +305,9 @@ describe('upload methods', () => {
                 await posts.uploads.deleteFromDisk({
                     files: ['files/abracadabra.png'],
                 });
-            } catch (err) {
-                assert(!!err);
-                assert.strictEqual(err.message, '[[error:wrong-parameter-type, filePaths, object, array]]');
+            } catch (error) {
+                assert(Boolean(error));
+                assert.strictEqual(error.message, '[[error:wrong-parameter-type, filePaths, object, array]]');
             }
         });
 
@@ -324,14 +323,14 @@ describe('upload methods', () => {
         });
 
         it('should not delete files if they are not in `uploads/files/` (path traversal)', async () => {
-            const tmpFilePath = path.resolve(os.tmpdir(), `derp${utils.generateUUID()}`);
-            await fs.promises.appendFile(tmpFilePath, '');
-            await posts.uploads.deleteFromDisk(['../files/503.html', tmpFilePath]);
+            const temporaryFilePath = path.resolve(os.tmpdir(), `derp${utils.generateUUID()}`);
+            await fs.promises.appendFile(temporaryFilePath, '');
+            await posts.uploads.deleteFromDisk(['../files/503.html', temporaryFilePath]);
 
             assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '../files/503.html')), true);
-            assert.strictEqual(await file.exists(tmpFilePath), true);
+            assert.strictEqual(await file.exists(temporaryFilePath), true);
 
-            await file.delete(tmpFilePath);
+            await file.delete(temporaryFilePath);
         });
 
         it('should delete files even if they are not orphans', async () => {
@@ -389,8 +388,8 @@ describe('post uploads management', () => {
     });
 
     it('should automatically sync uploads on topic create and reply', (done) => {
-        db.sortedSetsCard([`post:${topic.topicData.mainPid}:uploads`, `post:${reply.pid}:uploads`], (err, lengths) => {
-            assert.ifError(err);
+        db.sortedSetsCard([`post:${topic.topicData.mainPid}:uploads`, `post:${reply.pid}:uploads`], (error, lengths) => {
+            assert.ifError(error);
             assert.strictEqual(lengths[0], 1);
             assert.strictEqual(lengths[1], 1);
             done();
@@ -407,8 +406,8 @@ describe('post uploads management', () => {
             function (postData, next) {
                 posts.uploads.list(reply.pid, next);
             },
-        ], (err, uploads) => {
-            assert.ifError(err);
+        ], (error, uploads) => {
+            assert.ifError(error);
             assert.strictEqual(true, Array.isArray(uploads));
             assert.strictEqual(0, uploads.length);
             done();

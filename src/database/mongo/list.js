@@ -7,20 +7,18 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         value = Array.isArray(value) ? value : [value];
         value.reverse();
         const exists = await module.isObjectField(key, 'array');
-        if (exists) {
-            await listPush(key, value, { $position: 0 });
-        } else {
-            await module.listAppend(key, value);
-        }
+        await (exists ? listPush(key, value, { $position: 0 }) : module.listAppend(key, value));
     };
 
     module.listAppend = async function (key, value) {
         if (!key) {
             return;
         }
+
         value = Array.isArray(value) ? value : [value];
         await listPush(key, value);
     };
@@ -33,7 +31,7 @@ module.exports = function (module) {
             $push: {
                 array: {
                     $each: values,
-                    ...(position || {}),
+                    ...position,
                 },
             },
         }, {
@@ -45,21 +43,19 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         const value = await module.getListRange(key, -1, -1);
         module.client.collection('objects').updateOne({ _key: key }, { $pop: { array: 1 } });
-        return (value && value.length) ? value[0] : null;
+        return (value && value.length > 0) ? value[0] : null;
     };
 
     module.listRemoveAll = async function (key, value) {
         if (!key) {
             return;
         }
+
         const isArray = Array.isArray(value);
-        if (isArray) {
-            value = value.map(helpers.valueToString);
-        } else {
-            value = helpers.valueToString(value);
-        }
+        value = isArray ? value.map(helpers.valueToString) : helpers.valueToString(value);
 
         await module.client.collection('objects').updateOne({
             _key: key,
@@ -72,6 +68,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         const value = await module.getListRange(key, start, stop);
         await module.client.collection('objects').updateOne({ _key: key }, { $set: { array: value } });
     };
@@ -86,7 +83,7 @@ module.exports = function (module) {
             return [];
         }
 
-        return data.array.slice(start, stop !== -1 ? stop + 1 : undefined);
+        return data.array.slice(start, stop === -1 ? undefined : stop + 1);
     };
 
     module.listLength = async function (key) {

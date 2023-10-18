@@ -2,10 +2,9 @@
 
 const nconf = require('nconf');
 const winston = require('winston');
-
 const plugins = require('../plugins');
-const Meta = require('./index');
 const utils = require('../utils');
+const Meta = require('./index');
 
 const Tags = module.exports;
 
@@ -13,7 +12,7 @@ const url = nconf.get('url');
 const relative_path = nconf.get('relative_path');
 const upload_url = nconf.get('upload_url');
 
-Tags.parse = async (req, data, meta, link) => {
+Tags.parse = async (request, data, meta, link) => {
     // Meta tags
     const defaultTags = [{
         name: 'viewport',
@@ -66,7 +65,7 @@ Tags.parse = async (req, data, meta, link) => {
     }, {
         rel: 'manifest',
         href: `${relative_path}/manifest.webmanifest`,
-        crossorigin: `use-credentials`,
+        crossorigin: 'use-credentials',
     }];
 
     if (plugins.hooks.hasListeners('filter:search.query')) {
@@ -144,8 +143,8 @@ Tags.parse = async (req, data, meta, link) => {
     }
 
     const results = await utils.promiseParallel({
-        tags: plugins.hooks.fire('filter:meta.getMetaTags', { req: req, data: data, tags: defaultTags }),
-        links: plugins.hooks.fire('filter:meta.getLinkTags', { req: req, data: data, links: defaultLinks }),
+        tags: plugins.hooks.fire('filter:meta.getMetaTags', { req: request, data, tags: defaultTags }),
+        links: plugins.hooks.fire('filter:meta.getLinkTags', { req: request, data, links: defaultLinks }),
     });
 
     meta = results.tags.tags.concat(meta || []).map((tag) => {
@@ -156,9 +155,9 @@ Tags.parse = async (req, data, meta, link) => {
 
         if (!tag.noEscape) {
             const attributes = Object.keys(tag);
-            attributes.forEach((attr) => {
+            for (const attr of attributes) {
                 tag[attr] = utils.escapeHTML(String(tag[attr]));
-            });
+            }
         }
 
         return tag;
@@ -167,7 +166,7 @@ Tags.parse = async (req, data, meta, link) => {
     await addSiteOGImage(meta);
 
     addIfNotExists(meta, 'property', 'og:title', Meta.config.title || 'NodeBB');
-    const ogUrl = url + (req.originalUrl !== '/' ? stripRelativePath(req.originalUrl) : '');
+    const ogUrl = url + (request.originalUrl === '/' ? '' : stripRelativePath(request.originalUrl));
     addIfNotExists(meta, 'property', 'og:url', ogUrl);
     addIfNotExists(meta, 'name', 'description', Meta.config.description);
     addIfNotExists(meta, 'property', 'og:description', Meta.config.description);
@@ -175,9 +174,9 @@ Tags.parse = async (req, data, meta, link) => {
     link = results.links.links.concat(link || []).map((tag) => {
         if (!tag.noEscape) {
             const attributes = Object.keys(tag);
-            attributes.forEach((attr) => {
+            for (const attr of attributes) {
                 tag[attr] = utils.escapeHTML(String(tag[attr]));
-            });
+            }
         }
 
         return tag;
@@ -188,11 +187,11 @@ Tags.parse = async (req, data, meta, link) => {
 
 function addIfNotExists(meta, keyName, tagName, value) {
     let exists = false;
-    meta.forEach((tag) => {
+    for (const tag of meta) {
         if (tag[keyName] === tagName) {
             exists = true;
         }
-    });
+    }
 
     if (!exists && value) {
         const data = {
@@ -227,7 +226,7 @@ async function addSiteOGImage(meta) {
     });
 
     const properties = ['url', 'secure_url', 'type', 'width', 'height', 'alt'];
-    images.forEach((image) => {
+    for (const image of images) {
         for (const property of properties) {
             if (image.hasOwnProperty(property)) {
                 switch (property) {
@@ -265,5 +264,5 @@ async function addSiteOGImage(meta) {
                 }
             }
         }
-    });
+    }
 }

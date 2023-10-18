@@ -6,19 +6,19 @@ const pagination = require('../../pagination');
 
 const eventsController = module.exports;
 
-eventsController.get = async function (req, res) {
-    const page = parseInt(req.query.page, 10) || 1;
-    const itemsPerPage = parseInt(req.query.perPage, 10) || 20;
+eventsController.get = async function (request, res) {
+    const page = Number.parseInt(request.query.page, 10) || 1;
+    const itemsPerPage = Number.parseInt(request.query.perPage, 10) || 20;
     const start = (page - 1) * itemsPerPage;
     const stop = start + itemsPerPage - 1;
 
     // Limit by date
-    let from = req.query.start ? new Date(req.query.start) || undefined : undefined;
-    let to = req.query.end ? new Date(req.query.end) || undefined : new Date();
-    from = from && from.setHours(0, 0, 0, 0); // setHours returns a unix timestamp (Number, not Date)
-    to = to && to.setHours(23, 59, 59, 999); // setHours returns a unix timestamp (Number, not Date)
+    let from = request.query.start ? new Date(request.query.start) || undefined : undefined;
+    let to = request.query.end ? new Date(request.query.end) || undefined : new Date();
+    from = from && from.setHours(0, 0, 0, 0); // SetHours returns a unix timestamp (Number, not Date)
+    to = to && to.setHours(23, 59, 59, 999); // SetHours returns a unix timestamp (Number, not Date)
 
-    const currentFilter = req.query.type || '';
+    const currentFilter = request.query.type || '';
 
     const [eventCount, eventData, counts] = await Promise.all([
         db.sortedSetCount(`events:time${currentFilter ? `:${currentFilter}` : ''}`, from || '-inf', to),
@@ -37,8 +37,8 @@ eventsController.get = async function (req, res) {
 
     res.render('admin/advanced/events', {
         events: eventData,
-        pagination: pagination.create(page, pageCount, req.query),
-        types: types,
-        query: req.query,
+        pagination: pagination.create(page, pageCount, request.query),
+        types,
+        query: request.query,
     });
 };

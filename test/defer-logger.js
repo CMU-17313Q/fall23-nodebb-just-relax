@@ -6,9 +6,9 @@ const Transport = require('winston-transport');
 const winstonLogged = [];
 
 class DeferLogger extends Transport {
-    constructor(opts) {
-        super(opts);
-        this.logged = opts.logged;
+    constructor(options) {
+        super(options);
+        this.logged = options.logged;
     }
 
     log(info, callback) {
@@ -22,7 +22,7 @@ class DeferLogger extends Transport {
 }
 
 before(() => {
-    // defer winston logs until the end
+    // Defer winston logs until the end
     winston.clear();
 
     winston.add(new DeferLogger({ logged: winstonLogged }));
@@ -31,7 +31,7 @@ before(() => {
 after(() => {
     console.log('\n\n');
 
-    winstonLogged.forEach((args) => {
+    for (const args of winstonLogged) {
         console.log(`${args[0]} ${args[1]}`);
-    });
+    }
 });

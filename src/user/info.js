@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const validator = require('validator');
-
 const db = require('../database');
 const posts = require('../posts');
 const topics = require('../topics');
@@ -12,19 +11,20 @@ module.exports = function (User) {
     User.getLatestBanInfo = async function (uid) {
         // Simply retrieves the last record of the user's ban, even if they've been unbanned since then.
         const record = await db.getSortedSetRevRange(`uid:${uid}:bans:timestamp`, 0, 0);
-        if (!record.length) {
+        if (record.length === 0) {
             throw new Error('no-ban-info');
         }
+
         const banInfo = await db.getObject(record[0]);
-        const expire = parseInt(banInfo.expire, 10);
+        const expire = Number.parseInt(banInfo.expire, 10);
         const expire_readable = utils.toISOString(expire);
         return {
-            uid: uid,
+            uid,
             timestamp: banInfo.timestamp,
             banned_until: expire,
-            expiry: expire, /* backward compatible alias */
+            expiry: expire, /* Backward compatible alias */
             banned_until_readable: expire_readable,
-            expiry_readable: expire_readable, /* backward compatible alias */
+            expiry_readable: expire_readable, /* Backward compatible alias */
             reason: validator.escape(String(banInfo.reason || '')),
         };
     };
@@ -37,14 +37,14 @@ module.exports = function (User) {
         ]);
 
         // Get pids from flag objects
-        const keys = flags.map(flagObj => `flag:${flagObj.value}`);
+        const keys = flags.map(flagObject => `flag:${flagObject.value}`);
         const payload = await db.getObjectsFields(keys, ['type', 'targetId']);
 
         // Only pass on flag ids from posts
         flags = payload.reduce((memo, cur, idx) => {
             if (cur.type === 'post') {
                 memo.push({
-                    value: parseInt(cur.targetId, 10),
+                    value: Number.parseInt(cur.targetId, 10),
                     score: flags[idx].score,
                 });
             }
@@ -59,9 +59,9 @@ module.exports = function (User) {
         ]);
 
         return {
-            flags: flags,
-            bans: bans,
-            mutes: mutes,
+            flags,
+            bans,
+            mutes,
         };
     };
 
@@ -77,23 +77,24 @@ module.exports = function (User) {
     };
 
     async function getFlagMetadata(flags) {
-        const pids = flags.map(flagObj => parseInt(flagObj.value, 10));
+        const pids = flags.map(flagObject => Number.parseInt(flagObject.value, 10));
         const postData = await posts.getPostsFields(pids, ['tid']);
         const tids = postData.map(post => post.tid);
 
         const topicData = await topics.getTopicsFields(tids, ['title']);
-        flags = flags.map((flagObj, idx) => {
-            flagObj.pid = flagObj.value;
-            flagObj.timestamp = flagObj.score;
-            flagObj.timestampISO = new Date(flagObj.score).toISOString();
-            flagObj.timestampReadable = new Date(flagObj.score).toString();
+        flags = flags.map((flagObject, idx) => {
+            flagObject.pid = flagObject.value;
+            flagObject.timestamp = flagObject.score;
+            flagObject.timestampISO = new Date(flagObject.score).toISOString();
+            flagObject.timestampReadable = new Date(flagObject.score).toString();
 
-            delete flagObj.value;
-            delete flagObj.score;
+            delete flagObject.value;
+            delete flagObject.score;
             if (!tids[idx]) {
-                flagObj.targetPurged = true;
+                flagObject.targetPurged = true;
             }
-            return _.extend(flagObj, topicData[idx]);
+
+            return _.extend(flagObject, topicData[idx]);
         });
         return flags;
     }
@@ -102,14 +103,14 @@ module.exports = function (User) {
         const data = await db.getObjects(keys);
         const uids = data.map(d => d.fromUid);
         const usersData = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
-        return data.map((banObj, index) => {
-            banObj.user = usersData[index];
-            banObj.until = parseInt(banObj.expire, 10);
-            banObj.untilReadable = new Date(banObj.until).toString();
-            banObj.timestampReadable = new Date(parseInt(banObj.timestamp, 10)).toString();
-            banObj.timestampISO = utils.toISOString(banObj.timestamp);
-            banObj.reason = validator.escape(String(banObj.reason || '')) || noReasonLangKey;
-            return banObj;
+        return data.map((banObject, index) => {
+            banObject.user = usersData[index];
+            banObject.until = Number.parseInt(banObject.expire, 10);
+            banObject.untilReadable = new Date(banObject.until).toString();
+            banObject.timestampReadable = new Date(Number.parseInt(banObject.timestamp, 10)).toString();
+            banObject.timestampISO = utils.toISOString(banObject.timestamp);
+            banObject.reason = validator.escape(String(banObject.reason || '')) || noReasonLangKey;
+            return banObject;
         });
     }
 
@@ -125,15 +126,17 @@ module.exports = function (User) {
                 note.timestampISO = utils.toISOString(note.timestamp);
                 note.note = validator.escape(String(note.note));
             }
+
             return note;
         });
 
         const userData = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
-        noteData.forEach((note, index) => {
+        for (const [index, note] of noteData.entries()) {
             if (note) {
                 note.user = userData[index];
             }
-        });
+        }
+
         return noteData;
     };
 

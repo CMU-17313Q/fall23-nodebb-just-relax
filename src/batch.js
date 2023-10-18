@@ -1,8 +1,7 @@
 
 'use strict';
 
-const util = require('util');
-
+const util = require('node:util');
 const db = require('./database');
 const utils = require('./utils');
 
@@ -14,7 +13,7 @@ exports.processSortedSet = async function (setKey, process, options) {
     options = options || {};
 
     if (typeof process !== 'function') {
-        throw new Error('[[error:process-not-a-function]]');
+        throw new TypeError('[[error:process-not-a-function]]');
     }
 
     // Progress bar handling (upgrade scripts)
@@ -24,12 +23,12 @@ exports.processSortedSet = async function (setKey, process, options) {
 
     options.batch = options.batch || DEFAULT_BATCH_SIZE;
 
-    // use the fast path if possible
+    // Use the fast path if possible
     if (db.processSortedSet && typeof options.doneIf !== 'function' && !utils.isNumber(options.alwaysStartAt)) {
         return await db.processSortedSet(setKey, process, options);
     }
 
-    // custom done condition
+    // Custom done condition
     options.doneIf = typeof options.doneIf === 'function' ? options.doneIf : function () {};
 
     let start = 0;
@@ -42,9 +41,10 @@ exports.processSortedSet = async function (setKey, process, options) {
     while (true) {
         /* eslint-disable no-await-in-loop */
         const ids = await db[`getSortedSetRange${options.withScores ? 'WithScores' : ''}`](setKey, start, stop);
-        if (!ids.length || options.doneIf(start, stop, ids)) {
+        if (ids.length === 0 || options.doneIf(start, stop, ids)) {
             return;
         }
+
         await process(ids);
 
         start += utils.isNumber(options.alwaysStartAt) ? options.alwaysStartAt : options.batch;
@@ -59,11 +59,12 @@ exports.processSortedSet = async function (setKey, process, options) {
 exports.processArray = async function (array, process, options) {
     options = options || {};
 
-    if (!Array.isArray(array) || !array.length) {
+    if (!Array.isArray(array) || array.length === 0) {
         return;
     }
+
     if (typeof process !== 'function') {
-        throw new Error('[[error:process-not-a-function]]');
+        throw new TypeError('[[error:process-not-a-function]]');
     }
 
     const batch = options.batch || DEFAULT_BATCH_SIZE;
@@ -75,7 +76,7 @@ exports.processArray = async function (array, process, options) {
     while (true) {
         const currentBatch = array.slice(start, start + batch);
 
-        if (!currentBatch.length) {
+        if (currentBatch.length === 0) {
             return;
         }
 

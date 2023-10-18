@@ -13,6 +13,7 @@ Themes.set = async function (socket, data) {
     if (!data) {
         throw new Error('[[error:invalid-data]]');
     }
+
     if (data.type === 'local') {
         await widgets.reset();
     }

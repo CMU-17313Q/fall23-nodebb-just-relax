@@ -5,9 +5,8 @@
  * payload and throw an error otherwise.
  */
 
-const path = require('path');
+const path = require('node:path');
 const nconf = require('nconf');
-
 const file = require('../file');
 const user = require('../user');
 const groups = require('../groups');
@@ -16,22 +15,21 @@ const posts = require('../posts');
 const messaging = require('../messaging');
 const flags = require('../flags');
 const slugify = require('../slugify');
-
-const helpers = require('./helpers');
 const controllerHelpers = require('../controllers/helpers');
+const helpers = require('./helpers');
 
 const Assert = module.exports;
 
-Assert.user = helpers.try(async (req, res, next) => {
-    if (!await user.exists(req.params.uid)) {
+Assert.user = helpers.try(async (request, res, next) => {
+    if (!await user.exists(request.params.uid)) {
         return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-user]]'));
     }
 
     next();
 });
 
-Assert.group = helpers.try(async (req, res, next) => {
-    const name = await groups.getGroupNameByGroupSlug(req.params.slug);
+Assert.group = helpers.try(async (request, res, next) => {
+    const name = await groups.getGroupNameByGroupSlug(request.params.slug);
     if (!name || !await groups.exists(name)) {
         return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-group]]'));
     }
@@ -39,24 +37,24 @@ Assert.group = helpers.try(async (req, res, next) => {
     next();
 });
 
-Assert.topic = helpers.try(async (req, res, next) => {
-    if (!await topics.exists(req.params.tid)) {
+Assert.topic = helpers.try(async (request, res, next) => {
+    if (!await topics.exists(request.params.tid)) {
         return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-topic]]'));
     }
 
     next();
 });
 
-Assert.post = helpers.try(async (req, res, next) => {
-    if (!await posts.exists(req.params.pid)) {
+Assert.post = helpers.try(async (request, res, next) => {
+    if (!await posts.exists(request.params.pid)) {
         return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-post]]'));
     }
 
     next();
 });
 
-Assert.flag = helpers.try(async (req, res, next) => {
-    const canView = await flags.canView(req.params.flagId, req.uid);
+Assert.flag = helpers.try(async (request, res, next) => {
+    const canView = await flags.canView(request.params.flagId, request.uid);
     if (!canView) {
         return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-flag]]'));
     }
@@ -64,18 +62,18 @@ Assert.flag = helpers.try(async (req, res, next) => {
     next();
 });
 
-Assert.path = helpers.try(async (req, res, next) => {
-    // file: URL support
-    if (req.body.path.startsWith('file:///')) {
-        req.body.path = new URL(req.body.path).pathname;
+Assert.path = helpers.try(async (request, res, next) => {
+    // File: URL support
+    if (request.body.path.startsWith('file:///')) {
+        request.body.path = new URL(request.body.path).pathname;
     }
 
     // Strip upload_url if found
-    if (req.body.path.startsWith(nconf.get('upload_url'))) {
-        req.body.path = req.body.path.slice(nconf.get('upload_url').length);
+    if (request.body.path.startsWith(nconf.get('upload_url'))) {
+        request.body.path = request.body.path.slice(nconf.get('upload_url').length);
     }
 
-    const pathToFile = path.join(nconf.get('upload_path'), req.body.path);
+    const pathToFile = path.join(nconf.get('upload_path'), request.body.path);
     res.locals.cleanedPath = pathToFile;
 
     // Guard against path traversal
@@ -90,14 +88,15 @@ Assert.path = helpers.try(async (req, res, next) => {
     next();
 });
 
-Assert.folderName = helpers.try(async (req, res, next) => {
-    const folderName = slugify(path.basename(req.body.folderName.trim()));
+Assert.folderName = helpers.try(async (request, res, next) => {
+    const folderName = slugify(path.basename(request.body.folderName.trim()));
     const folderPath = path.join(res.locals.cleanedPath, folderName);
 
-    // slugify removes invalid characters, folderName may become empty
+    // Slugify removes invalid characters, folderName may become empty
     if (!folderName) {
         return controllerHelpers.formatApiResponse(403, res, new Error('[[error:invalid-path]]'));
     }
+
     if (await file.exists(folderPath)) {
         return controllerHelpers.formatApiResponse(403, res, new Error('[[error:folder-exists]]'));
     }
@@ -107,14 +106,14 @@ Assert.folderName = helpers.try(async (req, res, next) => {
     next();
 });
 
-Assert.room = helpers.try(async (req, res, next) => {
-    if (!isFinite(req.params.roomId)) {
+Assert.room = helpers.try(async (request, res, next) => {
+    if (!isFinite(request.params.roomId)) {
         return controllerHelpers.formatApiResponse(400, res, new Error('[[error:invalid-data]]'));
     }
 
     const [exists, inRoom] = await Promise.all([
-        await messaging.roomExists(req.params.roomId),
-        await messaging.isUserInRoom(req.uid, req.params.roomId),
+        await messaging.roomExists(request.params.roomId),
+        await messaging.isUserInRoom(request.uid, request.params.roomId),
     ]);
 
     if (!exists) {
@@ -128,11 +127,11 @@ Assert.room = helpers.try(async (req, res, next) => {
     next();
 });
 
-Assert.message = helpers.try(async (req, res, next) => {
+Assert.message = helpers.try(async (request, res, next) => {
     if (
-        !isFinite(req.params.mid) ||
-        !(await messaging.messageExists(req.params.mid)) ||
-        !(await messaging.canViewMessage(req.params.mid, req.params.roomId, req.uid))
+        !isFinite(request.params.mid) ||
+        !(await messaging.messageExists(request.params.mid)) ||
+        !(await messaging.canViewMessage(request.params.mid, request.params.roomId, request.uid))
     ) {
         return controllerHelpers.formatApiResponse(400, res, new Error('[[error:invalid-mid]]'));
     }

@@ -1,13 +1,13 @@
 'use strict';
 
 const db = require('../database');
-const groups = require('.');
 const privileges = require('../privileges');
 const posts = require('../posts');
+const groups = require('.');
 
 module.exports = function (Groups) {
     Groups.onNewPostMade = async function (postData) {
-        if (!parseInt(postData.uid, 10)) {
+        if (!Number.parseInt(postData.uid, 10)) {
             return;
         }
 
@@ -17,7 +17,7 @@ module.exports = function (Groups) {
         // Only process those groups that have the cid in its memberPostCids setting (or no setting at all)
         const groupData = await groups.getGroupsFields(groupNames, ['memberPostCids']);
         groupNames = groupNames.filter((groupName, idx) => (
-            !groupData[idx].memberPostCidsArray.length ||
+            groupData[idx].memberPostCidsArray.length === 0 ||
             groupData[idx].memberPostCidsArray.includes(postData.cid)
         ));
 
@@ -29,9 +29,10 @@ module.exports = function (Groups) {
     async function truncateMemberPosts(groupName) {
         let lastPid = await db.getSortedSetRevRange(`group:${groupName}:member:pids`, 10, 10);
         lastPid = lastPid[0];
-        if (!parseInt(lastPid, 10)) {
+        if (!Number.parseInt(lastPid, 10)) {
             return;
         }
+
         const score = await db.sortedSetScore(`group:${groupName}:member:pids`, lastPid);
         await db.sortedSetsRemoveRangeByScore([`group:${groupName}:member:pids`], '-inf', score);
     }

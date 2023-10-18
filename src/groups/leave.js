@@ -7,9 +7,10 @@ const cache = require('../cache');
 
 module.exports = function (Groups) {
     Groups.leave = async function (groupNames, uid) {
-        if (Array.isArray(groupNames) && !groupNames.length) {
+        if (Array.isArray(groupNames) && groupNames.length === 0) {
             return;
         }
+
         if (!Array.isArray(groupNames)) {
             groupNames = [groupNames];
         }
@@ -17,7 +18,7 @@ module.exports = function (Groups) {
         const isMembers = await Groups.isMemberOfGroups(uid, groupNames);
 
         const groupsToLeave = groupNames.filter((groupName, index) => isMembers[index]);
-        if (!groupsToLeave.length) {
+        if (groupsToLeave.length === 0) {
             return;
         }
 
@@ -39,15 +40,16 @@ module.exports = function (Groups) {
         const visibleGroups = groupData.filter(g => g && !g.hidden);
 
         const promises = [];
-        if (emptyPrivilegeGroups.length) {
+        if (emptyPrivilegeGroups.length > 0) {
             promises.push(Groups.destroy, emptyPrivilegeGroups);
         }
-        if (visibleGroups.length) {
+
+        if (visibleGroups.length > 0) {
             promises.push(
                 db.sortedSetAdd,
                 'groups:visible:memberCount',
                 visibleGroups.map(groupData => groupData.memberCount),
-                visibleGroups.map(groupData => groupData.name)
+                visibleGroups.map(groupData => groupData.name),
             );
         }
 
@@ -57,26 +59,23 @@ module.exports = function (Groups) {
 
         plugins.hooks.fire('action:group.leave', {
             groupNames: groupsToLeave,
-            uid: uid,
+            uid,
         });
     };
 
     async function clearGroupTitleIfSet(groupNames, uid) {
         groupNames = groupNames.filter(groupName => groupName !== 'registered-users' && !Groups.isPrivilegeGroup(groupName));
-        if (!groupNames.length) {
+        if (groupNames.length === 0) {
             return;
         }
+
         const userData = await user.getUserData(uid);
         if (!userData) {
             return;
         }
 
         const newTitleArray = userData.groupTitleArray.filter(groupTitle => !groupNames.includes(groupTitle));
-        if (newTitleArray.length) {
-            await db.setObjectField(`user:${uid}`, 'groupTitle', JSON.stringify(newTitleArray));
-        } else {
-            await db.deleteObjectField(`user:${uid}`, 'groupTitle');
-        }
+        await (newTitleArray.length > 0 ? db.setObjectField(`user:${uid}`, 'groupTitle', JSON.stringify(newTitleArray)) : db.deleteObjectField(`user:${uid}`, 'groupTitle'));
     }
 
     Groups.leaveAllGroups = async function (uid) {
@@ -90,11 +89,12 @@ module.exports = function (Groups) {
     Groups.kick = async function (uid, groupName, isOwner) {
         if (isOwner) {
             // If the owners set only contains one member, error out!
-            const numOwners = await db.setCount(`group:${groupName}:owners`);
-            if (numOwners <= 1) {
+            const numberOwners = await db.setCount(`group:${groupName}:owners`);
+            if (numberOwners <= 1) {
                 throw new Error('[[error:group-needs-owner]]');
             }
         }
+
         await Groups.leave(groupName, uid);
     };
 };

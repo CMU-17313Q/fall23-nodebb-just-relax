@@ -8,7 +8,7 @@ const social = require('../../social');
 
 module.exports = function (SocketTopics) {
     SocketTopics.loadMore = async function (socket, data) {
-        if (!data || !data.tid || !utils.isNumber(data.after) || parseInt(data.after, 10) < 0) {
+        if (!data || !data.tid || !utils.isNumber(data.after) || Number.parseInt(data.after, 10) < 0) {
             throw new Error('[[error:invalid-data]]');
         }
 
@@ -23,11 +23,11 @@ module.exports = function (SocketTopics) {
 
         const set = data.topicPostSort === 'most_votes' ? `tid:${data.tid}:posts:votes` : `tid:${data.tid}:posts`;
         const reverse = data.topicPostSort === 'newest_to_oldest' || data.topicPostSort === 'most_votes';
-        let start = Math.max(0, parseInt(data.after, 10));
+        let start = Math.max(0, Number.parseInt(data.after, 10));
 
         const infScrollPostsPerPage = Math.max(0, Math.min(
             meta.config.postsPerPage || 20,
-            parseInt(data.count, 10) || meta.config.postsPerPage || 20
+            Number.parseInt(data.count, 10) || meta.config.postsPerPage || 20,
         ));
 
         if (data.direction === -1) {

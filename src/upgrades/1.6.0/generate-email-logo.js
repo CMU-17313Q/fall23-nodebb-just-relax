@@ -1,17 +1,16 @@
 'use strict';
 
-
+const path = require('node:path');
+const fs = require('node:fs');
 const async = require('async');
-const path = require('path');
 const nconf = require('nconf');
-const fs = require('fs');
 const meta = require('../../meta');
 const image = require('../../image');
 
 module.exports = {
     name: 'Generate email logo for use in email header',
     timestamp: Date.UTC(2017, 6, 17),
-    method: function (callback) {
+    method(callback) {
         let skip = false;
 
         async.series([
@@ -25,8 +24,8 @@ module.exports = {
                     return setImmediate(next);
                 }
 
-                fs.access(sourcePath, (err) => {
-                    if (err || path.extname(sourcePath) === '.svg') {
+                fs.access(sourcePath, (error) => {
+                    if (error || path.extname(sourcePath) === '.svg') {
                         skip = true;
                         return setImmediate(next);
                     }

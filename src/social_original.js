@@ -33,9 +33,9 @@ social.getPostSharing = async function () {
     ];
     networks = await plugins.hooks.fire('filter:social.posts', networks);
     const activated = await db.getSetMembers('social:posts.activated');
-    networks.forEach((network) => {
+    for (const network of networks) {
         network.activated = activated.includes(network.id);
-    });
+    }
 
     social.postSharing = networks;
     return _.cloneDeep(networks);
@@ -49,9 +49,10 @@ social.getActivePostSharing = async function () {
 social.setActivePostSharingNetworks = async function (networkIDs) {
     social.postSharing = null;
     await db.delete('social:posts.activated');
-    if (!networkIDs.length) {
+    if (networkIDs.length === 0) {
         return;
     }
+
     await db.setAdd('social:posts.activated', networkIDs);
 };
 

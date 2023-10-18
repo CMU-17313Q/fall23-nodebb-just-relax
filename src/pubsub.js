@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('events');
+const EventEmitter = require('node:events');
 const nconf = require('nconf');
 
 let real;
@@ -19,6 +19,7 @@ function get() {
             real = noCluster;
             return real;
         }
+
         noCluster = new EventEmitter();
         noCluster.publish = noCluster.emit.bind(noCluster);
         pubsub = noCluster;
@@ -27,23 +28,26 @@ function get() {
             real = singleHost;
             return real;
         }
+
         singleHost = new EventEmitter();
-        if (!process.send) {
-            singleHost.publish = singleHost.emit.bind(singleHost);
-        } else {
+        if (process.send) {
             singleHost.publish = function (event, data) {
                 process.send({
                     action: 'pubsub',
-                    event: event,
-                    data: data,
+                    event,
+                    data,
                 });
             };
+
             process.on('message', (message) => {
                 if (message && typeof message === 'object' && message.action === 'pubsub') {
                     singleHost.emit(message.event, message.data);
                 }
             });
+        } else {
+            singleHost.publish = singleHost.emit.bind(singleHost);
         }
+
         pubsub = singleHost;
     } else if (nconf.get('redis')) {
         pubsub = require('./database/redis/pubsub');
@@ -56,16 +60,16 @@ function get() {
 }
 
 module.exports = {
-    publish: function (event, data) {
+    publish(event, data) {
         get().publish(event, data);
     },
-    on: function (event, callback) {
+    on(event, callback) {
         get().on(event, callback);
     },
-    removeAllListeners: function (event) {
+    removeAllListeners(event) {
         get().removeAllListeners(event);
     },
-    reset: function () {
+    reset() {
         real = null;
     },
 };

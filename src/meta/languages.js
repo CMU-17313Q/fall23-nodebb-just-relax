@@ -1,10 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
+const path = require('node:path');
+const fs = require('node:fs');
+const util = require('node:util');
 const nconf = require('nconf');
-const path = require('path');
-const fs = require('fs');
-const util = require('util');
+const _ = require('lodash');
 let mkdirp = require('mkdirp');
 
 mkdirp = mkdirp.hasOwnProperty('native') ? mkdirp : util.promisify(mkdirp);
@@ -24,9 +24,9 @@ async function getTranslationMetadata() {
     let languages = [];
     let namespaces = [];
 
-    paths.forEach((p) => {
+    for (const p of paths) {
         if (!p.endsWith('.json')) {
-            return;
+            continue;
         }
 
         const rel = path.relative(coreLanguagesPath, p).split(/[/\\]/);
@@ -34,26 +34,26 @@ async function getTranslationMetadata() {
         const namespace = rel.join('/').replace(/\.json$/, '');
 
         if (!language || !namespace) {
-            return;
+            continue;
         }
 
         languages.push(language);
         namespaces.push(namespace);
-    });
-
+    }
 
     languages = _.union(languages, Plugins.languageData.languages).sort().filter(Boolean);
     namespaces = _.union(namespaces, Plugins.languageData.namespaces).sort().filter(Boolean);
     const configLangs = nconf.get('languages');
-    if (process.env.NODE_ENV === 'development' && Array.isArray(configLangs) && configLangs.length) {
+    if (process.env.NODE_ENV === 'development' && Array.isArray(configLangs) && configLangs.length > 0) {
         languages = configLangs;
     }
-    // save a list of languages to `${buildLanguagesPath}/metadata.json`
+
+    // Save a list of languages to `${buildLanguagesPath}/metadata.json`
     // avoids readdirs later on
     await mkdirp(buildLanguagesPath);
     const result = {
-        languages: languages,
-        namespaces: namespaces,
+        languages,
+        namespaces,
     };
     await fs.promises.writeFile(path.join(buildLanguagesPath, 'metadata.json'), JSON.stringify(result));
     return result;
@@ -67,7 +67,7 @@ async function writeLanguageFile(language, namespace, translations) {
     await fs.promises.writeFile(filePath, JSON.stringify(translations, null, dev ? 2 : 0));
 }
 
-// for each language and namespace combination,
+// For each language and namespace combination,
 // run through core and all plugins to generate
 // a full translation hash
 async function buildTranslations(ref) {
@@ -77,29 +77,29 @@ async function buildTranslations(ref) {
 
     const promises = [];
 
-    namespaces.forEach((namespace) => {
-        languages.forEach((language) => {
+    for (const namespace of namespaces) {
+        for (const language of languages) {
             promises.push(buildNamespaceLanguage(language, namespace, plugins));
-        });
-    });
+        }
+    }
 
     await Promise.all(promises);
 }
 
 async function buildNamespaceLanguage(lang, namespace, plugins) {
     const translations = {};
-    // core first
+    // Core first
     await assignFileToTranslations(translations, path.join(coreLanguagesPath, lang, `${namespace}.json`));
 
     await Promise.all(plugins.map(pluginData => addPlugin(translations, pluginData, lang, namespace)));
 
-    if (Object.keys(translations).length) {
+    if (Object.keys(translations).length > 0) {
         await writeLanguageFile(lang, namespace, translations);
     }
 }
 
 async function addPlugin(translations, pluginData, lang, namespace) {
-    // if plugin doesn't have this namespace no need to continue
+    // If plugin doesn't have this namespace no need to continue
     if (pluginData.languageData && !pluginData.languageData.namespaces.includes(namespace)) {
         return;
     }
@@ -107,7 +107,7 @@ async function addPlugin(translations, pluginData, lang, namespace) {
     const pathToPluginLanguageFolder = path.join(paths.nodeModules, pluginData.id, pluginData.languages);
     const defaultLang = pluginData.defaultLang || 'en-GB';
 
-    // for each plugin, fallback in this order:
+    // For each plugin, fallback in this order:
     //  1. correct language string (en-GB)
     //  2. old language string (en_GB)
     //  3. corrected plugin defaultLang (en-US)
@@ -129,9 +129,9 @@ async function assignFileToTranslations(translations, path) {
     try {
         const fileData = await fs.promises.readFile(path, 'utf8');
         Object.assign(translations, JSON.parse(fileData));
-    } catch (err) {
-        if (err.code !== 'ENOENT') {
-            throw err;
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            throw error;
         }
     }
 }

@@ -2,14 +2,13 @@
 
 const nconf = require('nconf');
 const chalk = require('chalk');
-
 const packageInstall = require('./package-install');
 const { upgradePlugins } = require('./upgrade-plugins');
 
 const steps = {
     package: {
         message: 'Updating package.json file with defaults...',
-        handler: function () {
+        handler() {
             packageInstall.updatePackageFile();
             packageInstall.preserveExtraneousPlugins();
             process.stdout.write(chalk.green('  OK\n'));
@@ -17,21 +16,21 @@ const steps = {
     },
     install: {
         message: 'Bringing base dependencies up to date...',
-        handler: function () {
+        handler() {
             process.stdout.write(chalk.green('  started\n'));
             packageInstall.installAll();
         },
     },
     plugins: {
         message: 'Checking installed plugins for updates...',
-        handler: async function () {
+        async handler() {
             await require('../database').init();
             await upgradePlugins();
         },
     },
     schema: {
         message: 'Updating NodeBB data store schema...',
-        handler: async function () {
+        async handler() {
             await require('../database').init();
             await require('../meta').configs.init();
             await require('../upgrade').run();
@@ -39,7 +38,7 @@ const steps = {
     },
     build: {
         message: 'Rebuilding assets...',
-        handler: async function () {
+        async handler() {
             await require('../meta/build').buildAll();
         },
     },
@@ -47,33 +46,34 @@ const steps = {
 
 async function runSteps(tasks) {
     try {
-        for (let i = 0; i < tasks.length; i++) {
-            const step = steps[tasks[i]];
+        for (const [i, task] of tasks.entries()) {
+            const step = steps[task];
             if (step && step.message && step.handler) {
                 process.stdout.write(`\n${chalk.bold(`${i + 1}. `)}${chalk.yellow(step.message)}`);
                 /* eslint-disable-next-line */
                 await step.handler();
             }
         }
+
         const message = 'NodeBB Upgrade Complete!';
-        // some consoles will return undefined/zero columns,
+        // Some consoles will return undefined/zero columns,
         // so just use 2 spaces in upgrade script if we can't get our column count
         const { columns } = process.stdout;
-        const spaces = columns ? new Array(Math.floor(columns / 2) - (message.length / 2) + 1).join(' ') : '  ';
+        const spaces = columns ? Array.from({ length: Math.floor(columns / 2) - (message.length / 2) + 1 }).join(' ') : '  ';
 
         console.log(`\n\n${spaces}${chalk.green.bold(message)}\n`);
 
         process.exit();
-    } catch (err) {
-        console.error(`Error occurred during upgrade: ${err.stack}`);
-        throw err;
+    } catch (error) {
+        console.error(`Error occurred during upgrade: ${error.stack}`);
+        throw error;
     }
 }
 
 async function runUpgrade(upgrades, options) {
     console.log(chalk.cyan('\nUpdating NodeBB...'));
     options = options || {};
-    // disable mongo timeouts during upgrade
+    // Disable mongo timeouts during upgrade
     nconf.set('mongo:options:socketTimeoutMS', 0);
 
     if (upgrades === true) {
@@ -82,6 +82,7 @@ async function runUpgrade(upgrades, options) {
                 options.plugins || options.schema || options.build) {
             tasks = tasks.filter(key => options[key]);
         }
+
         await runSteps(tasks);
         return;
     }

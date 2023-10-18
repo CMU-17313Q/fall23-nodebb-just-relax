@@ -13,12 +13,10 @@ module.exports = function (Topics) {
         if (!exists) {
             throw new Error('[[error:no-topic]]');
         }
+
         const isFollowing = await Topics.isFollowing([tid], uid);
-        if (isFollowing[0]) {
-            await Topics.unfollow(tid, uid);
-        } else {
-            await Topics.follow(tid, uid);
-        }
+        await (isFollowing[0] ? Topics.unfollow(tid, uid) : Topics.follow(tid, uid));
+
         return !isFollowing[0];
     };
 
@@ -35,16 +33,18 @@ module.exports = function (Topics) {
     };
 
     async function setWatching(method1, method2, hook, tid, uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             throw new Error('[[error:not-logged-in]]');
         }
+
         const exists = await Topics.exists(tid);
         if (!exists) {
             throw new Error('[[error:no-topic]]');
         }
+
         await method1(tid, uid);
         await method2(tid, uid);
-        plugins.hooks.fire(hook, { uid: uid, tid: tid });
+        plugins.hooks.fire(hook, { uid, tid });
     }
 
     async function follow(tid, uid) {
@@ -85,11 +85,15 @@ module.exports = function (Topics) {
         if (!Array.isArray(tids)) {
             return;
         }
-        if (parseInt(uid, 10) <= 0) {
+
+        if (Number.parseInt(uid, 10) <= 0) {
             return tids.map(() => ({ following: false, ignoring: false }));
         }
+
         const keys = [];
-        tids.forEach(tid => keys.push(`tid:${tid}:followers`, `tid:${tid}:ignorers`));
+        for (const tid of tids) {
+            keys.push(`tid:${tid}:followers`, `tid:${tid}:ignorers`);
+        }
 
         const data = await db.isMemberOfSets(keys, uid);
 
@@ -100,6 +104,7 @@ module.exports = function (Topics) {
                 ignoring: data[i + 1],
             });
         }
+
         return followData;
     };
 
@@ -107,9 +112,11 @@ module.exports = function (Topics) {
         if (!Array.isArray(tids)) {
             return;
         }
-        if (parseInt(uid, 10) <= 0) {
+
+        if (Number.parseInt(uid, 10) <= 0) {
             return tids.map(() => false);
         }
+
         const keys = tids.map(tid => `tid:${tid}:${set}`);
         return await db.isMemberOfSets(keys, uid);
     }
@@ -129,17 +136,19 @@ module.exports = function (Topics) {
     };
 
     Topics.filterWatchedTids = async function (tids, uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             return [];
         }
+
         const scores = await db.sortedSetScores(`uid:${uid}:followed_tids`, tids);
-        return tids.filter((tid, index) => tid && !!scores[index]);
+        return tids.filter((tid, index) => tid && Boolean(scores[index]));
     };
 
     Topics.filterNotIgnoredTids = async function (tids, uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             return tids;
         }
+
         const scores = await db.sortedSetScores(`uid:${uid}:ignored_tids`, tids);
         return tids.filter((tid, index) => tid && !scores[index]);
     };
@@ -153,7 +162,7 @@ module.exports = function (Topics) {
         }
 
         followers = await privileges.topics.filterUids('topics:read', postData.topic.tid, followers);
-        if (!followers.length) {
+        if (followers.length === 0) {
             return;
         }
 

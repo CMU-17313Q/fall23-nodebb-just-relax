@@ -1,18 +1,16 @@
 'use strict';
 
-const util = require('util');
+const util = require('node:util');
 let mkdirp = require('mkdirp');
 
 mkdirp = mkdirp.hasOwnProperty('native') ? mkdirp : util.promisify(mkdirp);
 const rimraf = require('rimraf');
 const winston = require('winston');
-const path = require('path');
-const fs = require('fs');
-
+const path = require('node:path');
+const fs = require('node:fs');
 const nconf = require('nconf');
 const _ = require('lodash');
 const Benchpress = require('benchpressjs');
-
 const plugins = require('../plugins');
 const file = require('../file');
 const { themeNamePattern, paths } = require('../constants');
@@ -42,6 +40,7 @@ async function processImports(paths, templatePath, source) {
 
     return await processImports(paths, templatePath, source);
 }
+
 Templates.processImports = processImports;
 
 async function getTemplateDirs(activePlugins) {
@@ -49,9 +48,11 @@ async function getTemplateDirs(activePlugins) {
         if (themeNamePattern.test(id)) {
             return nconf.get('theme_templates_path');
         }
+
         if (!plugins.pluginsData[id]) {
             return '';
         }
+
         return path.join(paths.nodeModules, id, plugins.pluginsData[id].templates || 'templates');
     }).filter(Boolean);
 
@@ -83,26 +84,26 @@ async function getTemplateFiles(dirs) {
     const buckets = await Promise.all(dirs.map(async (dir) => {
         let files = await file.walk(dir);
         files = files.filter(path => path.endsWith('.tpl')).map(file => ({
-            name: path.relative(dir, file).replace(/\\/g, '/'),
+            name: path.relative(dir, file).replaceAll('\\', '/'),
             path: file,
         }));
         return files;
     }));
 
     const dict = {};
-    buckets.forEach((files) => {
-        files.forEach((file) => {
+    for (const files of buckets) {
+        for (const file of files) {
             dict[file.name] = file.path;
-        });
-    });
+        }
+    }
 
     return dict;
 }
 
 async function compileTemplate(filename, source) {
     let paths = await file.walk(viewsPath);
-    paths = _.fromPairs(paths.map((p) => {
-        const relative = path.relative(viewsPath, p).replace(/\\/g, '/');
+    paths = Object.fromEntries(paths.map((p) => {
+        const relative = path.relative(viewsPath, p).replaceAll('\\', '/');
         return [relative, p];
     }));
 
@@ -110,6 +111,7 @@ async function compileTemplate(filename, source) {
     const compiled = await Benchpress.precompile(source, { filename });
     return await fs.promises.writeFile(path.join(viewsPath, filename.replace(/\.tpl$/, '.js')), compiled);
 }
+
 Templates.compileTemplate = compileTemplate;
 
 async function compile() {
@@ -136,4 +138,5 @@ async function compile() {
 
     winston.verbose('[meta/templates] Successfully compiled templates.');
 }
+
 Templates.compile = compile;

@@ -2,7 +2,7 @@
 
 module.exports = function (module) {
     module.sortedSetIntersectCard = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return 0;
         }
 
@@ -23,29 +23,30 @@ SELECT COUNT(*) c
             values: [keys],
         });
 
-        return parseInt(res.rows[0].c, 10);
+        return Number.parseInt(res.rows[0].c, 10);
     };
 
-    module.getSortedSetIntersect = async function (params) {
-        params.sort = 1;
-        return await getSortedSetIntersect(params);
+    module.getSortedSetIntersect = async function (parameters) {
+        parameters.sort = 1;
+        return await getSortedSetIntersect(parameters);
     };
 
-    module.getSortedSetRevIntersect = async function (params) {
-        params.sort = -1;
-        return await getSortedSetIntersect(params);
+    module.getSortedSetRevIntersect = async function (parameters) {
+        parameters.sort = -1;
+        return await getSortedSetIntersect(parameters);
     };
 
-    async function getSortedSetIntersect(params) {
-        const { sets } = params;
-        const start = params.hasOwnProperty('start') ? params.start : 0;
-        const stop = params.hasOwnProperty('stop') ? params.stop : -1;
-        let weights = params.weights || [];
-        const aggregate = params.aggregate || 'SUM';
+    async function getSortedSetIntersect(parameters) {
+        const { sets } = parameters;
+        const start = parameters.hasOwnProperty('start') ? parameters.start : 0;
+        const stop = parameters.hasOwnProperty('stop') ? parameters.stop : -1;
+        let weights = parameters.weights || [];
+        const aggregate = parameters.aggregate || 'SUM';
 
         if (sets.length < weights.length) {
             weights = weights.slice(0, sets.length);
         }
+
         while (sets.length > weights.length) {
             weights.push(1);
         }
@@ -56,7 +57,7 @@ SELECT COUNT(*) c
         }
 
         const res = await module.pool.query({
-            name: `getSortedSetIntersect${aggregate}${params.sort > 0 ? 'Asc' : 'Desc'}WithScores`,
+            name: `getSortedSetIntersect${aggregate}${parameters.sort > 0 ? 'Asc' : 'Desc'}WithScores`,
             text: `
 WITH A AS (SELECT z."value",
                   ${aggregate}(z."score" * k."weight") "score",
@@ -72,16 +73,16 @@ SELECT A."value",
        A."score"
   FROM A
  WHERE c = array_length($1::TEXT[], 1)
- ORDER BY A."score" ${params.sort > 0 ? 'ASC' : 'DESC'}
+ ORDER BY A."score" ${parameters.sort > 0 ? 'ASC' : 'DESC'}
  LIMIT $4::INTEGER
 OFFSET $3::INTEGER`,
             values: [sets, weights, start, limit],
         });
 
-        if (params.withScores) {
+        if (parameters.withScores) {
             res.rows = res.rows.map(r => ({
                 value: r.value,
-                score: parseFloat(r.score),
+                score: Number.parseFloat(r.score),
             }));
         } else {
             res.rows = res.rows.map(r => r.value);

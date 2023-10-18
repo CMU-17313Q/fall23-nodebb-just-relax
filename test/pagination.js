@@ -1,7 +1,6 @@
 'use strict';
 
-
-const assert = require('assert');
+const assert = require('node:assert');
 const pagination = require('../src/pagination');
 
 describe('Pagination', () => {

@@ -6,8 +6,8 @@ nconf.argv().env({
     separator: '__',
 });
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const _ = require('lodash');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -22,12 +22,12 @@ prestart.setupWinston();
 const db = require('../../database');
 const batch = require('../../batch');
 
-process.on('message', async (msg) => {
-    if (msg && msg.uid) {
+process.on('message', async (message) => {
+    if (message && message.uid) {
         await db.init();
         await db.initSessionStore();
 
-        const targetUid = msg.uid;
+        const targetUid = message.uid;
 
         const profileFile = `${targetUid}_profile.json`;
         const profilePath = path.join(__dirname, '../../../build/export', profileFile);
@@ -63,22 +63,22 @@ process.on('message', async (msg) => {
         let chatData = [];
         await batch.processSortedSet(`uid:${targetUid}:chat:rooms`, async (roomIds) => {
             const result = await Promise.all(roomIds.map(roomId => getRoomMessages(targetUid, roomId)));
-            chatData = chatData.concat(_.flatten(result));
+            chatData = chatData.concat(result.flat());
         }, { batch: 100, interval: 1000 });
 
         await fs.promises.writeFile(profilePath, JSON.stringify({
             user: userData,
             settings: userSettings,
-            ips: ips,
-            sessions: sessions,
-            usernames: usernames,
-            emails: emails,
+            ips,
+            sessions,
+            usernames,
+            emails,
             messages: chatData,
-            bookmarks: bookmarks,
-            watchedTopics: watchedTopics,
-            upvoted: upvoted,
-            downvoted: downvoted,
-            following: following,
+            bookmarks,
+            watchedTopics,
+            upvoted,
+            downvoted,
+            following,
         }, null, 4));
 
         await db.close();
@@ -94,7 +94,7 @@ async function getRoomMessages(uid, roomId) {
         data = data.concat(
             messageData
                 .filter(m => m && m.fromuid === uid && !m.system)
-                .map(m => ({ content: m.content, timestamp: m.timestamp }))
+                .map(m => ({ content: m.content, timestamp: m.timestamp })),
         );
     }, { batch: 500, interval: 1000 });
     return data;
@@ -110,15 +110,30 @@ async function getSetData(set, keyPrefix, uid) {
         } else if (keyPrefix === 'topic:') {
             ids = await privileges.topics.filterTids('topics:read', ids, uid);
         }
-        let objData = await db.getObjects(ids.map(id => keyPrefix + id));
-        if (keyPrefix === 'post:') {
-            objData = objData.map(o => _.pick(o, ['pid', 'content', 'timestamp']));
-        } else if (keyPrefix === 'topic:') {
-            objData = objData.map(o => _.pick(o, ['tid', 'title', 'timestamp']));
-        } else if (keyPrefix === 'user:') {
-            objData = objData.map(o => _.pick(o, ['uid', 'username']));
+
+        let objectData = await db.getObjects(ids.map(id => keyPrefix + id));
+        switch (keyPrefix) {
+        case 'post:': {
+            objectData = objectData.map(o => _.pick(o, ['pid', 'content', 'timestamp']));
+
+            break;
         }
-        data = data.concat(objData);
+
+        case 'topic:': {
+            objectData = objectData.map(o => _.pick(o, ['tid', 'title', 'timestamp']));
+
+            break;
+        }
+
+        case 'user:': {
+            objectData = objectData.map(o => _.pick(o, ['uid', 'username']));
+
+            break;
+        }
+		// No default
+        }
+
+        data = data.concat(objectData);
     }, { batch: 500, interval: 1000 });
     return data;
 }

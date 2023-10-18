@@ -2,7 +2,6 @@
 
 const express = require('express');
 const winston = require('winston');
-
 const uploadsController = require('../controllers/uploads');
 const helpers = require('./helpers');
 
@@ -23,9 +22,9 @@ module.exports = function (app, middleware, controllers) {
     router.get('/user/:userslug/export/profile', [...middlewares, middleware.authenticateRequest, middleware.ensureLoggedIn, middleware.checkAccountPermissions, middleware.exposeUid], helpers.tryRoute(controllers.user.exportProfile));
 
     // Deprecated, remove in v1.20.0
-    router.get('/user/uid/:userslug/export/:type', (req, res) => {
-        winston.warn(`[router] \`/api/user/uid/${req.params.userslug}/export/${req.params.type}\` is deprecated, call it \`/api/user/${req.params.userslug}/export/${req.params.type}\`instead.`);
-        res.redirect(`/api/user/${req.params.userslug}/export/${req.params.type}`);
+    router.get('/user/uid/:userslug/export/:type', (request, res) => {
+        winston.warn(`[router] \`/api/user/uid/${request.params.userslug}/export/${request.params.type}\` is deprecated, call it \`/api/user/${request.params.userslug}/export/${request.params.type}\`instead.`);
+        res.redirect(`/api/user/${request.params.userslug}/export/${request.params.type}`);
     });
 
     router.get('/categories/:cid/moderators', [...middlewares], helpers.tryRoute(controllers.api.getModerators));

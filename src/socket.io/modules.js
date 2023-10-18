@@ -4,12 +4,11 @@ const db = require('../database');
 const notifications = require('../notifications');
 const Messaging = require('../messaging');
 const utils = require('../utils');
-const server = require('./index');
 const user = require('../user');
 const privileges = require('../privileges');
-
-const sockets = require('.');
 const api = require('../api');
+const sockets = require('.');
+const server = require('./index');
 
 const SocketModules = module.exports;
 
@@ -22,6 +21,7 @@ SocketModules.chats.getRaw = async function (socket, data) {
     if (!data || !data.hasOwnProperty('mid')) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const roomId = await Messaging.getMessageField(data.mid, 'roomId');
     const [isAdmin, hasMessage, inRoom] = await Promise.all([
         user.isAdministrator(socket.uid),
@@ -48,10 +48,10 @@ SocketModules.chats.newRoom = async function (socket, data) {
         throw new Error('[[error:invalid-data]]');
     }
 
-    const roomObj = await api.chats.create(socket, {
+    const roomObject = await api.chats.create(socket, {
         uids: [data.touid],
     });
-    return roomObj.roomId;
+    return roomObject.roomId;
 };
 
 SocketModules.chats.send = async function (socket, data) {
@@ -85,6 +85,7 @@ SocketModules.chats.getUsersInRoom = async function (socket, data) {
     if (!data || !data.roomId) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const isUserInRoom = await Messaging.isUserInRoom(socket.uid, data.roomId);
     if (!isUserInRoom) {
         throw new Error('[[error:no-privileges]]');
@@ -142,6 +143,7 @@ SocketModules.chats.edit = async function (socket, data) {
     if (!data || !data.roomId || !data.message) {
         throw new Error('[[error:invalid-data]]');
     }
+
     await Messaging.canEdit(data.mid, socket.uid);
     await Messaging.editMessage(socket.uid, data.mid, data.roomId, data.message);
 };
@@ -152,6 +154,7 @@ SocketModules.chats.delete = async function (socket, data) {
     if (!data || !data.roomId || !data.messageId) {
         throw new Error('[[error:invalid-data]]');
     }
+
     await Messaging.canDelete(data.messageId, socket.uid);
     await Messaging.deleteMessage(data.messageId, socket.uid);
 };
@@ -162,6 +165,7 @@ SocketModules.chats.restore = async function (socket, data) {
     if (!data || !data.roomId || !data.messageId) {
         throw new Error('[[error:invalid-data]]');
     }
+
     await Messaging.canDelete(data.messageId, socket.uid);
     await Messaging.restoreMessage(data.messageId, socket.uid);
 };
@@ -174,20 +178,21 @@ SocketModules.chats.markRead = async function (socket, roomId) {
     if (!socket.uid || !roomId) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const [uidsInRoom] = await Promise.all([
         Messaging.getUidsInRoom(roomId, 0, -1),
         Messaging.markRead(socket.uid, roomId),
     ]);
 
     Messaging.pushUnreadCount(socket.uid);
-    server.in(`uid_${socket.uid}`).emit('event:chats.markedAsRead', { roomId: roomId });
+    server.in(`uid_${socket.uid}`).emit('event:chats.markedAsRead', { roomId });
 
     if (!uidsInRoom.includes(String(socket.uid))) {
         return;
     }
 
     // Mark notification read
-    const nids = uidsInRoom.filter(uid => parseInt(uid, 10) !== socket.uid)
+    const nids = uidsInRoom.filter(uid => Number.parseInt(uid, 10) !== socket.uid)
         .map(uid => `chat_${uid}_${roomId}`);
 
     await notifications.markReadMultiple(nids, socket.uid);
@@ -215,7 +220,8 @@ SocketModules.chats.getRecentChats = async function (socket, data) {
     if (!data || !utils.isNumber(data.after) || !utils.isNumber(data.uid)) {
         throw new Error('[[error:invalid-data]]');
     }
-    const start = parseInt(data.after, 10);
+
+    const start = Number.parseInt(data.after, 10);
     const stop = start + 9;
     return await Messaging.getRecentChats(socket.uid, data.uid, start, stop);
 };
@@ -224,6 +230,7 @@ SocketModules.chats.hasPrivateChat = async function (socket, uid) {
     if (socket.uid <= 0 || uid <= 0) {
         throw new Error('[[error:invalid-data]]');
     }
+
     return await Messaging.hasPrivateChat(socket.uid, uid);
 };
 
@@ -238,7 +245,7 @@ SocketModules.chats.getMessages = async function (socket, data) {
         callerUid: socket.uid,
         uid: data.uid,
         roomId: data.roomId,
-        start: parseInt(data.start, 10) || 0,
+        start: Number.parseInt(data.start, 10) || 0,
         count: 50,
     });
 };
@@ -248,6 +255,7 @@ SocketModules.chats.getIP = async function (socket, mid) {
     if (!allowed) {
         throw new Error('[[error:no-privilege]]');
     }
+
     return await Messaging.getMessageField(mid, 'ip');
 };
 

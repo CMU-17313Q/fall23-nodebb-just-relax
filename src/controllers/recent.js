@@ -2,43 +2,44 @@
 'use strict';
 
 const nconf = require('nconf');
-
 const user = require('../user');
 const categories = require('../categories');
 const topics = require('../topics');
 const meta = require('../meta');
-const helpers = require('./helpers');
 const pagination = require('../pagination');
 const privileges = require('../privileges');
+const helpers = require('./helpers');
 
 const recentController = module.exports;
 const relative_path = nconf.get('relative_path');
 
-recentController.get = async function (req, res, next) {
-    const data = await recentController.getData(req, 'recent', 'recent');
+recentController.get = async function (request, res, next) {
+    const data = await recentController.getData(request, 'recent', 'recent');
     if (!data) {
         return next();
     }
+
     res.render('recent', data);
 };
 
-recentController.getData = async function (req, url, sort) {
-    const page = parseInt(req.query.page, 10) || 1;
-    let term = helpers.terms[req.query.term];
-    const { cid, tags } = req.query;
-    const filter = req.query.filter || '';
+recentController.getData = async function (request, url, sort) {
+    const page = Number.parseInt(request.query.page, 10) || 1;
+    let term = helpers.terms[request.query.term];
+    const { cid, tags } = request.query;
+    const filter = request.query.filter || '';
 
-    if (!term && req.query.term) {
+    if (!term && request.query.term) {
         return null;
     }
+
     term = term || 'alltime';
 
     const [settings, categoryData, rssToken, canPost, isPrivileged] = await Promise.all([
-        user.getSettings(req.uid),
+        user.getSettings(request.uid),
         helpers.getSelectedCategory(cid),
-        user.auth.getFeedToken(req.uid),
-        canPostTopic(req.uid),
-        user.isPrivileged(req.uid),
+        user.auth.getFeedToken(request.uid),
+        canPostTopic(request.uid),
+        user.isPrivileged(request.uid),
     ]);
 
     const start = Math.max(0, (page - 1) * settings.topicsPerPage);
@@ -46,18 +47,18 @@ recentController.getData = async function (req, url, sort) {
 
     const data = await topics.getSortedTopics({
         cids: cid,
-        tags: tags,
-        uid: req.uid,
-        start: start,
-        stop: stop,
-        filter: filter,
-        term: term,
-        sort: sort,
-        floatPinned: req.query.pinned,
-        query: req.query,
+        tags,
+        uid: request.uid,
+        start,
+        stop,
+        filter,
+        term,
+        sort,
+        floatPinned: request.query.pinned,
+        query: request.query,
     });
 
-    const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/${url}`) || req.originalUrl.startsWith(`${relative_path}/${url}`));
+    const isDisplayedAsHome = !(request.originalUrl.startsWith(`${relative_path}/api/${url}`) || request.originalUrl.startsWith(`${relative_path}/${url}`));
     const baseUrl = isDisplayedAsHome ? '' : url;
 
     if (isDisplayedAsHome) {
@@ -70,23 +71,23 @@ recentController.getData = async function (req, url, sort) {
     data.canPost = canPost;
     data.showSelect = isPrivileged;
     data.showTopicTools = isPrivileged;
-    data.allCategoriesUrl = baseUrl + helpers.buildQueryString(req.query, 'cid', '');
+    data.allCategoriesUrl = baseUrl + helpers.buildQueryString(request.query, 'cid', '');
     data.selectedCategory = categoryData.selectedCategory;
     data.selectedCids = categoryData.selectedCids;
     data['feeds:disableRSS'] = meta.config['feeds:disableRSS'] || 0;
     data.rssFeedUrl = `${relative_path}/${url}.rss`;
-    if (req.loggedIn) {
-        data.rssFeedUrl += `?uid=${req.uid}&token=${rssToken}`;
+    if (request.loggedIn) {
+        data.rssFeedUrl += `?uid=${request.uid}&token=${rssToken}`;
     }
 
-    data.filters = helpers.buildFilters(baseUrl, filter, req.query);
+    data.filters = helpers.buildFilters(baseUrl, filter, request.query);
     data.selectedFilter = data.filters.find(filter => filter && filter.selected);
-    data.terms = helpers.buildTerms(baseUrl, term, req.query);
+    data.terms = helpers.buildTerms(baseUrl, term, request.query);
     data.selectedTerm = data.terms.find(term => term && term.selected);
 
     const pageCount = Math.max(1, Math.ceil(data.topicCount / settings.topicsPerPage));
-    data.pagination = pagination.create(page, pageCount, req.query);
-    helpers.addLinkTags({ url: url, res: req.res, tags: data.pagination.rel });
+    data.pagination = pagination.create(page, pageCount, request.query);
+    helpers.addLinkTags({ url, res: request.res, tags: data.pagination.rel });
     return data;
 };
 

@@ -9,6 +9,7 @@ SocketNotifs.get = async function (socket, data) {
     if (data && Array.isArray(data.nids) && socket.uid) {
         return await user.notifications.getNotifications(data.nids, socket.uid);
     }
+
     return await user.notifications.get(socket.uid);
 };
 

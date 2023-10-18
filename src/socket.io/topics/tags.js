@@ -14,14 +14,14 @@ module.exports = function (SocketTopics) {
         }
 
         const systemTags = (meta.config.systemTags || '').split(',');
-        const [tagWhitelist, isPrivileged] = await Promise.all([
+        const [tagInclude, isPrivileged] = await Promise.all([
             categories.getTagWhitelist([data.cid]),
             user.isPrivileged(socket.uid),
         ]);
         return isPrivileged ||
             (
-                !systemTags.includes(data.tag) &&
-                (!tagWhitelist[0].length || tagWhitelist[0].includes(data.tag))
+            	!systemTags.includes(data.tag) &&
+                (tagInclude[0].length === 0 || tagInclude[0].includes(data.tag))
             );
     };
 
@@ -42,6 +42,7 @@ module.exports = function (SocketTopics) {
                 throw new Error('[[error:no-privileges]]');
             }
         }
+
         data.cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
         const result = await topics.autocompleteTags(data);
         return result.map(tag => tag.value);
@@ -61,12 +62,14 @@ module.exports = function (SocketTopics) {
         if (!allowed) {
             throw new Error('[[error:no-privileges]]');
         }
+
         if (data.cid) {
             const canRead = await privileges.categories.can('topics:read', data.cid, uid);
             if (!canRead) {
                 throw new Error('[[error:no-privileges]]');
             }
         }
+
         data.cids = await categories.getCidsByPrivilege('categories:cid', uid, 'topics:read');
         return await method(data);
     }
@@ -76,7 +79,7 @@ module.exports = function (SocketTopics) {
             throw new Error('[[error:invalid-data]]');
         }
 
-        const start = parseInt(data.after, 10);
+        const start = Number.parseInt(data.after, 10);
         const stop = start + 99;
         const cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
         const tags = await topics.getCategoryTagsData(cids, start, stop);

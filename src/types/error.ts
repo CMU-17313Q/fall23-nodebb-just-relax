@@ -1,5 +1,5 @@
-import { StatusObject } from './status';
+import { type StatusObject } from './status.js';
 
 export type ErrorObject = {
-  status: StatusObject;
+	status: StatusObject;
 };

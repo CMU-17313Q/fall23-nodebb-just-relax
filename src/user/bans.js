@@ -1,7 +1,6 @@
 'use strict';
 
 const winston = require('winston');
-
 const meta = require('../meta');
 const emailer = require('../emailer');
 const db = require('../database');
@@ -19,14 +18,14 @@ module.exports = function (User) {
 
         const now = Date.now();
 
-        until = parseInt(until, 10);
+        until = Number.parseInt(until, 10);
         if (isNaN(until)) {
-            throw new Error('[[error:ban-expiry-missing]]');
+            throw new TypeError('[[error:ban-expiry-missing]]');
         }
 
         const banKey = `uid:${uid}:ban:${now}`;
         const banData = {
-            uid: uid,
+            uid,
             timestamp: now,
             expire: until > now ? until : 0,
         };
@@ -42,11 +41,7 @@ module.exports = function (User) {
         await db.sortedSetAdd(`uid:${uid}:bans:timestamp`, now, banKey);
         await db.setObject(banKey, banData);
         await User.setUserField(uid, 'banned:expire', banData.expire);
-        if (until > now) {
-            await db.sortedSetAdd('users:banned:expire', until, uid);
-        } else {
-            await db.sortedSetRemove('users:banned:expire', uid);
-        }
+        await (until > now ? db.sortedSetAdd('users:banned:expire', until, uid) : db.sortedSetRemove('users:banned:expire', uid));
 
         // Email notification of ban
         const username = await User.getUserField(uid, 'username');
@@ -54,11 +49,11 @@ module.exports = function (User) {
 
         const data = {
             subject: `[[email:banned.subject, ${siteTitle}]]`,
-            username: username,
-            until: until ? (new Date(until)).toUTCString().replace(/,/g, '\\,') : false,
-            reason: reason,
+            username,
+            until: until ? (new Date(until)).toUTCString().replaceAll(',', '\\,') : false,
+            reason,
         };
-        await emailer.send('banned', uid, data).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+        await emailer.send('banned', uid, data).catch(error => winston.error(`[emailer.send] ${error.stack}`));
 
         return banData;
     };
@@ -73,7 +68,7 @@ module.exports = function (User) {
         for (const user of userData) {
             const systemGroupsToJoin = [
                 'registered-users',
-                (parseInt(user['email:confirmed'], 10) === 1 ? 'verified-users' : 'unverified-users'),
+                (Number.parseInt(user['email:confirmed'], 10) === 1 ? 'verified-users' : 'unverified-users'),
             ];
             await groups.leave(groups.BANNED_USERS, user.uid);
             // An unbanned user would lost its previous "Global Moderator" status
@@ -98,6 +93,7 @@ module.exports = function (User) {
         if (banned) {
             canLogin = await privileges.global.canGroup('local:login', groups.BANNED_USERS);
         }
+
         if (banned && !canLogin) {
             // Checking a single privilege of user
             canLogin = await groups.isMember(uid, 'cid:0:privileges:local:login');
@@ -107,7 +103,7 @@ module.exports = function (User) {
     };
 
     User.bans.unbanIfExpired = async function (uids) {
-        // loading user data will unban if it has expired -barisu
+        // Loading user data will unban if it has expired -barisu
         const userData = await User.getUsersFields(uids, ['banned:expire']);
         return User.bans.calcExpiredFromUserData(userData);
     };
@@ -130,14 +126,16 @@ module.exports = function (User) {
     };
 
     User.bans.getReason = async function (uid) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             return '';
         }
+
         const keys = await db.getSortedSetRevRange(`uid:${uid}:bans:timestamp`, 0, 0);
-        if (!keys.length) {
+        if (keys.length === 0) {
             return '';
         }
-        const banObj = await db.getObject(keys[0]);
-        return banObj && banObj.reason ? banObj.reason : '';
+
+        const banObject = await db.getObject(keys[0]);
+        return banObject && banObject.reason ? banObject.reason : '';
     };
 };

@@ -4,48 +4,50 @@
 module.exports = function (module) {
     const helpers = require('../helpers');
     module.sortedSetUnionCard = async function (keys) {
-        const tempSetName = `temp_${Date.now()}`;
-        if (!keys.length) {
+        const temporarySetName = `temp_${Date.now()}`;
+        if (keys.length === 0) {
             return 0;
         }
+
         const multi = module.client.multi();
-        multi.zunionstore([tempSetName, keys.length].concat(keys));
-        multi.zcard(tempSetName);
-        multi.del(tempSetName);
+        multi.zunionstore([temporarySetName, keys.length].concat(keys));
+        multi.zcard(temporarySetName);
+        multi.del(temporarySetName);
         const results = await helpers.execBatch(multi);
-        return Array.isArray(results) && results.length ? results[1] : 0;
+        return Array.isArray(results) && results.length > 0 ? results[1] : 0;
     };
 
-    module.getSortedSetUnion = async function (params) {
-        params.method = 'zrange';
-        return await module.sortedSetUnion(params);
+    module.getSortedSetUnion = async function (parameters) {
+        parameters.method = 'zrange';
+        return await module.sortedSetUnion(parameters);
     };
 
-    module.getSortedSetRevUnion = async function (params) {
-        params.method = 'zrevrange';
-        return await module.sortedSetUnion(params);
+    module.getSortedSetRevUnion = async function (parameters) {
+        parameters.method = 'zrevrange';
+        return await module.sortedSetUnion(parameters);
     };
 
-    module.sortedSetUnion = async function (params) {
-        if (!params.sets.length) {
+    module.sortedSetUnion = async function (parameters) {
+        if (parameters.sets.length === 0) {
             return [];
         }
 
-        const tempSetName = `temp_${Date.now()}`;
+        const temporarySetName = `temp_${Date.now()}`;
 
-        const rangeParams = [tempSetName, params.start, params.stop];
-        if (params.withScores) {
-            rangeParams.push('WITHSCORES');
+        const rangeParameters = [temporarySetName, parameters.start, parameters.stop];
+        if (parameters.withScores) {
+            rangeParameters.push('WITHSCORES');
         }
 
         const multi = module.client.multi();
-        multi.zunionstore([tempSetName, params.sets.length].concat(params.sets));
-        multi[params.method](rangeParams);
-        multi.del(tempSetName);
+        multi.zunionstore([temporarySetName, parameters.sets.length].concat(parameters.sets));
+        multi[parameters.method](rangeParameters);
+        multi.del(temporarySetName);
         let results = await helpers.execBatch(multi);
-        if (!params.withScores) {
+        if (!parameters.withScores) {
             return results ? results[1] : null;
         }
+
         results = results[1] || [];
         return helpers.zsetToObjectArray(results);
     };

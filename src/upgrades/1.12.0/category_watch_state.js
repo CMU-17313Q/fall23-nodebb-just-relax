@@ -9,7 +9,7 @@ const categories = require('../../categories');
 module.exports = {
     name: 'Update category watch data',
     timestamp: Date.UTC(2018, 11, 13),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         const cids = await db.getSortedSetRange('categories:cid', 0, -1);
@@ -20,13 +20,13 @@ module.exports = {
             for (const cid of cids) {
                 const isMembers = await db.isSortedSetMembers(`cid:${cid}:ignorers`, uids);
                 uids = uids.filter((uid, index) => isMembers[index]);
-                if (uids.length) {
+                if (uids.length > 0) {
                     const states = uids.map(() => categories.watchStates.ignoring);
                     await db.sortedSetAdd(`cid:${cid}:uid:watch:state`, states, uids);
                 }
             }
         }, {
-            progress: progress,
+            progress,
             batch: 500,
         });
 

@@ -2,12 +2,11 @@
 'use strict';
 
 const _ = require('lodash');
-
 const user = require('../user');
 const groups = require('../groups');
-const helpers = require('./helpers');
 const plugins = require('../plugins');
 const utils = require('../utils');
+const helpers = require('./helpers');
 
 const privsGlobal = module.exports;
 
@@ -35,8 +34,8 @@ const _privilegeMap = new Map([
     ['view:users:info', { label: '[[admin/manage/privileges:view-users-info]]' }],
 ]);
 
-privsGlobal.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.global.list', Array.from(_privilegeMap.keys()));
-privsGlobal.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.global.groups.list', Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`));
+privsGlobal.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.global.list', [..._privilegeMap.keys()]);
+privsGlobal.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.global.groups.list', [..._privilegeMap.keys()].map(privilege => `groups:${privilege}`));
 privsGlobal.getPrivilegeList = async () => {
     const [user, group] = await Promise.all([
         privsGlobal.getUserPrivilegeList(),
@@ -54,10 +53,10 @@ privsGlobal.init = async () => {
 
 privsGlobal.list = async function () {
     async function getLabels() {
-        const labels = Array.from(_privilegeMap.values()).map(data => data.label);
+        const labels = [..._privilegeMap.values()].map(data => data.label);
         return await utils.promiseParallel({
-            users: plugins.hooks.fire('filter:privileges.global.list_human', labels.slice()),
-            groups: plugins.hooks.fire('filter:privileges.global.groups.list_human', labels.slice()),
+            users: plugins.hooks.fire('filter:privileges.global.list_human', [...labels]),
+            groups: plugins.hooks.fire('filter:privileges.global.groups.list_human', [...labels]),
         });
     }
 
@@ -112,7 +111,7 @@ privsGlobal.filterUids = async function (privilege, uids) {
 privsGlobal.give = async function (privileges, groupName) {
     await helpers.giveOrRescind(groups.join, privileges, 0, groupName);
     plugins.hooks.fire('action:privileges.global.give', {
-        privileges: privileges,
+        privileges,
         groupNames: Array.isArray(groupName) ? groupName : [groupName],
     });
 };
@@ -120,7 +119,7 @@ privsGlobal.give = async function (privileges, groupName) {
 privsGlobal.rescind = async function (privileges, groupName) {
     await helpers.giveOrRescind(groups.leave, privileges, 0, groupName);
     plugins.hooks.fire('action:privileges.global.rescind', {
-        privileges: privileges,
+        privileges,
         groupNames: Array.isArray(groupName) ? groupName : [groupName],
     });
 };

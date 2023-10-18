@@ -9,21 +9,21 @@ const helpers = require('../../controllers/helpers');
 
 const Write = module.exports;
 
-Write.reload = async (params) => {
-    const { router } = params;
+Write.reload = async (parameters) => {
+    const { router } = parameters;
     let apiSettings = await meta.settings.get('core.api');
     plugins.hooks.register('core', {
         hook: 'action:settings.set',
-        method: async (data) => {
+        async method(data) {
             if (data.plugin === 'core.api') {
                 apiSettings = await meta.settings.get('core.api');
             }
         },
     });
 
-    router.use('/api/v3', (req, res, next) => {
+    router.use('/api/v3', (request, res, next) => {
         // Require https if configured so
-        if (apiSettings.requireHttps === 'on' && req.protocol !== 'https') {
+        if (apiSettings.requireHttps === 'on' && request.protocol !== 'https') {
             res.set('Upgrade', 'TLS/1.0, HTTP/1.1');
             return helpers.formatApiResponse(426, res);
         }
@@ -61,13 +61,13 @@ Write.reload = async (params) => {
     router.use('/api/v3/plugins', pluginRouter);
 
     // 404 handling
-    router.use('/api/v3', (req, res) => {
+    router.use('/api/v3', (request, res) => {
         helpers.formatApiResponse(404, res);
     });
 };
 
-Write.cleanup = (req) => {
-    if (req && req.session) {
-        req.session.destroy();
+Write.cleanup = (request) => {
+    if (request && request.session) {
+        request.session.destroy();
     }
 };

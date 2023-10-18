@@ -2,7 +2,6 @@
 
 const zxcvbn = require('zxcvbn');
 const winston = require('winston');
-
 const db = require('../database');
 const utils = require('../utils');
 const slugify = require('../slugify');
@@ -18,6 +17,7 @@ module.exports = function (User) {
         if (data.email !== undefined) {
             data.email = String(data.email).trim();
         }
+
         if (data['account-type'] !== undefined) {
             data.accounttype = data['account-type'].trim();
         }
@@ -55,26 +55,28 @@ module.exports = function (User) {
             lastonline: timestamp,
             status: 'online',
         };
-        ['picture', 'fullname', 'location', 'birthday'].forEach((field) => {
+        for (const field of ['picture', 'fullname', 'location', 'birthday']) {
             if (data[field]) {
                 userData[field] = data[field];
             }
-        });
+        }
+
         if (data.gdpr_consent === true) {
             userData.gdpr_consent = 1;
         }
+
         if (data.acceptTos === true) {
             userData.acceptTos = 1;
         }
 
         const renamedUsername = await User.uniqueUsername(userData);
-        const userNameChanged = !!renamedUsername;
+        const userNameChanged = Boolean(renamedUsername);
         if (userNameChanged) {
             userData.username = renamedUsername;
             userData.userslug = slugify(renamedUsername);
         }
 
-        const results = await plugins.hooks.fire('filter:user.create', { user: userData, data: data });
+        const results = await plugins.hooks.fire('filter:user.create', { user: userData, data });
         userData = results.user;
 
         const uid = await db.incrObjectField('global', 'nextUid');
@@ -103,9 +105,11 @@ module.exports = function (User) {
         if (accountType === 'instructor') {
             groupData.push('instructor');
         }
+
         if (accountType === 'student') {
             groupData.push('student');
         }
+
         await Promise.all([
             db.incrObjectField('global', 'userCount'),
             analytics.increment('registrations'),
@@ -125,12 +129,14 @@ module.exports = function (User) {
                 email: userData.email,
                 template: 'welcome',
                 subject: `[[email:welcome-to, ${meta.config.title || meta.config.browserTitle || 'NodeBB'}]]`,
-            }).catch(err => winston.error(`[user.create] Validation email failed to send\n[emailer.send] ${err.stack}`));
+            }).catch(error => winston.error(`[user.create] Validation email failed to send\n[emailer.send] ${error.stack}`));
         }
+
         if (userNameChanged) {
             await User.notifications.sendNameChangeNotification(userData.uid, userData.username);
         }
-        plugins.hooks.fire('action:user.create', { user: userData, data: data });
+
+        plugins.hooks.fire('action:user.create', { user: userData, data });
         return userData.uid;
     }
 
@@ -138,6 +144,7 @@ module.exports = function (User) {
         if (!password) {
             return;
         }
+
         const hash = await User.hashPassword(password);
         await Promise.all([
             User.setUserFields(uid, {
@@ -192,16 +199,17 @@ module.exports = function (User) {
     };
 
     User.uniqueUsername = async function (userData) {
-        let numTries = 0;
+        let numberTries = 0;
         let { username } = userData;
         while (true) {
             /* eslint-disable no-await-in-loop */
             const exists = await meta.userOrGroupExists(username);
             if (!exists) {
-                return numTries ? username : null;
+                return numberTries ? username : null;
             }
-            username = `${userData.username} ${numTries.toString(32)}`;
-            numTries += 1;
+
+            username = `${userData.username} ${numberTries.toString(32)}`;
+            numberTries += 1;
         }
     };
 };

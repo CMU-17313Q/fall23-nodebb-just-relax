@@ -10,7 +10,7 @@ const { setupApiRoute } = routeHelpers;
 module.exports = function () {
     const middlewares = [middleware.ensureLoggedIn, middleware.admin.checkPrivileges];
 
-    // setupApiRoute(router, 'put', '/', [
+    // SetupApiRoute(router, 'put', '/', [
     //  ...middlewares,
     //  middleware.checkRequired.bind(null, ['path']),
     //  middleware.assert.folder

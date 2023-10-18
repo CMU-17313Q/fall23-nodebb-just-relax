@@ -7,8 +7,9 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         const isValueArray = Array.isArray(value);
-        if (!value || (isValueArray && !value.length)) {
+        if (!value || (isValueArray && value.length === 0)) {
             return;
         }
 
@@ -19,6 +20,7 @@ module.exports = function (module) {
         if (!isValueArray) {
             value = [value];
         }
+
         value = value.map(helpers.valueToString);
         await module.pool.query({
             name: 'sortedSetRemove',
@@ -31,7 +33,7 @@ DELETE FROM "legacy_zset"
     };
 
     module.sortedSetsRemove = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
@@ -48,13 +50,14 @@ DELETE FROM "legacy_zset"
     };
 
     module.sortedSetsRemoveRangeByScore = async function (keys, min, max) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
         if (min === '-inf') {
             min = null;
         }
+
         if (max === '+inf') {
             max = null;
         }
@@ -71,9 +74,10 @@ DELETE FROM "legacy_zset"
     };
 
     module.sortedSetRemoveBulk = async function (data) {
-        if (!Array.isArray(data) || !data.length) {
+        if (!Array.isArray(data) || data.length === 0) {
             return;
         }
+
         const keys = data.map(d => d[0]);
         const values = data.map(d => d[1]);
 

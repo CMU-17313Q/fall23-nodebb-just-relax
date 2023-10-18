@@ -2,17 +2,16 @@
 
 const helpers = module.exports;
 
-helpers.valueToString = function (value) {
-    return String(value);
-};
+helpers.valueToString = String;
 
 helpers.removeDuplicateValues = function (values, ...others) {
     for (let i = 0; i < values.length; i++) {
         if (values.lastIndexOf(values[i]) !== i) {
             values.splice(i, 1);
-            for (let j = 0; j < others.length; j++) {
-                others[j].splice(i, 1);
+            for (const other of others) {
+                other.splice(i, 1);
             }
+
             i -= 1;
         }
     }
@@ -82,14 +81,14 @@ SELECT "_key", "type"
 
     const invalid = res.rows.filter(r => r.type !== type);
 
-    if (invalid.length) {
+    if (invalid.length > 0) {
         const parts = invalid.map(r => `${JSON.stringify(r._key)} is ${r.type}`);
         throw new Error(`database: cannot insert multiple objects as ${type} because they already exist: ${parts.join(', ')}`);
     }
 
     const missing = keys.filter(k => !res.rows.some(r => r._key === k));
 
-    if (missing.length) {
+    if (missing.length > 0) {
         throw new Error(`database: failed to insert keys for objects: ${JSON.stringify(missing)}`);
     }
 };

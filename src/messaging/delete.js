@@ -20,14 +20,14 @@ module.exports = function (Messaging) {
             Messaging.getMessagesData([mid], uid, roomId, true),
         ]);
 
-        uids.forEach((_uid) => {
-            if (parseInt(_uid, 10) !== parseInt(uid, 10)) {
+        for (const _uid of uids) {
+            if (Number.parseInt(_uid, 10) !== Number.parseInt(uid, 10)) {
                 if (state === 1) {
                     sockets.in(`uid_${_uid}`).emit('event:chats.delete', mid);
                 } else if (state === 0) {
                     sockets.in(`uid_${_uid}`).emit('event:chats.restore', messages[0]);
                 }
             }
-        });
+        }
     }
 };

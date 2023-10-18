@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
 const nconf = require('nconf');
 
 module.exports = function (app, middleware, controllers) {
@@ -12,7 +12,7 @@ module.exports = function (app, middleware, controllers) {
     app.get('/manifest.webmanifest', controllers.manifest);
     app.get('/css/previews/:theme', controllers.admin.themes.get);
     app.get('/osd.xml', controllers.osd.handle);
-    app.get('/service-worker.js', (req, res) => {
+    app.get('/service-worker.js', (request, res) => {
         res.status(200).type('application/javascript').set('Service-Worker-Allowed', `${nconf.get('relative_path')}/`).sendFile(path.join(__dirname, '../../public/src/service-worker.js'));
     });
 };

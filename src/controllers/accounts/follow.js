@@ -2,26 +2,26 @@
 
 const user = require('../../user');
 const helpers = require('../helpers');
-const accountHelpers = require('./helpers');
 const pagination = require('../../pagination');
+const accountHelpers = require('./helpers');
 
 const followController = module.exports;
 
-followController.getFollowing = async function (req, res, next) {
-    await getFollow('account/following', 'following', req, res, next);
+followController.getFollowing = async function (request, res, next) {
+    await getFollow('account/following', 'following', request, res, next);
 };
 
-followController.getFollowers = async function (req, res, next) {
-    await getFollow('account/followers', 'followers', req, res, next);
+followController.getFollowers = async function (request, res, next) {
+    await getFollow('account/followers', 'followers', request, res, next);
 };
 
-async function getFollow(tpl, name, req, res, next) {
-    const userData = await accountHelpers.getUserDataByUserSlug(req.params.userslug, req.uid, req.query);
+async function getFollow(tpl, name, request, res, next) {
+    const userData = await accountHelpers.getUserDataByUserSlug(request.params.userslug, request.uid, request.query);
     if (!userData) {
         return next();
     }
 
-    const page = parseInt(req.query.page, 10) || 1;
+    const page = Number.parseInt(request.query.page, 10) || 1;
     const resultsPerPage = 50;
     const start = Math.max(0, page - 1) * resultsPerPage;
     const stop = start + resultsPerPage - 1;

@@ -6,8 +6,8 @@ nconf.argv().env({
     separator: '__',
 });
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const archiver = require('archiver');
 const winston = require('winston');
 
@@ -22,11 +22,11 @@ prestart.setupWinston();
 
 const db = require('../../database');
 
-process.on('message', async (msg) => {
-    if (msg && msg.uid) {
+process.on('message', async (message) => {
+    if (message && message.uid) {
         await db.init();
 
-        const targetUid = msg.uid;
+        const targetUid = message.uid;
 
         const archivePath = path.join(__dirname, '../../../build/export', `${targetUid}_uploads.zip`);
         const rootDirectory = path.join(__dirname, '../../../public/uploads/');
@@ -37,30 +37,35 @@ process.on('message', async (msg) => {
             zlib: { level: 9 }, // Sets the compression level.
         });
 
-        archive.on('warning', (err) => {
-            switch (err.code) {
-            case 'ENOENT':
-                winston.warn(`[user/export/uploads] File not found: ${err.path}`);
+        archive.on('warning', (error) => {
+            switch (error.code) {
+            case 'ENOENT': {
+                winston.warn(`[user/export/uploads] File not found: ${error.path}`);
                 break;
+            }
 
-            default:
-                winston.warn(`[user/export/uploads] Unexpected warning: ${err.message}`);
+            default: {
+                winston.warn(`[user/export/uploads] Unexpected warning: ${error.message}`);
                 break;
+            }
             }
         });
 
-        archive.on('error', (err) => {
+        archive.on('error', (error) => {
             const trimPath = function (path) {
                 return path.replace(rootDirectory, '');
             };
-            switch (err.code) {
-            case 'EACCES':
-                winston.error(`[user/export/uploads] File inaccessible: ${trimPath(err.path)}`);
-                break;
 
-            default:
-                winston.error(`[user/export/uploads] Unable to construct archive: ${err.message}`);
+            switch (error.code) {
+            case 'EACCES': {
+                winston.error(`[user/export/uploads] File inaccessible: ${trimPath(error.path)}`);
                 break;
+            }
+
+            default: {
+                winston.error(`[user/export/uploads] Unable to construct archive: ${error.message}`);
+                break;
+            }
             }
         });
 

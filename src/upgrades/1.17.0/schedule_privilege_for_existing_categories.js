@@ -6,7 +6,7 @@ const privileges = require('../../privileges');
 module.exports = {
     name: 'Add "schedule" to default privileges of admins and gmods for existing categories',
     timestamp: Date.UTC(2021, 2, 11),
-    method: async () => {
+    async method() {
         const privilegeToGive = ['groups:topics:schedule'];
 
         const cids = await db.getSortedSetRevRange('categories:cid', 0, -1);

@@ -2,12 +2,10 @@
 
 // For tests relating to the translator module, check translator.js
 
-const assert = require('assert');
-const path = require('path');
-const fs = require('fs');
-
+const assert = require('node:assert');
+const path = require('node:path');
+const fs = require('node:fs');
 const file = require('../src/file');
-
 const db = require('./mocks/databasemock');
 
 describe('i18n', () => {
@@ -23,11 +21,11 @@ describe('i18n', () => {
     });
 
     it('should contain folders named after the language code', async () => {
-        const valid = /(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
+        const valid = /README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$/; // Good luck
 
-        folders.forEach((folder) => {
+        for (const folder of folders) {
             assert(valid.test(folder));
-        });
+        }
     });
 
     // There has to be a better way to generate tests asynchronously...
@@ -40,21 +38,22 @@ describe('i18n', () => {
         describe('source language file structure', () => {
             it('should only contain valid JSON files', async () => {
                 try {
-                    fullPaths.forEach((fullPath) => {
+                    for (const fullPath of fullPaths) {
                         if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
-                            return;
+                            /* eslint-disable no-continue */
+                            continue;
                         }
 
                         const hash = require(fullPath);
                         sourceStrings.set(fullPath.replace(sourcePath, ''), hash);
-                    });
-                } catch (e) {
-                    assert(!e, `Invalid JSON found: ${e.message}`);
+                    }
+                } catch (error) {
+                    assert(!error, `Invalid JSON found: ${error.message}`);
                 }
             });
         });
 
-        folders.forEach((language) => {
+        for (const language of folders) {
             describe(`"${language}" file structure`, () => {
                 let files;
 
@@ -64,15 +63,15 @@ describe('i18n', () => {
                 });
 
                 it('translations should contain every language file contained in the source language directory', () => {
-                    sourceFiles.forEach((relativePath) => {
+                    for (const relativePath of sourceFiles) {
                         assert(files.includes(relativePath), `${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`);
-                    });
+                    }
                 });
 
                 it('should not contain any extraneous files not included in the source language directory', () => {
-                    files.forEach((relativePath) => {
+                    for (const relativePath of files) {
                         assert(sourceFiles.includes(relativePath), `${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`);
-                    });
+                    }
                 });
             });
 
@@ -87,37 +86,39 @@ describe('i18n', () => {
 
                 it('should contain only valid JSON files', () => {
                     try {
-                        fullPaths.forEach((fullPath) => {
+                        for (const fullPath of fullPaths) {
                             if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
-                                return;
+                                /* eslint-disable no-continue */
+                                continue;
                             }
 
                             const hash = require(fullPath);
                             strings.set(fullPath.replace(translationPath, ''), hash);
-                        });
-                    } catch (e) {
-                        assert(!e, `Invalid JSON found: ${e.message}`);
+                        }
+                    } catch (error) {
+                        assert(!error, `Invalid JSON found: ${error.message}`);
                     }
                 });
 
                 it('should contain every translation key contained in its source counterpart', () => {
-                    const sourceArr = Array.from(sourceStrings.keys());
-                    sourceArr.forEach((namespace) => {
+                    const sourceArray = [...sourceStrings.keys()];
+                    for (const namespace of sourceArray) {
                         const sourceKeys = Object.keys(sourceStrings.get(namespace));
                         const translationKeys = Object.keys(strings.get(namespace));
 
                         assert(sourceKeys && translationKeys);
-                        sourceKeys.forEach((key) => {
+                        for (const key of sourceKeys) {
                             assert(translationKeys.includes(key), `${namespace.slice(1, -5)}:${key} missing in ${language}`);
-                        });
+                        }
+
                         assert.strictEqual(
                             sourceKeys.length,
                             translationKeys.length,
-                            `Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`
+                            `Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`,
                         );
-                    });
+                    }
                 });
             });
-        });
+        }
     });
 });

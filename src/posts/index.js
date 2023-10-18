@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const utils = require('../utils');
 const user = require('../user');
@@ -29,7 +28,7 @@ require('./uploads')(Posts);
 
 Posts.exists = async function (pids) {
     return await db.exists(
-        Array.isArray(pids) ? pids.map(pid => `post:${pid}`) : `post:${pids}`
+        Array.isArray(pids) ? pids.map(pid => `post:${pid}`) : `post:${pids}`,
     );
 };
 
@@ -37,19 +36,22 @@ Posts.getPidsFromSet = async function (set, start, stop, reverse) {
     if (isNaN(start) || isNaN(stop)) {
         return [];
     }
+
     return await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 };
 
 Posts.getPostsByPids = async function (pids, uid) {
-    if (!Array.isArray(pids) || !pids.length) {
+    if (!Array.isArray(pids) || pids.length === 0) {
         return [];
     }
+
     let posts = await Posts.getPostsData(pids);
     posts = await Promise.all(posts.map(Posts.parsePost));
-    const data = await plugins.hooks.fire('filter:post.getPosts', { posts: posts, uid: uid });
+    const data = await plugins.hooks.fire('filter:post.getPosts', { posts, uid });
     if (!data || !Array.isArray(data.posts)) {
         return [];
     }
+
     return data.posts.filter(Boolean);
 };
 
@@ -57,7 +59,7 @@ Posts.getPostSummariesFromSet = async function (set, uid, start, stop) {
     let pids = await db.getSortedSetRevRange(set, start, stop);
     pids = await privileges.posts.filter('topics:read', pids, uid);
     const posts = await Posts.getPostSummaryByPids(pids, uid, { stripTags: false });
-    return { posts: posts, nextStart: stop + 1 };
+    return { posts, nextStart: stop + 1 };
 };
 
 Posts.getPidIndex = async function (pid, tid, topicPostSort) {
@@ -67,13 +69,15 @@ Posts.getPidIndex = async function (pid, tid, topicPostSort) {
     if (!utils.isNumber(index)) {
         return 0;
     }
-    return utils.isNumber(index) ? parseInt(index, 10) + 1 : 0;
+
+    return utils.isNumber(index) ? Number.parseInt(index, 10) + 1 : 0;
 };
 
 Posts.getPostIndices = async function (posts, uid) {
-    if (!Array.isArray(posts) || !posts.length) {
+    if (!Array.isArray(posts) || posts.length === 0) {
         return [];
     }
+
     const settings = await user.getSettings(uid);
 
     const byVotes = settings.topicPostSort === 'most_votes';
@@ -89,7 +93,7 @@ Posts.getPostIndices = async function (posts, uid) {
 
     const pids = posts.map(post => post.pid);
     const indices = await db[method](sets, pids);
-    return indices.map(index => (utils.isNumber(index) ? parseInt(index, 10) + 1 : 0));
+    return indices.map(index => (utils.isNumber(index) ? Number.parseInt(index, 10) + 1 : 0));
 };
 
 Posts.modifyPostByPrivilege = function (post, privileges) {

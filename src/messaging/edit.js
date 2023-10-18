@@ -4,9 +4,7 @@ const meta = require('../meta');
 const user = require('../user');
 const plugins = require('../plugins');
 const privileges = require('../privileges');
-
 const sockets = require('../socket.io');
-
 
 module.exports = function (Messaging) {
     Messaging.editMessage = async (uid, mid, roomId, content) => {
@@ -17,13 +15,14 @@ module.exports = function (Messaging) {
         }
 
         const payload = await plugins.hooks.fire('filter:messaging.edit', {
-            content: content,
+            content,
             edited: Date.now(),
         });
 
         if (!String(payload.content).trim()) {
             throw new Error('[[error:invalid-chat-message]]');
         }
+
         await Messaging.setMessageFields(mid, payload);
 
         // Propagate this change to users in the room
@@ -32,11 +31,11 @@ module.exports = function (Messaging) {
             Messaging.getMessagesData([mid], uid, roomId, true),
         ]);
 
-        uids.forEach((uid) => {
+        for (const uid of uids) {
             sockets.in(`uid_${uid}`).emit('event:chats.edit', {
-                messages: messages,
+                messages,
             });
-        });
+        }
     };
 
     const canEditDelete = async (messageId, uid, type) => {
@@ -80,7 +79,7 @@ module.exports = function (Messaging) {
             throw new Error(`[[error:chat-${type}-duration-expired, ${meta.config[durationConfig]}]]`);
         }
 
-        if (messageData.fromuid === parseInt(uid, 10) && !messageData.system) {
+        if (messageData.fromuid === Number.parseInt(uid, 10) && !messageData.system) {
             return;
         }
 

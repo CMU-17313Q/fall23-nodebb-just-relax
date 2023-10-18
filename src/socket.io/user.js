@@ -1,6 +1,6 @@
 'use strict';
 
-const util = require('util');
+const util = require('node:util');
 const winston = require('winston');
 
 const sleep = util.promisify(setTimeout);
@@ -46,25 +46,27 @@ SocketUser.reset.send = async function (socket, email) {
     if (meta.config['password:disableEdit']) {
         throw new Error('[[error:no-privileges]]');
     }
+
     async function logEvent(text) {
         await events.log({
             type: 'password-reset',
-            text: text,
+            text,
             ip: socket.ip,
             uid: socket.uid,
-            email: email,
+            email,
         });
     }
+
     try {
         await user.reset.send(email);
         await logEvent('[[success:success]]');
         await sleep(2500 + ((Math.random() * 500) - 250));
-    } catch (err) {
-        await logEvent(err.message);
+    } catch (error) {
+        await logEvent(error.message);
         await sleep(2500 + ((Math.random() * 500) - 250));
         const internalErrors = ['[[error:invalid-email]]', '[[error:reset-rate-limited]]'];
-        if (!internalErrors.includes(err.message)) {
-            throw err;
+        if (!internalErrors.includes(error.message)) {
+            throw error;
         }
     }
 };
@@ -73,6 +75,7 @@ SocketUser.reset.commit = async function (socket, data) {
     if (!data || !data.code || !data.password) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const [uid] = await Promise.all([
         db.getObjectField('reset:uid', data.code),
         user.reset.commit(data.code, data.password),
@@ -81,7 +84,7 @@ SocketUser.reset.commit = async function (socket, data) {
 
     await events.log({
         type: 'password-reset',
-        uid: uid,
+        uid,
         ip: socket.ip,
     });
 
@@ -89,10 +92,10 @@ SocketUser.reset.commit = async function (socket, data) {
     const now = new Date();
     const parsedDate = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
     emailer.send('reset_notify', uid, {
-        username: username,
+        username,
         date: parsedDate,
         subject: '[[email:reset.notify.subject]]',
-    }).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+    }).catch(error => winston.error(`[emailer.send] ${error.stack}`));
 };
 
 SocketUser.isFollowing = async function (socket, data) {
@@ -107,6 +110,7 @@ SocketUser.getUnreadCount = async function (socket) {
     if (!socket.uid) {
         return 0;
     }
+
     return await topics.getTotalUnread(socket.uid, '');
 };
 
@@ -114,6 +118,7 @@ SocketUser.getUnreadChatCount = async function (socket) {
     if (!socket.uid) {
         return 0;
     }
+
     return await messaging.getUnreadCount(socket.uid);
 };
 
@@ -121,6 +126,7 @@ SocketUser.getUnreadCounts = async function (socket) {
     if (!socket.uid) {
         return {};
     }
+
     const results = await utils.promiseParallel({
         unreadCounts: topics.getUnreadTids({ uid: socket.uid, count: true }),
         unreadChatCount: messaging.getUnreadCount(socket.uid),
@@ -149,6 +155,7 @@ SocketUser.setModerationNote = async function (socket, data) {
     if (!socket.uid || !data || !data.uid || !data.note) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const noteData = {
         uid: socket.uid,
         note: data.note,
@@ -158,6 +165,7 @@ SocketUser.setModerationNote = async function (socket, data) {
     if (!canEdit) {
         canEdit = await user.isModeratorOfAnyCategory(socket.uid);
     }
+
     if (!canEdit) {
         throw new Error('[[error:no-privileges]]');
     }
@@ -169,6 +177,7 @@ SocketUser.deleteUpload = async function (socket, data) {
     if (!data || !data.name || !data.uid) {
         throw new Error('[[error:invalid-data]]');
     }
+
     await user.deleteUpload(socket.uid, data.uid, data.name);
 };
 
@@ -183,6 +192,7 @@ SocketUser.gdpr.check = async function (socket, data) {
     if (!isAdmin) {
         data.uid = socket.uid;
     }
+
     return await db.getObjectField(`user:${data.uid}`, 'gdpr_consent');
 };
 

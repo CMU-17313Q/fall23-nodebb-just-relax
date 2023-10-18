@@ -1,46 +1,50 @@
 'use strict';
 
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 const { SMTPServer } = require('smtp-server');
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
-
-const db = require('./mocks/databasemock');
 const Plugins = require('../src/plugins');
 const Emailer = require('../src/emailer');
 const user = require('../src/user');
 const meta = require('../src/meta');
 const Meta = require('../src/meta');
+const db = require('./mocks/databasemock');
 
 describe('emailer', () => {
-    let onMail = function (address, session, callback) { callback(); };
-    let onTo = function (address, session, callback) { callback(); };
+    let onMail = function (address, session, callback) {
+        callback();
+    };
+
+    let onTo = function (address, session, callback) {
+        callback();
+    };
 
     const template = 'test';
     const email = 'test@example.org';
     const language = 'en-GB';
-    const params = {
+    const parameters = {
         subject: 'Welcome to NodeBB',
     };
 
     before((done) => {
         const server = new SMTPServer({
             allowInsecureAuth: true,
-            onAuth: function (auth, session, callback) {
+            onAuth(auth, session, callback) {
                 callback(null, {
                     user: auth.username,
                 });
             },
-            onMailFrom: function (address, session, callback) {
+            onMailFrom(address, session, callback) {
                 onMail(address, session, callback);
             },
-            onRcptTo: function (address, session, callback) {
+            onRcptTo(address, session, callback) {
                 onTo(address, session, callback);
             },
         });
 
-        server.on('error', (err) => {
-            throw err;
+        server.on('error', (error) => {
+            throw error;
         });
         server.listen(4000, done);
     });
@@ -52,7 +56,7 @@ describe('emailer', () => {
         const method = function (data, next) {
             assert(data);
             assert.equal(data.to, email);
-            assert.equal(data.subject, `[NodeBB] ${params.subject}`);
+            assert.equal(data.subject, `[NodeBB] ${parameters.subject}`);
 
             next(error);
         };
@@ -62,8 +66,8 @@ describe('emailer', () => {
             method,
         });
 
-        Emailer.sendToEmail(template, email, language, params, (err) => {
-            assert.equal(err, error);
+        Emailer.sendToEmail(template, email, language, parameters, (error_) => {
+            assert.equal(error_, error);
 
             Plugins.hooks.unregister('emailer-test', 'filter:email.send', method);
             done();
@@ -73,19 +77,19 @@ describe('emailer', () => {
     it('should build custom template on config change', (done) => {
         const text = 'a random string of text';
 
-        // make sure it's not already set
-        Emailer.renderAndTranslate('test', {}, 'en-GB', (err, output) => {
-            assert.ifError(err);
+        // Make sure it's not already set
+        Emailer.renderAndTranslate('test', {}, 'en-GB', (error, output) => {
+            assert.ifError(error);
 
             assert.notEqual(output, text);
 
-            Meta.configs.set('email:custom:test', text, (err) => {
-                assert.ifError(err);
+            Meta.configs.set('email:custom:test', text, (error_) => {
+                assert.ifError(error_);
 
-                // wait for pubsub stuff
+                // Wait for pubsub stuff
                 setTimeout(() => {
-                    Emailer.renderAndTranslate('test', {}, 'en-GB', (err, output) => {
-                        assert.ifError(err);
+                    Emailer.renderAndTranslate('test', {}, 'en-GB', (error, output) => {
+                        assert.ifError(error);
 
                         assert.equal(output, text);
                         done();
@@ -122,15 +126,15 @@ describe('emailer', () => {
             'email:smtpTransport:host': 'localhost',
             'email:smtpTransport:security': 'NONE',
             'email:from': from,
-        }, (err) => {
-            assert.ifError(err);
+        }, (error) => {
+            assert.ifError(error);
 
-            // delay so emailer has a chance to update after config changes
+            // Delay so emailer has a chance to update after config changes
             setTimeout(() => {
                 assert.equal(Emailer.fallbackTransport, Emailer.transports.smtp);
 
-                Emailer.sendToEmail(template, email, language, params, (err) => {
-                    assert.ifError(err);
+                Emailer.sendToEmail(template, email, language, parameters, (error) => {
+                    assert.ifError(error);
                 });
             }, 200);
         });
@@ -154,8 +158,9 @@ describe('emailer', () => {
 
         it('should not send email to a banned user', async () => {
             const method = async () => {
-                assert(false); // if thrown, email was sent
+                assert(false); // If thrown, email was sent
             };
+
             Plugins.hooks.register('emailer-test', {
                 hook: 'filter:email.send',
                 method,
@@ -169,8 +174,9 @@ describe('emailer', () => {
 
         it('should return true if the template is "banned"', async () => {
             const method = async () => {
-                assert(true); // if thrown, email was sent
+                assert(true); // If thrown, email was sent
             };
+
             Plugins.hooks.register('emailer-test', {
                 hook: 'filter:email.send',
                 method,
@@ -182,8 +188,9 @@ describe('emailer', () => {
 
         it('should return true if system settings allow sending to banned users', async () => {
             const method = async () => {
-                assert(true); // if thrown, email was sent
+                assert(true); // If thrown, email was sent
             };
+
             Plugins.hooks.register('emailer-test', {
                 hook: 'filter:email.send',
                 method,

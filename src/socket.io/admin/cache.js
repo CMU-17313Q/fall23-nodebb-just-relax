@@ -16,6 +16,7 @@ SocketCache.clear = async function (socket, data) {
     if (!caches[data.name]) {
         return;
     }
+
     caches[data.name].reset();
 };
 
@@ -30,5 +31,6 @@ SocketCache.toggle = async function (socket, data) {
     if (!caches[data.name]) {
         return;
     }
+
     caches[data.name].enabled = data.enabled;
 };

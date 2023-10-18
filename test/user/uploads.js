@@ -1,13 +1,11 @@
 'use strict';
 
-const assert = require('assert');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-
+const assert = require('node:assert');
+const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 const nconf = require('nconf');
 const db = require('../mocks/databasemock');
-
 const user = require('../../src/user');
 const topics = require('../../src/topics');
 const categories = require('../../src/categories');
@@ -35,19 +33,19 @@ describe('uploads.js', () => {
         it('should associate an uploaded file to a user', async () => {
             await user.associateUpload(uid, relativePath);
             const uploads = await db.getSortedSetMembers(`uid:${uid}:uploads`);
-            const uploadObj = await db.getObject(`upload:${md5(relativePath)}`);
+            const uploadObject = await db.getObject(`upload:${md5(relativePath)}`);
 
             assert.strictEqual(uploads.length, 1);
             assert.deepStrictEqual(uploads, [relativePath]);
-            assert.strictEqual(parseInt(uploadObj.uid, 10), uid);
+            assert.strictEqual(Number.parseInt(uploadObject.uid, 10), uid);
         });
 
         it('should throw an error if the path is invalid', async () => {
             try {
                 await user.associateUpload(uid, `${relativePath}suffix`);
-            } catch (e) {
-                assert(e);
-                assert.strictEqual(e.message, '[[error:invalid-path]]');
+            } catch (error) {
+                assert(error);
+                assert.strictEqual(error.message, '[[error:invalid-path]]');
             }
 
             const uploads = await db.getSortedSetMembers(`uid:${uid}:uploads`);
@@ -58,10 +56,10 @@ describe('uploads.js', () => {
 
         it('should guard against path traversal', async () => {
             try {
-                await user.associateUpload(uid, `../../config.json`);
-            } catch (e) {
-                assert(e);
-                assert.strictEqual(e.message, '[[error:invalid-path]]');
+                await user.associateUpload(uid, '../../config.json');
+            } catch (error) {
+                assert(error);
+                assert.strictEqual(error.message, '[[error:invalid-path]]');
             }
 
             const uploads = await db.getSortedSetMembers(`uid:${uid}:uploads`);
@@ -130,9 +128,9 @@ describe('uploads.js', () => {
         it('should throw an error on a non-existant file', async () => {
             try {
                 await user.deleteUpload(uid, uid, `${relativePath}asdbkas`);
-            } catch (e) {
-                assert(e);
-                assert.strictEqual(e.message, '[[error:invalid-path]]');
+            } catch (error) {
+                assert(error);
+                assert.strictEqual(error.message, '[[error:invalid-path]]');
             }
         });
 
@@ -140,10 +138,10 @@ describe('uploads.js', () => {
             assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '../../config.json')), true);
 
             try {
-                await user.deleteUpload(uid, uid, `../../config.json`);
-            } catch (e) {
-                assert(e);
-                assert.strictEqual(e.message, '[[error:invalid-path]]');
+                await user.deleteUpload(uid, uid, '../../config.json');
+            } catch (error) {
+                assert(error);
+                assert.strictEqual(error.message, '[[error:invalid-path]]');
             }
         });
 

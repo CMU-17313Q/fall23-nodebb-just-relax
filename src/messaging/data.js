@@ -1,7 +1,6 @@
 'use strict';
 
 const validator = require('validator');
-
 const db = require('../database');
 const user = require('../user');
 const utils = require('../utils');
@@ -13,7 +12,7 @@ module.exports = function (Messaging) {
     Messaging.newMessageCutoff = 1000 * 60 * 3;
 
     Messaging.getMessagesFields = async (mids, fields) => {
-        if (!Array.isArray(mids) || !mids.length) {
+        if (!Array.isArray(mids) || mids.length === 0) {
             return [];
         }
 
@@ -21,7 +20,7 @@ module.exports = function (Messaging) {
         const messages = await db.getObjects(keys, fields);
 
         return await Promise.all(messages.map(
-            async (message, idx) => modifyMessage(message, fields, parseInt(mids[idx], 10))
+            async (message, idx) => modifyMessage(message, fields, Number.parseInt(mids[idx], 10)),
         ));
     };
 
@@ -47,33 +46,34 @@ module.exports = function (Messaging) {
         let messages = await Messaging.getMessagesFields(mids, []);
         messages = await user.blocks.filter(uid, 'fromuid', messages);
         messages = messages
-            .map((msg, idx) => {
-                if (msg) {
-                    msg.messageId = parseInt(mids[idx], 10);
-                    msg.ip = undefined;
+            .map((message, idx) => {
+                if (message) {
+                    message.messageId = Number.parseInt(mids[idx], 10);
+                    message.ip = undefined;
                 }
-                return msg;
+
+                return message;
             })
             .filter(Boolean);
 
         const users = await user.getUsersFields(
-            messages.map(msg => msg && msg.fromuid),
-            ['uid', 'username', 'userslug', 'picture', 'status', 'banned']
+            messages.map(message => message && message.fromuid),
+            ['uid', 'username', 'userslug', 'picture', 'status', 'banned'],
         );
 
-        messages.forEach((message, index) => {
+        for (const [index, message] of messages.entries()) {
             message.fromUser = users[index];
-            message.fromUser.banned = !!message.fromUser.banned;
+            message.fromUser.banned = Boolean(message.fromUser.banned);
             message.fromUser.deleted = message.fromuid !== message.fromUser.uid && message.fromUser.uid === 0;
 
-            const self = message.fromuid === parseInt(uid, 10);
+            const self = message.fromuid === Number.parseInt(uid, 10);
             message.self = self ? 1 : 0;
 
             message.newSet = false;
             message.roomId = String(message.roomId || roomId);
-            message.deleted = !!message.deleted;
-            message.system = !!message.system;
-        });
+            message.deleted = Boolean(message.deleted);
+            message.system = Boolean(message.system);
+        }
 
         messages = await Promise.all(messages.map(async (message) => {
             if (message.system) {
@@ -124,11 +124,11 @@ module.exports = function (Messaging) {
         }
 
         const data = await plugins.hooks.fire('filter:messaging.getMessages', {
-            messages: messages,
-            uid: uid,
-            roomId: roomId,
-            isNew: isNew,
-            mids: mids,
+            messages,
+            uid,
+            roomId,
+            isNew,
+            mids,
         });
 
         return data && data.messages;
@@ -141,15 +141,16 @@ async function modifyMessage(message, fields, mid) {
         if (message.hasOwnProperty('timestamp')) {
             message.timestampISO = utils.toISOString(message.timestamp);
         }
+
         if (message.hasOwnProperty('edited')) {
             message.editedISO = utils.toISOString(message.edited);
         }
     }
 
     const payload = await plugins.hooks.fire('filter:messaging.getFields', {
-        mid: mid,
-        message: message,
-        fields: fields,
+        mid,
+        message,
+        fields,
     });
 
     return payload.message;

@@ -29,7 +29,7 @@ module.exports = function (User) {
         jobs['reset.clean'] = new cronJob('0 0 * * *', User.reset.clean, null, true);
         winston.verbose('[user/jobs] Starting job (reset.clean)');
 
-        winston.verbose(`[user/jobs] jobs started`);
+        winston.verbose('[user/jobs] jobs started');
     };
 
     function startDigestJob(name, cronString, term) {
@@ -42,9 +42,10 @@ module.exports = function (User) {
                         await User.digest.execute({ interval: 'biweek' });
                     }
                 }
+
                 await User.digest.execute({ interval: term });
-            } catch (err) {
-                winston.error(err.stack);
+            } catch (error) {
+                winston.error(error.stack);
             }
         }), null, true);
         winston.verbose(`[user/jobs] Starting job (${name})`);
@@ -59,6 +60,7 @@ module.exports = function (User) {
             delete jobs[jobId];
             terminated += 1;
         }
+
         if (terminated > 0) {
             winston.verbose(`[user/jobs] ${terminated} jobs terminated`);
         }

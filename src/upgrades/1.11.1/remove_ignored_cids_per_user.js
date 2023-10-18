@@ -1,13 +1,12 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 
 module.exports = {
     name: 'Remove uid:<uid>:ignored:cids',
     timestamp: Date.UTC(2018, 11, 11),
-    method: function (callback) {
+    method(callback) {
         const { progress } = this;
 
         batch.processSortedSet('users:joindate', (uids, next) => {

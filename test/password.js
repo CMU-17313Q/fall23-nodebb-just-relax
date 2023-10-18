@@ -1,8 +1,7 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const bcrypt = require('bcryptjs');
-
 const password = require('../src/password');
 
 describe('Password', () => {
@@ -29,21 +28,21 @@ describe('Password', () => {
         });
 
         it('should continue to function even with passwords > 73 characters', async () => {
-            const arr = [];
-            arr.length = 100;
-            const hash = await password.hash(12, arr.join('a'));
+            const array = [];
+            array.length = 100;
+            const hash = await password.hash(12, array.join('a'));
 
-            arr.length = 150;
-            const match = await password.compare(arr.join('a'), hash, true);
+            array.length = 150;
+            const match = await password.compare(array.join('a'), hash, true);
             assert.strictEqual(match, false);
         });
 
         it('should process a million-character long password quickly', async () => {
             // ... because sha512 reduces it to a constant size
-            const arr = [];
+            const array = [];
             const start = Date.now();
-            arr.length = 1000000;
-            await password.hash(12, arr.join('a'));
+            array.length = 1000000;
+            await password.hash(12, array.join('a'));
             const end = Date.now();
 
             assert(end - start < 5000);

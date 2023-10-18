@@ -6,8 +6,8 @@ nconf.argv().env({
     separator: '__',
 });
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const json2csvAsync = require('json2csv').parseAsync;
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -22,11 +22,11 @@ prestart.setupWinston();
 const db = require('../../database');
 const batch = require('../../batch');
 
-process.on('message', async (msg) => {
-    if (msg && msg.uid) {
+process.on('message', async (message) => {
+    if (message && message.uid) {
         await db.init();
 
-        const targetUid = msg.uid;
+        const targetUid = message.uid;
         const filePath = path.join(__dirname, '../../../build/export', `${targetUid}_posts.csv`);
 
         const posts = require('../../posts');
@@ -36,7 +36,7 @@ process.on('message', async (msg) => {
             let postData = await posts.getPostsData(pids);
             // Remove empty post references and convert newlines in content
             postData = postData.filter(Boolean).map((post) => {
-                post.content = `"${String(post.content || '').replace(/\n/g, '\\n').replace(/"/g, '\\"')}"`;
+                post.content = `"${String(post.content || '').replaceAll('\n', '\\n').replaceAll('"', '\\"')}"`;
                 return post;
             });
             payload = payload.concat(postData);
@@ -45,9 +45,9 @@ process.on('message', async (msg) => {
             interval: 1000,
         });
 
-        const fields = payload.length ? Object.keys(payload[0]) : [];
-        const opts = { fields };
-        const csv = await json2csvAsync(payload, opts);
+        const fields = payload.length > 0 ? Object.keys(payload[0]) : [];
+        const options = { fields };
+        const csv = await json2csvAsync(payload, options);
         await fs.promises.writeFile(filePath, csv);
 
         await db.close();

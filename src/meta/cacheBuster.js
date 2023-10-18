@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const mkdirp = require('mkdirp');
 const winston = require('winston');
 
@@ -9,7 +9,7 @@ const filePath = path.join(__dirname, '../../build/cache-buster');
 
 let cached;
 
-// cache buster is an 11-character, lowercase, alphanumeric string
+// Cache buster is an 11-character, lowercase, alphanumeric string
 function generate() {
     return (Math.random() * 1e18).toString(32).slice(0, 11);
 }
@@ -23,6 +23,7 @@ exports.read = async function read() {
     if (cached) {
         return cached;
     }
+
     try {
         const buster = await fs.promises.readFile(filePath, 'utf8');
         if (!buster || buster.length !== 11) {
@@ -32,8 +33,8 @@ exports.read = async function read() {
 
         cached = buster;
         return cached;
-    } catch (err) {
-        winston.warn('[cache-buster] could not read cache buster', err);
+    } catch (error) {
+        winston.warn('[cache-buster] could not read cache buster', error);
         return generate();
     }
 };

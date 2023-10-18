@@ -2,7 +2,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const utils = require('../utils');
 const slugify = require('../slugify');
@@ -23,27 +22,27 @@ module.exports = function (Topics) {
         const tid = await db.incrObjectField('global', 'nextTid');
 
         let topicData = {
-            tid: tid,
+            tid,
             uid: data.uid,
             cid: data.cid,
             mainPid: 0,
             title: data.title,
             slug: `${tid}/${slugify(data.title) || 'topic'}`,
-            timestamp: timestamp,
+            timestamp,
             lastposttime: 0,
             postcount: 0,
             viewcount: 0,
-            // added attribute for resolved --maria
+            // Added attribute for resolved --maria
             isResolved: false,
-            // added attribute for anonymous --rama
-            isAnonymous: isAnonymous,
+            // Added attribute for anonymous --rama
+            isAnonymous,
         };
 
-        if (Array.isArray(data.tags) && data.tags.length) {
+        if (Array.isArray(data.tags) && data.tags.length > 0) {
             topicData.tags = data.tags.join(',');
         }
 
-        const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data: data });
+        const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data });
         topicData = result.topic;
         await db.setObject(`topic:${topicData.tid}`, topicData);
 
@@ -61,7 +60,9 @@ module.exports = function (Topics) {
         await Promise.all([
             db.sortedSetsAdd(timestampedSortedSetKeys, timestamp, topicData.tid),
             db.sortedSetsAdd([
-                'topics:views', 'topics:posts', 'topics:votes',
+                'topics:views',
+                'topics:posts',
+                'topics:votes',
                 `cid:${topicData.cid}:tids:votes`,
                 `cid:${topicData.cid}:tids:posts`,
                 `cid:${topicData.cid}:tids:views`,
@@ -76,7 +77,7 @@ module.exports = function (Topics) {
             await Topics.scheduled.pin(tid, topicData);
         }
 
-        plugins.hooks.fire('action:topic.save', { topic: _.clone(topicData), data: data });
+        plugins.hooks.fire('action:topic.save', { topic: _.clone(topicData), data });
         return topicData.tid;
     };
 
@@ -89,6 +90,7 @@ module.exports = function (Topics) {
         if (data.content) {
             data.content = utils.rtrim(data.content);
         }
+
         Topics.checkTitle(data.title);
         await Topics.validateTags(data.tags, data.cid, uid);
         data.tags = await Topics.filterTags(data.tags, data.cid);
@@ -106,7 +108,7 @@ module.exports = function (Topics) {
             throw new Error('[[error:no-category]]');
         }
 
-        if (!canCreate || (!canTag && data.tags.length)) {
+        if (!canCreate || (!canTag && data.tags.length > 0)) {
             throw new Error('[[error:no-privileges]]');
         }
 
@@ -129,13 +131,14 @@ module.exports = function (Topics) {
             Topics.getTopicsByTids([postData.tid], uid),
         ]);
 
-        if (!Array.isArray(topics) || !topics.length) {
+        if (!Array.isArray(topics) || topics.length === 0) {
             throw new Error('[[error:no-topic]]');
         }
 
         if (uid > 0 && settings.followTopicsOnCreate) {
             await Topics.follow(postData.tid, uid);
         }
+
         const topicData = topics[0];
         topicData.unreplied = true;
         topicData.mainPost = postData;
@@ -147,15 +150,15 @@ module.exports = function (Topics) {
         }
 
         analytics.increment(['topics', `topics:byCid:${topicData.cid}`]);
-        plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data: data });
+        plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data });
 
-        if (parseInt(uid, 10) && !topicData.scheduled) {
+        if (Number.parseInt(uid, 10) && !topicData.scheduled) {
             user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
         }
 
         return {
-            topicData: topicData,
-            postData: postData,
+            topicData,
+            postData,
         };
     };
 
@@ -174,6 +177,7 @@ module.exports = function (Topics) {
         if (data.content) {
             data.content = utils.rtrim(data.content);
         }
+
         if (!data.fromQueue) {
             await user.isReadyToPost(uid, data.cid);
             Topics.checkContent(data.content);
@@ -193,11 +197,11 @@ module.exports = function (Topics) {
             await Topics.follow(postData.tid, uid);
         }
 
-        if (parseInt(uid, 10)) {
+        if (Number.parseInt(uid, 10)) {
             user.setUserField(uid, 'lastonline', Date.now());
         }
 
-        if (parseInt(uid, 10) || meta.config.allowGuestReplyNotifications) {
+        if (Number.parseInt(uid, 10) || meta.config.allowGuestReplyNotifications) {
             const { displayname } = postData.user;
 
             Topics.notifyFollowers(postData, uid, {
@@ -209,7 +213,7 @@ module.exports = function (Topics) {
         }
 
         analytics.increment(['posts', `posts:byCid:${data.cid}`]);
-        plugins.hooks.fire('action:topic.reply', { post: _.clone(postData), data: data });
+        plugins.hooks.fire('action:topic.reply', { post: _.clone(postData), data });
 
         return postData;
     };
@@ -263,18 +267,19 @@ module.exports = function (Topics) {
             item = utils.stripHTMLTags(item).trim();
         }
 
-        if (item === null || item === undefined || item.length < parseInt(min, 10)) {
+        if (item === null || item === undefined || item.length < Number.parseInt(min, 10)) {
             throw new Error(`[[error:${minError}, ${min}]]`);
-        } else if (item.length > parseInt(max, 10)) {
+        } else if (item.length > Number.parseInt(max, 10)) {
             throw new Error(`[[error:${maxError}, ${max}]]`);
         }
     }
 
     async function guestHandleValid(data) {
-        if (meta.config.allowGuestHandles && parseInt(data.uid, 10) === 0 && data.handle) {
+        if (meta.config.allowGuestHandles && Number.parseInt(data.uid, 10) === 0 && data.handle) {
             if (data.handle.length > meta.config.maximumUsernameLength) {
                 throw new Error('[[error:guest-handle-invalid]]');
             }
+
             const exists = await user.existsBySlug(slugify(data.handle));
             if (exists) {
                 throw new Error('[[error:username-taken]]');
@@ -286,6 +291,7 @@ module.exports = function (Topics) {
         if (!topicData) {
             throw new Error('[[error:no-topic]]');
         }
+
         const { tid, uid } = data;
         const { cid, deleted, locked, scheduled } = topicData;
 

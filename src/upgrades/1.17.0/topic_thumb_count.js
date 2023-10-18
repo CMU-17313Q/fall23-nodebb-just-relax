@@ -7,7 +7,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Store number of thumbs a topic has in the topic object',
     timestamp: Date.UTC(2021, 1, 7),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('topics:tid', async (tids) => {
@@ -22,7 +22,7 @@ module.exports = {
             progress.incr(tids.length);
         }, {
             batch: 500,
-            progress: progress,
+            progress,
         });
     },
 };

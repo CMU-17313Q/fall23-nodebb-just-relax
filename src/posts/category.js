@@ -1,9 +1,7 @@
 
 'use strict';
 
-
 const _ = require('lodash');
-
 const db = require('../database');
 const topics = require('../topics');
 
@@ -30,12 +28,13 @@ module.exports = function (Posts) {
         if (!Array.isArray(cid) || cid.length === 1) {
             return await filterPidsBySingleCid(pids, cid);
         }
-        const pidsArr = await Promise.all(cid.map(c => Posts.filterPidsByCid(pids, c)));
-        return _.union(...pidsArr);
+
+        const pidsArray = await Promise.all(cid.map(c => Posts.filterPidsByCid(pids, c)));
+        return _.union(...pidsArray);
     };
 
     async function filterPidsBySingleCid(pids, cid) {
-        const isMembers = await db.isSortedSetMembers(`cid:${parseInt(cid, 10)}:pids`, pids);
+        const isMembers = await db.isSortedSetMembers(`cid:${Number.parseInt(cid, 10)}:pids`, pids);
         return pids.filter((pid, index) => pid && isMembers[index]);
     }
 };

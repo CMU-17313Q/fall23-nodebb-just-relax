@@ -11,12 +11,14 @@ module.exports = function (SocketPosts) {
         if (!data || !data.pid || !data.cid) {
             throw new Error('[[error:invalid-data]]');
         }
+
         const showDownvotes = !meta.config['downvote:disabled'];
         const canSeeVotes = meta.config.votesArePublic ||
             await privileges.categories.isAdminOrMod(data.cid, socket.uid);
         if (!canSeeVotes) {
             throw new Error('[[error:no-privileges]]');
         }
+
         const [upvoteUids, downvoteUids] = await Promise.all([
             db.getSetMembers(`pid:${data.pid}:upvote`),
             showDownvotes ? db.getSetMembers(`pid:${data.pid}:downvote`) : [],
@@ -30,18 +32,19 @@ module.exports = function (SocketPosts) {
         return {
             upvoteCount: upvoters.length,
             downvoteCount: downvoters.length,
-            showDownvotes: showDownvotes,
-            upvoters: upvoters,
-            downvoters: downvoters,
+            showDownvotes,
+            upvoters,
+            downvoters,
         };
     };
 
     SocketPosts.getUpvoters = async function (socket, pids) {
         if (!Array.isArray(pids)) {
-            throw new Error('[[error:invalid-data]]');
+            throw new TypeError('[[error:invalid-data]]');
         }
+
         const data = await posts.getUpvotedUidsByPids(pids);
-        if (!data.length) {
+        if (data.length === 0) {
             return [];
         }
 
@@ -51,10 +54,11 @@ module.exports = function (SocketPosts) {
                 otherCount = uids.length - 5;
                 uids = uids.slice(0, 5);
             }
+
             const usernames = await user.getUsernamesByUids(uids);
             return {
-                otherCount: otherCount,
-                usernames: usernames,
+                otherCount,
+                usernames,
             };
         }));
         return result;

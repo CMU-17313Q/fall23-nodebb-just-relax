@@ -2,7 +2,6 @@
 
 const validator = require('validator');
 const winston = require('winston');
-
 const db = require('../database');
 const user = require('../user');
 const groups = require('../groups');
@@ -21,6 +20,7 @@ usersAPI.create = async function (caller, data) {
     if (!data) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const uid = await user.create(data);
     return await user.getUserData(uid);
 };
@@ -74,11 +74,12 @@ usersAPI.update = async function (caller, data) {
             newUsername: userData.username,
         });
     }
+
     return userData;
 };
 
 usersAPI.delete = async function (caller, { uid, password }) {
-    await processDeletion({ uid: uid, method: 'delete', password, caller });
+    await processDeletion({ uid, method: 'delete', password, caller });
 };
 
 usersAPI.deleteContent = async function (caller, { uid, password }) {
@@ -112,7 +113,7 @@ usersAPI.updateSettings = async function (caller, data) {
         userLang: defaults.userLang,
         acpLang: defaults.acpLang,
     };
-    // load raw settings without parsing values to booleans
+    // Load raw settings without parsing values to booleans
     const current = await db.getObject(`user:${data.uid}:settings`);
     const payload = { ...defaults, ...current, ...data.settings };
     delete payload.uid;
@@ -140,7 +141,7 @@ usersAPI.follow = async function (caller, data) {
     const userData = await user.getUserFields(caller.uid, ['username', 'userslug']);
     const { displayname } = userData;
 
-    const notifObj = await notifications.create({
+    const notifObject = await notifications.create({
         type: 'follow',
         bodyShort: `[[notifications:user_started_following_you, ${displayname}]]`,
         nid: `follow:${data.uid}:uid:${caller.uid}`,
@@ -148,11 +149,12 @@ usersAPI.follow = async function (caller, data) {
         path: `/uid/${data.uid}/followers`,
         mergeId: 'notifications:user_started_following_you',
     });
-    if (!notifObj) {
+    if (!notifObject) {
         return;
     }
-    notifObj.user = userData;
-    await notifications.push(notifObj, [data.uid]);
+
+    notifObject.user = userData;
+    await notifications.push(notifObject, [data.uid]);
 };
 
 usersAPI.unfollow = async function (caller, data) {
@@ -232,6 +234,7 @@ usersAPI.mute = async function (caller, data) {
     } else if (await user.isAdministrator(data.uid)) {
         throw new Error('[[error:cant-mute-other-admins]]');
     }
+
     const reason = data.reason || '[[user:info.muted-no-reason]]';
     await db.setObject(`user:${data.uid}`, {
         mutedUntil: data.until,
@@ -248,6 +251,7 @@ usersAPI.mute = async function (caller, data) {
     if (data.reason) {
         muteData.reason = reason;
     }
+
     await db.sortedSetAdd(`uid:${data.uid}:mutes:timestamp`, now, muteKey);
     await db.setObject(muteKey, muteData);
     await events.log({
@@ -288,12 +292,13 @@ usersAPI.unmute = async function (caller, data) {
 
 async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
     const { uid } = caller;
-    const isSelf = parseInt(uid, 10) === parseInt(data.uid, 10);
+    const isSelf = Number.parseInt(uid, 10) === Number.parseInt(data.uid, 10);
     const canEdit = await privileges.users.canEdit(uid, data.uid);
 
     if (!canEdit) {
         throw new Error('[[error:no-privileges]]');
     }
+
     const [hasPassword, passwordMatch] = await Promise.all([
         user.hasPassword(data.uid),
         data.password ? user.isPasswordCorrect(data.uid, data.password, caller.ip) : false,
@@ -306,7 +311,7 @@ async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
 
 async function processDeletion({ uid, method, password, caller }) {
     const isTargetAdmin = await user.isAdministrator(uid);
-    const isSelf = parseInt(uid, 10) === parseInt(caller.uid, 10);
+    const isSelf = Number.parseInt(uid, 10) === Number.parseInt(caller.uid, 10);
     const isAdmin = await user.isAdministrator(caller.uid);
 
     if (isSelf && meta.config.allowAccountDelete !== 1) {
@@ -335,18 +340,15 @@ async function processDeletion({ uid, method, password, caller }) {
     await flags.resolveFlag('user', uid, caller.uid);
 
     let userData;
-    if (method === 'deleteAccount') {
-        userData = await user[method](uid);
-    } else {
-        userData = await user[method](caller.uid, uid);
-    }
+    userData = await (method === 'deleteAccount' ? user[method](uid) : user[method](caller.uid, uid));
+
     userData = userData || {};
 
     sockets.server.sockets.emit('event:user_status_change', { uid: caller.uid, status: 'offline' });
 
     plugins.hooks.fire('action:user.delete', {
         callerUid: caller.uid,
-        uid: uid,
+        uid,
         ip: caller.ip,
         user: userData,
     });
@@ -363,8 +365,9 @@ async function processDeletion({ uid, method, password, caller }) {
 
 async function canDeleteUids(uids) {
     if (!Array.isArray(uids)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
+
     const isMembers = await groups.isMembers(uids, 'administrators');
     if (isMembers.includes(true)) {
         throw new Error('[[error:cant-delete-other-admins]]');
@@ -377,6 +380,7 @@ usersAPI.search = async function (caller, data) {
     if (!data) {
         throw new Error('[[error:invalid-data]]');
     }
+
     const [allowed, isPrivileged] = await Promise.all([
         privileges.global.can('search:users', caller.uid),
         user.isPrivileged(caller.uid),
@@ -385,7 +389,7 @@ usersAPI.search = async function (caller, data) {
     filters = Array.isArray(filters) ? filters : [filters];
     if (!allowed ||
         ((
-            data.searchBy === 'ip' ||
+        	data.searchBy === 'ip' ||
             data.searchBy === 'email' ||
             filters.includes('banned') ||
             filters.includes('flagged')
@@ -393,12 +397,13 @@ usersAPI.search = async function (caller, data) {
     ) {
         throw new Error('[[error:no-privileges]]');
     }
+
     return await user.search({
         query: data.query,
         searchBy: data.searchBy || 'username',
         page: data.page || 1,
         sortBy: data.sortBy || 'lastonline',
-        filters: filters,
+        filters,
     });
 };
 
@@ -425,7 +430,7 @@ usersAPI.changePicture = async (caller, data) => {
     } else {
         const returnData = await plugins.hooks.fire('filter:user.getPicture', {
             uid: caller.uid,
-            type: type,
+            type,
             picture: undefined,
         });
         picture = returnData && returnData.picture;
@@ -438,7 +443,7 @@ usersAPI.changePicture = async (caller, data) => {
 
     await user.updateProfile(caller.uid, {
         uid: data.uid,
-        picture: picture,
+        picture,
         'icon:bgColor': data.bgColor,
     }, ['picture', 'icon:bgColor']);
 };
@@ -449,12 +454,12 @@ usersAPI.generateExport = async (caller, { uid, type }) => {
         throw new Error('[[error:already-exporting]]');
     }
 
-    const child = require('child_process').fork(`./src/user/jobs/export-${type}.js`, [], {
+    const child = require('node:child_process').fork(`./src/user/jobs/export-${type}.js`, [], {
         env: process.env,
     });
     child.send({ uid });
-    child.on('error', async (err) => {
-        winston.error(err.stack);
+    child.on('error', async (error) => {
+        winston.error(error.stack);
         await db.deleteObjectField('locks', `export:${uid}${type}`);
     });
     child.on('exit', async () => {

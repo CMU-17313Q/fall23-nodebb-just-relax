@@ -9,12 +9,13 @@ const groups = require('../../groups');
 module.exports = {
     name: 'give mod info privilege',
     timestamp: Date.UTC(2019, 9, 8),
-    method: async function () {
+    async method() {
         const cids = await db.getSortedSetRevRange('categories:cid', 0, -1);
         for (const cid of cids) {
             await givePrivsToModerators(cid, '');
             await givePrivsToModerators(cid, 'groups:');
         }
+
         await privileges.global.give(['groups:view:users:info'], 'Global Moderators');
 
         async function givePrivsToModerators(cid, groupPrefix) {

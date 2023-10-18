@@ -11,20 +11,23 @@ module.exports = function (Categories) {
     };
 
     Categories.isIgnored = async function (cids, uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return cids.map(() => false);
         }
+
         const states = await Categories.getWatchState(cids, uid);
         return states.map(state => state === Categories.watchStates.ignoring);
     };
 
     Categories.getWatchState = async function (cids, uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return cids.map(() => Categories.watchStates.notwatching);
         }
-        if (!Array.isArray(cids) || !cids.length) {
+
+        if (!Array.isArray(cids) || cids.length === 0) {
             return [];
         }
+
         const keys = cids.map(cid => `cid:${cid}:uid:watch:state`);
         const [userSettings, states] = await Promise.all([
             user.getSettings(uid),

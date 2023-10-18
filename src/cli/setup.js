@@ -1,9 +1,8 @@
 'use strict';
 
+const path = require('node:path');
 const winston = require('winston');
-const path = require('path');
 const nconf = require('nconf');
-
 const { install } = require('../../install/web');
 
 async function setup(initConfig) {
@@ -38,6 +37,7 @@ async function setup(initConfig) {
             separator += '=';
         }
     }
+
     console.log(`\n${separator}\n`);
 
     if (data.hasOwnProperty('password')) {
@@ -46,6 +46,7 @@ async function setup(initConfig) {
         console.log(`    Password: ${data.password}`);
         console.log('');
     }
+
     console.log('NodeBB Setup Completed. Run "./nodebb start" to manually start your NodeBB server.');
 
     // If I am a child process, notify the parent of the returned data before exiting (useful for notifying
@@ -53,6 +54,7 @@ async function setup(initConfig) {
     if (process.send) {
         process.send(data);
     }
+
     process.exit();
 }
 

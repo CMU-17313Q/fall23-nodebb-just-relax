@@ -8,7 +8,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Granting edit/delete/delete topic on existing categories',
     timestamp: Date.UTC(2016, 7, 7),
-    method: async function () {
+    async method() {
         const groupsAPI = require('../../groups');
         const privilegesAPI = require('../../privileges');
 
@@ -41,11 +41,13 @@ module.exports = {
                     ]);
                     winston.verbose(`cid:${cid}:privileges:posts:edit, cid:${cid}:privileges:posts:delete granted to uid: ${user.uid}`);
                 }
+
                 if (user.privileges['topics:create']) {
                     await groupsAPI.join(`cid:${cid}:privileges:topics:delete`, user.uid);
                     winston.verbose(`cid:${cid}:privileges:topics:delete granted to uid: ${user.uid}`);
                 }
             }
+
             winston.verbose(`-- cid ${cid} upgraded`);
         }
     },

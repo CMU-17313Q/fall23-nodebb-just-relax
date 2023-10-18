@@ -1,11 +1,10 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const nconf = require('nconf');
-
-const db = require('./mocks/databasemock');
 const coverPhoto = require('../src/coverPhoto');
 const meta = require('../src/meta');
+const db = require('./mocks/databasemock');
 
 describe('coverPhoto', () => {
     it('should get default group cover', (done) => {

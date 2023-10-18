@@ -3,7 +3,6 @@
 
 const validator = require('validator');
 const _ = require('lodash');
-
 const topics = require('../topics');
 const user = require('../user');
 const plugins = require('../plugins');
@@ -12,7 +11,7 @@ const utils = require('../utils');
 
 module.exports = function (Posts) {
     Posts.getPostSummaryByPids = async function (pids, uid, options) {
-        if (!Array.isArray(pids) || !pids.length) {
+        if (!Array.isArray(pids) || pids.length === 0) {
             return [];
         }
 
@@ -38,12 +37,13 @@ module.exports = function (Posts) {
         const tidToTopic = toObject('tid', topicsAndCategories.topics);
         const cidToCategory = toObject('cid', topicsAndCategories.categories);
 
-        posts.forEach((post) => {
+        for (const post of posts) {
             // If the post author isn't represented in the retrieved users' data,
             // then it means they were deleted, assume guest.
             if (!uidToUser.hasOwnProperty(post.uid)) {
                 post.uid = 0;
             }
+
             post.user = uidToUser[post.uid];
             Posts.overrideGuestHandle(post, post.handle);
             post.handle = undefined;
@@ -52,12 +52,12 @@ module.exports = function (Posts) {
             post.isMainPost = post.topic && post.pid === post.topic.mainPid;
             post.deleted = post.deleted === 1;
             post.timestampISO = utils.toISOString(post.timestamp);
-        });
+        }
 
         posts = posts.filter(post => tidToTopic[post.tid]);
 
         posts = await parsePosts(posts, options);
-        const result = await plugins.hooks.fire('filter:post.getPostSummaryByPids', { posts: posts, uid: uid });
+        const result = await plugins.hooks.fire('filter:post.getPostSummaryByPids', { posts, uid });
         return result.posts;
     };
 
@@ -67,39 +67,59 @@ module.exports = function (Posts) {
                 post.content = post.content ? validator.escape(String(post.content)) : post.content;
                 return post;
             }
+
             post = await Posts.parsePost(post);
             if (options.stripTags) {
                 post.content = stripTags(post.content);
             }
+
             return post;
         }));
     }
 
     async function getTopicAndCategories(tids) {
         const topicsData = await topics.getTopicsFields(tids, [
-            'uid', 'tid', 'title', 'cid', 'tags', 'slug',
-            'deleted', 'scheduled', 'postcount', 'mainPid', 'teaserPid',
+            'uid',
+            'tid',
+            'title',
+            'cid',
+            'tags',
+            'slug',
+            'deleted',
+            'scheduled',
+            'postcount',
+            'mainPid',
+            'teaserPid',
         ]);
         const cids = _.uniq(topicsData.map(topic => topic && topic.cid));
         const categoriesData = await categories.getCategoriesFields(cids, [
-            'cid', 'name', 'icon', 'slug', 'parentCid',
-            'bgColor', 'color', 'backgroundImage', 'imageClass',
+            'cid',
+            'name',
+            'icon',
+            'slug',
+            'parentCid',
+            'bgColor',
+            'color',
+            'backgroundImage',
+            'imageClass',
         ]);
         return { topics: topicsData, categories: categoriesData };
     }
 
     function toObject(key, data) {
-        const obj = {};
-        for (let i = 0; i < data.length; i += 1) {
-            obj[data[i][key]] = data[i];
+        const object = {};
+        for (const datum of data) {
+            object[datum[key]] = datum;
         }
-        return obj;
+
+        return object;
     }
 
     function stripTags(content) {
         if (content) {
             return utils.stripHTMLTags(content, utils.stripTags);
         }
+
         return content;
     }
 };

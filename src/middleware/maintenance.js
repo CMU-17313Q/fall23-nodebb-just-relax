@@ -1,6 +1,6 @@
 'use strict';
 
-const util = require('util');
+const util = require('node:util');
 const nconf = require('nconf');
 const meta = require('../meta');
 const user = require('../user');
@@ -8,22 +8,22 @@ const groups = require('../groups');
 const helpers = require('./helpers');
 
 module.exports = function (middleware) {
-    middleware.maintenanceMode = helpers.try(async (req, res, next) => {
+    middleware.maintenanceMode = helpers.try(async (request, res, next) => {
         if (!meta.config.maintenanceMode) {
             return next();
         }
 
         const hooksAsync = util.promisify(middleware.pluginHooks);
-        await hooksAsync(req, res);
+        await hooksAsync(request, res);
 
-        const url = req.url.replace(nconf.get('relative_path'), '');
+        const url = request.url.replace(nconf.get('relative_path'), '');
         if (url.startsWith('/login') || url.startsWith('/api/login')) {
             return next();
         }
 
         const [isAdmin, isMemberOfExempt] = await Promise.all([
-            user.isAdministrator(req.uid),
-            groups.isMemberOfAny(req.uid, meta.config.groupsExemptFromMaintenanceMode),
+            user.isAdministrator(request.uid),
+            groups.isMemberOfAny(request.uid, meta.config.groupsExemptFromMaintenanceMode),
         ]);
 
         if (isAdmin || isMemberOfExempt) {
@@ -40,7 +40,8 @@ module.exports = function (middleware) {
         if (res.locals.isAPI) {
             return res.json(data);
         }
-        await middleware.buildHeaderAsync(req, res);
+
+        await middleware.buildHeaderAsync(request, res);
         res.render('503', data);
     });
 };

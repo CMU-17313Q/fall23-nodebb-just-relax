@@ -14,9 +14,10 @@ module.exports = function (Categories) {
         let topicsData = await topics.getTopicsByTids(tids, data.uid);
         topicsData = await user.blocks.filter(data.uid, topicsData);
 
-        if (!topicsData.length) {
+        if (topicsData.length === 0) {
             return { topics: [], uid: data.uid };
         }
+
         topics.calculateTopicIndices(topicsData, data.start);
         const isInstructor = await privileges.users.isInstructor(data.uid);
         topicsData = topicsData.filter(topic => Categories.shouldShowTopic(isInstructor, topic, data.uid));
@@ -28,12 +29,15 @@ module.exports = function (Categories) {
         if (isInstructor === true) {
             return true;
         }
+
         if (topic.hasPrivateMainPost === false) {
             return true;
         }
+
         if (topic.uid === uid) {
             return true;
         }
+
         return false;
     };
 
@@ -49,7 +53,7 @@ module.exports = function (Categories) {
         ]);
 
         const totalPinnedCount = pinnedTids.length;
-        const pinnedTidsOnPage = pinnedTids.slice(data.start, data.stop !== -1 ? data.stop + 1 : undefined);
+        const pinnedTidsOnPage = pinnedTids.slice(data.start, data.stop === -1 ? undefined : data.stop + 1);
         const pinnedCountOnPage = pinnedTidsOnPage.length;
         const topicsPerPage = data.stop - data.start + 1;
         const normalTidsToGet = Math.max(0, topicsPerPage - pinnedCountOnPage);
@@ -61,11 +65,11 @@ module.exports = function (Categories) {
         if (plugins.hooks.hasListeners('filter:categories.getTopicIds')) {
             const result = await plugins.hooks.fire('filter:categories.getTopicIds', {
                 tids: [],
-                data: data,
+                data,
                 pinnedTids: pinnedTidsOnPage,
                 allPinnedTids: pinnedTids,
-                totalPinnedCount: totalPinnedCount,
-                normalTidsToGet: normalTidsToGet,
+                totalPinnedCount,
+                normalTidsToGet,
             });
             return result && result.tids;
         }
@@ -80,10 +84,11 @@ module.exports = function (Categories) {
         const reverse = direction === 'highest-to-lowest';
         if (Array.isArray(set)) {
             const weights = set.map((s, index) => (index ? 0 : 1));
-            normalTids = await db[reverse ? 'getSortedSetRevIntersect' : 'getSortedSetIntersect']({ sets: set, start: start, stop: stop, weights: weights });
+            normalTids = await db[reverse ? 'getSortedSetRevIntersect' : 'getSortedSetIntersect']({ sets: set, start, stop, weights });
         } else {
             normalTids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
         }
+
         normalTids = normalTids.filter(tid => !pinnedTids.includes(tid));
         return pinnedTidsOnPage.concat(normalTids);
     };
@@ -92,16 +97,20 @@ module.exports = function (Categories) {
         if (plugins.hooks.hasListeners('filter:categories.getTopicCount')) {
             const result = await plugins.hooks.fire('filter:categories.getTopicCount', {
                 topicCount: data.category.topic_count,
-                data: data,
+                data,
             });
             return result && result.topicCount;
         }
+
         const set = await Categories.buildTopicsSortedSet(data);
         if (Array.isArray(set)) {
             return await db.sortedSetIntersectCard(set);
-        } else if (data.targetUid && set) {
+        }
+
+        if (data.targetUid && set) {
             return await db.sortedSetCard(set);
         }
+
         return data.category.topic_count;
     };
 
@@ -110,29 +119,38 @@ module.exports = function (Categories) {
         let set = `cid:${cid}:tids`;
         const sort = data.sort || (data.settings && data.settings.categoryTopicSort) || meta.config.categoryTopicSort || 'newest_to_oldest';
 
-        if (sort === 'most_posts') {
+        switch (sort) {
+        case 'most_posts': {
             set = `cid:${cid}:tids:posts`;
-        } else if (sort === 'most_votes') {
+
+            break;
+        }
+
+        case 'most_votes': {
             set = `cid:${cid}:tids:votes`;
-        } else if (sort === 'most_views') {
+
+            break;
+        }
+
+        case 'most_views': {
             set = `cid:${cid}:tids:views`;
+
+            break;
+        }
+		// No default
         }
 
         if (data.tag) {
-            if (Array.isArray(data.tag)) {
-                set = [set].concat(data.tag.map(tag => `tag:${tag}:topics`));
-            } else {
-                set = [set, `tag:${data.tag}:topics`];
-            }
+            set = Array.isArray(data.tag) ? [set].concat(data.tag.map(tag => `tag:${tag}:topics`)) : [set, `tag:${data.tag}:topics`];
         }
 
         if (data.targetUid) {
-            set = (Array.isArray(set) ? set : [set]).concat([`cid:${cid}:uid:${data.targetUid}:tids`]);
+            set = [...(Array.isArray(set) ? set : [set]), `cid:${cid}:uid:${data.targetUid}:tids`];
         }
 
         const result = await plugins.hooks.fire('filter:categories.buildTopicsSortedSet', {
-            set: set,
-            data: data,
+            set,
+            data,
         });
         return result && result.set;
     };
@@ -141,8 +159,8 @@ module.exports = function (Categories) {
         sort = sort || 'newest_to_oldest';
         const direction = ['newest_to_oldest', 'most_posts', 'most_votes', 'most_views'].includes(sort) ? 'highest-to-lowest' : 'lowest-to-highest';
         const result = await plugins.hooks.fire('filter:categories.getSortedSetRangeDirection', {
-            sort: sort,
-            direction: direction,
+            sort,
+            direction,
         });
         return result && result.direction;
     };
@@ -155,10 +173,11 @@ module.exports = function (Categories) {
         if (plugins.hooks.hasListeners('filter:categories.getPinnedTids')) {
             const result = await plugins.hooks.fire('filter:categories.getPinnedTids', {
                 pinnedTids: [],
-                data: data,
+                data,
             });
             return result && result.pinnedTids;
         }
+
         const [allPinnedTids, canSchedule] = await Promise.all([
             db.getSortedSetRevRange(`cid:${data.cid}:tids:pinned`, data.start, data.stop),
             privileges.categories.can('topics:schedule', data.cid, data.uid),
@@ -169,33 +188,36 @@ module.exports = function (Categories) {
     };
 
     Categories.modifyTopicsByPrivilege = function (topics, privileges) {
-        if (!Array.isArray(topics) || !topics.length || privileges.view_deleted) {
+        if (!Array.isArray(topics) || topics.length === 0 || privileges.view_deleted) {
             return;
         }
 
-        topics.forEach((topic) => {
+        for (const topic of topics) {
             if (topic.isAnonymous === 'anonymous') {
                 topic.user = {
                     anon: true,
                 };
             }
+
             if (!topic.scheduled && topic.deleted && !topic.isOwner) {
                 topic.title = '[[topic:topic_is_deleted]]';
                 if (topic.hasOwnProperty('titleRaw')) {
                     topic.titleRaw = '[[topic:topic_is_deleted]]';
                 }
+
                 topic.slug = topic.tid;
                 topic.teaser = null;
                 topic.noAnchor = true;
                 topic.tags = [];
             }
-        });
+        }
     };
 
     Categories.onNewPostMade = async function (cid, pinned, postData) {
         if (!cid || !postData) {
             return;
         }
+
         const promises = [
             db.sortedSetAdd(`cid:${cid}:pids`, postData.timestamp, postData.pid),
             db.incrObjectField(`category:${cid}`, 'post_count'),
@@ -203,6 +225,7 @@ module.exports = function (Categories) {
         if (!pinned) {
             promises.push(db.sortedSetIncrBy(`cid:${cid}:tids:posts`, 1, postData.tid));
         }
+
         await Promise.all(promises);
         await Categories.updateRecentTidForCid(cid);
     };

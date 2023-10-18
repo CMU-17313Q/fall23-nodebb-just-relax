@@ -2,12 +2,11 @@
 'use strict';
 
 const _ = require('lodash');
-
 const user = require('../user');
 const groups = require('../groups');
-const helpers = require('./helpers');
 const plugins = require('../plugins');
 const utils = require('../utils');
+const helpers = require('./helpers');
 
 const privsAdmin = module.exports;
 
@@ -27,8 +26,8 @@ const _privilegeMap = new Map([
     ['admin:settings', { label: '[[admin/manage/privileges:admin-settings]]' }],
 ]);
 
-privsAdmin.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.admin.list', Array.from(_privilegeMap.keys()));
-privsAdmin.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.admin.groups.list', Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`));
+privsAdmin.getUserPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.admin.list', [..._privilegeMap.keys()]);
+privsAdmin.getGroupPrivilegeList = async () => await plugins.hooks.fire('filter:privileges.admin.groups.list', [..._privilegeMap.keys()].map(privilege => `groups:${privilege}`));
 privsAdmin.getPrivilegeList = async () => {
     const [user, group] = await Promise.all([
         privsAdmin.getUserPrivilegeList(),
@@ -56,7 +55,7 @@ privsAdmin.routeMap = {
     'extend/plugins': 'admin:settings',
     'extend/widgets': 'admin:settings',
     'extend/rewards': 'admin:settings',
-    // uploads
+    // Uploads
     'category/uploadpicture': 'admin:categories',
     uploadfavicon: 'admin:settings',
     uploadTouchIcon: 'admin:settings',
@@ -120,28 +119,29 @@ privsAdmin.resolve = (path) => {
     const found = Object.entries(privsAdmin.routePrefixMap)
         .filter(entry => path.startsWith(entry[0]))
         .sort((entry1, entry2) => entry2[0].length - entry1[0].length);
-    if (!found.length) {
+    if (found.length === 0) {
         return undefined;
     }
+
     return found[0][1]; // [0] is path [1] is privilege
 };
 
 privsAdmin.list = async function (uid) {
-    const privilegeLabels = Array.from(_privilegeMap.values()).map(data => data.label);
+    const privilegeLabels = [..._privilegeMap.values()].map(data => data.label);
     const userPrivilegeList = await privsAdmin.getUserPrivilegeList();
     const groupPrivilegeList = await privsAdmin.getGroupPrivilegeList();
 
     // Restrict privileges column to superadmins
     if (!(await user.isAdministrator(uid))) {
-        const idx = Array.from(_privilegeMap.keys()).indexOf('admin:privileges');
+        const idx = [..._privilegeMap.keys()].indexOf('admin:privileges');
         privilegeLabels.splice(idx, 1);
         userPrivilegeList.splice(idx, 1);
         groupPrivilegeList.splice(idx, 1);
     }
 
     const labels = await utils.promiseParallel({
-        users: plugins.hooks.fire('filter:privileges.admin.list_human', privilegeLabels.slice()),
-        groups: plugins.hooks.fire('filter:privileges.admin.groups.list_human', privilegeLabels.slice()),
+        users: plugins.hooks.fire('filter:privileges.admin.list_human', [...privilegeLabels]),
+        groups: plugins.hooks.fire('filter:privileges.admin.groups.list_human', [...privilegeLabels]),
     });
 
     const keys = {
@@ -188,7 +188,7 @@ privsAdmin.canGroup = async function (privilege, groupName) {
 privsAdmin.give = async function (privileges, groupName) {
     await helpers.giveOrRescind(groups.join, privileges, 0, groupName);
     plugins.hooks.fire('action:privileges.admin.give', {
-        privileges: privileges,
+        privileges,
         groupNames: Array.isArray(groupName) ? groupName : [groupName],
     });
 };
@@ -196,7 +196,7 @@ privsAdmin.give = async function (privileges, groupName) {
 privsAdmin.rescind = async function (privileges, groupName) {
     await helpers.giveOrRescind(groups.leave, privileges, 0, groupName);
     plugins.hooks.fire('action:privileges.admin.rescind', {
-        privileges: privileges,
+        privileges,
         groupNames: Array.isArray(groupName) ? groupName : [groupName],
     });
 };

@@ -3,8 +3,8 @@
 const cronJob = require('cron').CronJob;
 const winston = require('winston');
 const nconf = require('nconf');
-const crypto = require('crypto');
-const util = require('util');
+const crypto = require('node:crypto');
+const util = require('node:util');
 const _ = require('lodash');
 
 const sleep = util.promisify(setTimeout);
@@ -38,7 +38,7 @@ const runJobs = nconf.get('runJobs');
 
 Analytics.init = async function () {
     ipCache = cacheCreate({
-        max: parseInt(meta.config['analytics:maxCache'], 10) || 500,
+        max: Number.parseInt(meta.config['analytics:maxCache'], 10) || 500,
         ttl: 0,
     });
 
@@ -59,18 +59,18 @@ Analytics.init = async function () {
 
 function publishLocalAnalytics() {
     pubsub.publish('analytics:publish', {
-        local: local,
+        local,
     });
     local = _.cloneDeep(empty);
 }
 
-function incrementProperties(obj1, obj2) {
-    for (const [key, value] of Object.entries(obj2)) {
+function incrementProperties(object1, object2) {
+    for (const [key, value] of Object.entries(object2)) {
         if (typeof value === 'object') {
-            incrementProperties(obj1[key], value);
+            incrementProperties(object1[key], value);
         } else if (utils.isNumber(value)) {
-            obj1[key] = obj1[key] || 0;
-            obj1[key] += obj2[key];
+            object1[key] = object1[key] || 0;
+            object1[key] += object2[key];
         }
     }
 }
@@ -78,12 +78,12 @@ function incrementProperties(obj1, obj2) {
 Analytics.increment = function (keys, callback) {
     keys = Array.isArray(keys) ? keys : [keys];
 
-    plugins.hooks.fire('action:analytics.increment', { keys: keys });
+    plugins.hooks.fire('action:analytics.increment', { keys });
 
-    keys.forEach((key) => {
+    for (const key of keys) {
         local.counters[key] = local.counters[key] || 0;
         local.counters[key] += 1;
-    });
+    }
 
     if (typeof callback === 'function') {
         callback();
@@ -115,6 +115,7 @@ Analytics.pageView = async function (payload) {
         if (!score) {
             local.uniqueIPCount += 1;
         }
+
         const today = new Date();
         today.setHours(today.getHours(), 0, 0, 0);
         if (!score || score < today.getTime()) {
@@ -135,10 +136,11 @@ Analytics.writeData = async function () {
         'pageviews',
         'pageviews:month',
     ];
-    metrics.forEach((metric) => {
+    for (const metric of metrics) {
         const toAdd = ['registered', 'guest', 'bot'].map(type => `${metric}:${type}`);
         metrics = [...metrics, ...toAdd];
-    });
+    }
+
     metrics.push('uniquevisitors');
 
     today.setHours(today.getHours(), 0, 0, 0);
@@ -185,75 +187,76 @@ Analytics.writeData = async function () {
         delete total.counters[key];
     }
 
-    if (incrByBulk.length) {
+    if (incrByBulk.length > 0) {
         dbQueue.push(db.sortedSetIncrByBulk(incrByBulk));
     }
 
     // Update list of tracked metrics
-    dbQueue.push(db.sortedSetAdd('analyticsKeys', metrics.map(() => +Date.now()), metrics));
+    dbQueue.push(db.sortedSetAdd('analyticsKeys', metrics.map(() => Number(Date.now())), metrics));
 
     try {
         await Promise.all(dbQueue);
-    } catch (err) {
-        winston.error(`[analytics] Encountered error while writing analytics to data store\n${err.stack}`);
+    } catch (error) {
+        winston.error(`[analytics] Encountered error while writing analytics to data store\n${error.stack}`);
     }
 };
 
-Analytics.getHourlyStatsForSet = async function (set, hour, numHours) {
+Analytics.getHourlyStatsForSet = async function (set, hour, numberHours) {
     // Guard against accidental ommission of `analytics:` prefix
     if (!set.startsWith('analytics:')) {
         set = `analytics:${set}`;
     }
 
     const terms = {};
-    const hoursArr = [];
+    const hoursArray = [];
 
     hour = new Date(hour);
     hour.setHours(hour.getHours(), 0, 0, 0);
 
-    for (let i = 0, ii = numHours; i < ii; i += 1) {
-        hoursArr.push(hour.getTime() - (i * 3600 * 1000));
+    for (let i = 0, ii = numberHours; i < ii; i += 1) {
+        hoursArray.push(hour.getTime() - (i * 3600 * 1000));
     }
 
-    const counts = await db.sortedSetScores(set, hoursArr);
+    const counts = await db.sortedSetScores(set, hoursArray);
 
-    hoursArr.forEach((term, index) => {
-        terms[term] = parseInt(counts[index], 10) || 0;
-    });
+    for (const [index, term] of hoursArray.entries()) {
+        terms[term] = Number.parseInt(counts[index], 10) || 0;
+    }
 
-    const termsArr = [];
+    const termsArray = [];
 
-    hoursArr.reverse();
-    hoursArr.forEach((hour) => {
-        termsArr.push(terms[hour]);
-    });
+    hoursArray.reverse();
+    for (const hour of hoursArray) {
+        termsArray.push(terms[hour]);
+    }
 
-    return termsArr;
+    return termsArray;
 };
 
-Analytics.getDailyStatsForSet = async function (set, day, numDays) {
+Analytics.getDailyStatsForSet = async function (set, day, numberDays) {
     // Guard against accidental ommission of `analytics:` prefix
     if (!set.startsWith('analytics:')) {
         set = `analytics:${set}`;
     }
 
-    const daysArr = [];
+    const daysArray = [];
     day = new Date(day);
-    // set the date to tomorrow, because getHourlyStatsForSet steps *backwards* 24 hours to sum up the values
+    // Set the date to tomorrow, because getHourlyStatsForSet steps *backwards* 24 hours to sum up the values
     day.setDate(day.getDate() + 1);
     day.setHours(0, 0, 0, 0);
 
-    while (numDays > 0) {
+    while (numberDays > 0) {
         /* eslint-disable no-await-in-loop */
         const dayData = await Analytics.getHourlyStatsForSet(
             set,
-            day.getTime() - (1000 * 60 * 60 * 24 * (numDays - 1)),
-            24
+            day.getTime() - (1000 * 60 * 60 * 24 * (numberDays - 1)),
+            24,
         );
-        daysArr.push(dayData.reduce((cur, next) => cur + next));
-        numDays -= 1;
+        daysArray.push(dayData.reduce((cur, next) => cur + next));
+        numberDays -= 1;
     }
-    return daysArr;
+
+    return daysArray;
 };
 
 Analytics.getUnwrittenPageviews = function () {

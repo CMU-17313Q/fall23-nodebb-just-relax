@@ -8,9 +8,11 @@ module.exports = function (module) {
         if (!Array.isArray(value)) {
             value = [value];
         }
-        if (!value.length) {
+
+        if (value.length === 0) {
             return;
         }
+
         value = value.map(v => helpers.valueToString(v));
 
         await module.client.collection('objects').updateOne({
@@ -27,7 +29,7 @@ module.exports = function (module) {
     };
 
     module.setsAdd = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
@@ -39,8 +41,8 @@ module.exports = function (module) {
 
         const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
 
-        for (let i = 0; i < keys.length; i += 1) {
-            bulk.find({ _key: keys[i] }).upsert().updateOne({
+        for (const key of keys) {
+            bulk.find({ _key: key }).upsert().updateOne({
                 $addToSet: {
                     members: {
                         $each: value,
@@ -48,13 +50,15 @@ module.exports = function (module) {
                 },
             });
         }
+
         try {
             await bulk.execute();
-        } catch (err) {
-            if (err && err.message.startsWith('E11000 duplicate key error')) {
+        } catch (error) {
+            if (error && error.message.startsWith('E11000 duplicate key error')) {
                 return await module.setsAdd(keys, value);
             }
-            throw err;
+
+            throw error;
         }
     };
 
@@ -73,9 +77,10 @@ module.exports = function (module) {
     };
 
     module.setsRemove = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
+
         value = helpers.valueToString(value);
 
         await module.client.collection('objects').updateMany({
@@ -89,6 +94,7 @@ module.exports = function (module) {
         if (!key) {
             return false;
         }
+
         value = helpers.valueToString(value);
 
         const item = await module.client.collection('objects').findOne({
@@ -100,9 +106,10 @@ module.exports = function (module) {
     };
 
     module.isSetMembers = async function (key, values) {
-        if (!key || !Array.isArray(values) || !values.length) {
+        if (!key || !Array.isArray(values) || values.length === 0) {
             return [];
         }
+
         values = values.map(v => helpers.valueToString(v));
 
         const result = await module.client.collection('objects').findOne({
@@ -115,9 +122,10 @@ module.exports = function (module) {
     };
 
     module.isMemberOfSets = async function (sets, value) {
-        if (!Array.isArray(sets) || !sets.length) {
+        if (!Array.isArray(sets) || sets.length === 0) {
             return [];
         }
+
         value = helpers.valueToString(value);
 
         const result = await module.client.collection('objects').find({
@@ -127,11 +135,11 @@ module.exports = function (module) {
         }).toArray();
 
         const map = {};
-        result.forEach((item) => {
+        for (const item of result) {
             map[item._key] = true;
-        });
+        }
 
-        return sets.map(set => !!map[set]);
+        return sets.map(set => Boolean(map[set]));
     };
 
     module.getSetMembers = async function (key) {
@@ -148,9 +156,10 @@ module.exports = function (module) {
     };
 
     module.getSetsMembers = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
+
         const data = await module.client.collection('objects').find({
             _key: { $in: keys },
         }, {
@@ -158,9 +167,9 @@ module.exports = function (module) {
         }).toArray();
 
         const sets = {};
-        data.forEach((set) => {
+        for (const set of data) {
             sets[set._key] = set.members || [];
-        });
+        }
 
         return keys.map(k => sets[k] || []);
     };
@@ -169,11 +178,12 @@ module.exports = function (module) {
         if (!key) {
             return 0;
         }
+
         const data = await module.client.collection('objects').aggregate([
             { $match: { _key: key } },
             { $project: { _id: 0, count: { $size: '$members' } } },
         ]).toArray();
-        return Array.isArray(data) && data.length ? data[0].count : 0;
+        return Array.isArray(data) && data.length > 0 ? data[0].count : 0;
     };
 
     module.setsCount = async function (keys) {

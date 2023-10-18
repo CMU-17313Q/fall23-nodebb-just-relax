@@ -3,7 +3,6 @@
 const user = require('../../user');
 const privileges = require('../../privileges');
 const plugins = require('../../plugins');
-
 const sockets = require('..');
 const api = require('../../api');
 
@@ -12,6 +11,7 @@ module.exports = function (SocketUser) {
         if (!socket.uid) {
             throw new Error('[[error:no-privileges]]');
         }
+
         await user.isAdminOrGlobalModOrSelf(socket.uid, data.uid);
         await user.checkMinReputation(socket.uid, data.uid, 'min:rep:cover-picture');
         return await user.updateCoverPicture(data);
@@ -31,6 +31,7 @@ module.exports = function (SocketUser) {
         if (!socket.uid) {
             throw new Error('[[error:no-privileges]]');
         }
+
         await user.isAdminOrGlobalModOrSelf(socket.uid, data.uid);
         const userData = await user.getUserFields(data.uid, ['cover:url']);
         // 'keepAllUserImages' is ignored, since there is explicit user intent
@@ -68,7 +69,7 @@ module.exports = function (SocketUser) {
             throw new Error('[[error:invalid-uid]]');
         }
 
-        if (!data || parseInt(data.uid, 10) <= 0) {
+        if (!data || Number.parseInt(data.uid, 10) <= 0) {
             throw new Error('[[error:invalid-data]]');
         }
 

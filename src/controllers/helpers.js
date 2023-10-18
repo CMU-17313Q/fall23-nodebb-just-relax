@@ -1,11 +1,10 @@
 'use strict';
 
+const querystring = require('node:querystring');
 const nconf = require('nconf');
 const validator = require('validator');
-const querystring = require('querystring');
 const _ = require('lodash');
 const chalk = require('chalk');
-
 const translator = require('../translator');
 const user = require('../user');
 const privileges = require('../privileges');
@@ -20,20 +19,22 @@ const helpers = module.exports;
 const relative_path = nconf.get('relative_path');
 const url = nconf.get('url');
 
-helpers.noScriptErrors = async function (req, res, error, httpStatus) {
-    if (req.body.noscript !== 'true') {
+helpers.noScriptErrors = async function (request, res, error, httpStatus) {
+    if (request.body.noscript !== 'true') {
         if (typeof error === 'string') {
             return res.status(httpStatus).send(error);
         }
+
         return res.status(httpStatus).json(error);
     }
+
     const middleware = require('../middleware');
     const httpStatusString = httpStatus.toString();
-    await middleware.buildHeaderAsync(req, res);
+    await middleware.buildHeaderAsync(request, res);
     res.status(httpStatus).render(httpStatusString, {
-        path: req.path,
-        loggedIn: req.loggedIn,
-        error: error,
+        path: request.path,
+        loggedIn: request.loggedIn,
+        error,
         returnLink: true,
         title: `[[global:${httpStatusString}.title]]`,
     });
@@ -46,27 +47,28 @@ helpers.terms = {
 };
 
 helpers.buildQueryString = function (query, key, value) {
-    const queryObj = { ...query };
+    const queryObject = { ...query };
     if (value) {
-        queryObj[key] = value;
+        queryObject[key] = value;
     } else {
-        delete queryObj[key];
+        delete queryObject[key];
     }
-    delete queryObj._;
-    return Object.keys(queryObj).length ? `?${querystring.stringify(queryObj)}` : '';
+
+    delete queryObject._;
+    return Object.keys(queryObject).length > 0 ? `?${querystring.stringify(queryObject)}` : '';
 };
 
-helpers.addLinkTags = function (params) {
-    params.res.locals.linkTags = params.res.locals.linkTags || [];
-    params.res.locals.linkTags.push({
+helpers.addLinkTags = function (parameters) {
+    parameters.res.locals.linkTags = parameters.res.locals.linkTags || [];
+    parameters.res.locals.linkTags.push({
         rel: 'canonical',
-        href: `${url}/${params.url}`,
+        href: `${url}/${parameters.url}`,
     });
 
-    params.tags.forEach((rel) => {
-        rel.href = `${url}/${params.url}${rel.href}`;
-        params.res.locals.linkTags.push(rel);
-    });
+    for (const rel of parameters.tags) {
+        rel.href = `${url}/${parameters.url}${rel.href}`;
+        parameters.res.locals.linkTags.push(rel);
+    }
 };
 
 helpers.buildFilters = function (url, filter, query) {
@@ -121,48 +123,48 @@ helpers.buildTerms = function (url, term, query) {
     }];
 };
 
-helpers.notAllowed = async function (req, res, error) {
-    ({ error } = await plugins.hooks.fire('filter:helpers.notAllowed', { req, res, error }));
+helpers.notAllowed = async function (request, res, error) {
+    ({ error } = await plugins.hooks.fire('filter:helpers.notAllowed', { req: request, res, error }));
 
-    await plugins.hooks.fire('response:helpers.notAllowed', { req, res, error });
+    await plugins.hooks.fire('response:helpers.notAllowed', { req: request, res, error });
     if (res.headersSent) {
         return;
     }
 
-    if (req.loggedIn || req.uid === -1) {
+    if (request.loggedIn || request.uid === -1) {
         if (res.locals.isAPI) {
-            if (req.originalUrl.startsWith(`${relative_path}/api/v3`)) {
+            if (request.originalUrl.startsWith(`${relative_path}/api/v3`)) {
                 helpers.formatApiResponse(403, res, error);
             } else {
                 res.status(403).json({
-                    path: req.path.replace(/^\/api/, ''),
-                    loggedIn: req.loggedIn,
-                    error: error,
+                    path: request.path.replace(/^\/api/, ''),
+                    loggedIn: request.loggedIn,
+                    error,
                     title: '[[global:403.title]]',
-                    bodyClass: middlewareHelpers.buildBodyClass(req, res),
+                    bodyClass: middlewareHelpers.buildBodyClass(request, res),
                 });
             }
         } else {
             const middleware = require('../middleware');
-            await middleware.buildHeaderAsync(req, res);
+            await middleware.buildHeaderAsync(request, res);
             res.status(403).render('403', {
-                path: req.path,
-                loggedIn: req.loggedIn,
+                path: request.path,
+                loggedIn: request.loggedIn,
                 error,
                 title: '[[global:403.title]]',
             });
         }
     } else if (res.locals.isAPI) {
-        req.session.returnTo = req.url.replace(/^\/api/, '');
+        request.session.returnTo = request.url.replace(/^\/api/, '');
         helpers.formatApiResponse(401, res, error);
     } else {
-        req.session.returnTo = req.url;
-        res.redirect(`${relative_path}/login${req.path.startsWith('/admin') ? '?local=1' : ''}`);
+        request.session.returnTo = request.url;
+        res.redirect(`${relative_path}/login${request.path.startsWith('/admin') ? '?local=1' : ''}`);
     }
 };
 
 helpers.redirect = function (res, url, permanent) {
-    // this is used by sso plugins to redirect to the auth route
+    // This is used by sso plugins to redirect to the auth route
     // { external: '/auth/sso' } or { external: 'https://domain/auth/sso' }
     if (url.hasOwnProperty('external')) {
         const redirectUrl = encodeURI(prependRelativePath(url.external));
@@ -171,6 +173,7 @@ helpers.redirect = function (res, url, permanent) {
         } else {
             res.redirect(permanent ? 308 : 307, redirectUrl);
         }
+
         return;
     }
 
@@ -190,18 +193,20 @@ function prependRelativePath(url) {
 helpers.buildCategoryBreadcrumbs = async function (cid) {
     const breadcrumbs = [];
 
-    while (parseInt(cid, 10)) {
+    while (Number.parseInt(cid, 10)) {
         /* eslint-disable no-await-in-loop */
         const data = await categories.getCategoryFields(cid, ['name', 'slug', 'parentCid', 'disabled', 'isSection']);
         if (!data.disabled && !data.isSection) {
             breadcrumbs.unshift({
                 text: String(data.name),
                 url: `${relative_path}/category/${data.slug}`,
-                cid: cid,
+                cid,
             });
         }
+
         cid = data.parentCid;
     }
+
     if (meta.config.homePageRoute && meta.config.homePageRoute !== 'categories') {
         breadcrumbs.unshift({
             text: '[[global:header.categories]]',
@@ -225,14 +230,15 @@ helpers.buildBreadcrumbs = function (crumbs) {
         },
     ];
 
-    crumbs.forEach((crumb) => {
+    for (const crumb of crumbs) {
         if (crumb) {
             if (crumb.url) {
                 crumb.url = `${utils.isRelativeUrl(crumb.url) ? relative_path : ''}${crumb.url}`;
             }
+
             breadcrumbs.push(crumb);
         }
-    });
+    }
 
     return breadcrumbs;
 };
@@ -266,9 +272,10 @@ async function getCategoryData(cids, uid, selectedCid, states, privilege) {
 
     const categoriesData = categories.buildForSelectCategories(visibleCategories, ['disabledClass']);
 
-    categoriesData.forEach((category) => {
+    for (const category of categoriesData) {
         category.selected = selectData.selectedCids.includes(category.cid);
-    });
+    }
+
     selectData.selectedCids.sort((a, b) => a - b);
     return {
         categories: categoriesData,
@@ -277,10 +284,10 @@ async function getCategoryData(cids, uid, selectedCid, states, privilege) {
     };
 }
 
-helpers.getVisibleCategories = async function (params) {
-    const { cids, uid, privilege } = params;
-    const states = params.states || [categories.watchStates.watching, categories.watchStates.notwatching];
-    const showLinks = !!params.showLinks;
+helpers.getVisibleCategories = async function (parameters) {
+    const { cids, uid, privilege } = parameters;
+    const states = parameters.states || [categories.watchStates.watching, categories.watchStates.notwatching];
+    const showLinks = Boolean(parameters.showLinks);
 
     let [allowed, watchState, categoriesData, isAdmin, isModerator] = await Promise.all([
         privileges.categories.isUserAllowedTo(privilege, cids, uid),
@@ -291,16 +298,16 @@ helpers.getVisibleCategories = async function (params) {
     ]);
 
     const filtered = await plugins.hooks.fire('filter:helpers.getVisibleCategories', {
-        uid: uid,
-        allowed: allowed,
-        watchState: watchState,
-        categoriesData: categoriesData,
-        isModerator: isModerator,
-        isAdmin: isAdmin,
+        uid,
+        allowed,
+        watchState,
+        categoriesData,
+        isModerator,
+        isAdmin,
     });
     ({ allowed, watchState, categoriesData, isModerator, isAdmin } = filtered);
 
-    categories.getTree(categoriesData, params.parentCid);
+    categories.getTree(categoriesData, parameters.parentCid);
 
     const cidToAllowed = _.zipObject(cids, allowed.map((allowed, i) => isAdmin || isModerator[i] || allowed));
     const cidToCategory = _.zipObject(cids, categoriesData);
@@ -310,6 +317,7 @@ helpers.getVisibleCategories = async function (params) {
         if (!c) {
             return false;
         }
+
         const hasVisibleChildren = checkVisibleChildren(c, cidToAllowed, cidToWatchState, states);
         const isCategoryVisible = (
             cidToAllowed[c.cid] &&
@@ -337,7 +345,8 @@ helpers.getSelectedCategory = async function (cids) {
     if (cids && !Array.isArray(cids)) {
         cids = [cids];
     }
-    cids = cids && cids.map(cid => parseInt(cid, 10));
+
+    cids = cids && cids.map(cid => Number.parseInt(cid, 10));
     let selectedCategories = await categories.getCategoriesData(cids);
     const selectedCids = selectedCategories.map(c => c && c.cid).filter(Boolean);
     if (selectedCategories.length > 1) {
@@ -351,8 +360,9 @@ helpers.getSelectedCategory = async function (cids) {
     } else {
         selectedCategories = null;
     }
+
     return {
-        selectedCids: selectedCids,
+        selectedCids,
         selectedCategory: selectedCategories,
     };
 };
@@ -360,18 +370,18 @@ helpers.getSelectedCategory = async function (cids) {
 helpers.trimChildren = function (category) {
     if (category && Array.isArray(category.children)) {
         category.children = category.children.slice(0, category.subCategoriesPerPage);
-        category.children.forEach((child) => {
+        for (const child of category.children) {
             if (category.isSection) {
                 helpers.trimChildren(child);
             } else {
                 child.children = undefined;
             }
-        });
+        }
     }
 };
 
 helpers.setCategoryTeaser = function (category) {
-    if (Array.isArray(category.posts) && category.posts.length && category.posts[0]) {
+    if (Array.isArray(category.posts) && category.posts.length > 0 && category.posts[0]) {
         category.teaser = {
             url: `${nconf.get('relative_path')}/post/${category.posts[0].pid}`,
             timestampISO: category.posts[0].timestampISO,
@@ -385,6 +395,7 @@ function checkVisibleChildren(c, cidToAllowed, cidToWatchState, states) {
     if (!c || !Array.isArray(c.children)) {
         return false;
     }
+
     return c.children.some(c => !c.disabled && (
         (cidToAllowed[c.cid] && states.includes(cidToWatchState[c.cid])) ||
         checkVisibleChildren(c, cidToAllowed, cidToWatchState, states)
@@ -419,8 +430,8 @@ helpers.getHomePageRoutes = async function (uid) {
         },
     ];
     const data = await plugins.hooks.fire('filter:homepage.get', {
-        uid: uid,
-        routes: routes,
+        uid,
+        routes,
     });
     return data.routes;
 };
@@ -438,15 +449,17 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
         let code = 'ok';
         let message = 'OK';
         switch (statusCode) {
-        case 202:
+        case 202: {
             code = 'accepted';
             message = 'Accepted';
             break;
+        }
 
-        case 204:
+        case 204: {
             code = 'no-content';
             message = 'No Content';
             break;
+        }
         }
 
         res.status(statusCode).json({
@@ -459,22 +472,25 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
 
         // Update status code based on some common error codes
         switch (message) {
-        case '[[error:user-banned]]':
+        case '[[error:user-banned]]': {
             Object.assign(response, await generateBannedResponse(res));
-            // intentional fall through
+        }
+        // Intentional fall through
 
-        case '[[error:no-privileges]]':
+        case '[[error:no-privileges]]': {
             statusCode = 403;
-            break;
-
-        case '[[error:invalid-uid]]':
-            statusCode = 401;
             break;
         }
 
+        case '[[error:invalid-uid]]': {
+            statusCode = 401;
+            break;
+        }
+        }
+
         if (message.startsWith('[[error:required-parameters-missing, ')) {
-            const params = message.slice('[[error:required-parameters-missing, '.length, -2).split(' ');
-            Object.assign(response, { params });
+            const parameters = message.slice('[[error:required-parameters-missing, '.length, -2).split(' ');
+            Object.assign(response, { params: parameters });
         }
 
         const returnPayload = await helpers.generateError(statusCode, message, res);
@@ -485,6 +501,7 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
             process.stdout.write(`[${chalk.yellow('api')}] Exception caught, error with stack trace follows:\n`);
             process.stdout.write(payload.stack);
         }
+
         res.status(statusCode).json(returnPayload);
     } else if (!payload) {
         // Non-2xx statusCode, generate predefined error
@@ -519,6 +536,7 @@ helpers.generateError = async (statusCode, message, res) => {
         const language = String(req.query.lang || settings.userLang || meta.config.defaultLang);
         return await translator.translate(message, language);
     }
+
     if (message && message.startsWith('[[')) {
         message = await translateMessage(message);
     }
@@ -532,41 +550,50 @@ helpers.generateError = async (statusCode, message, res) => {
     };
 
     switch (statusCode) {
-    case 400:
+    case 400: {
         payload.status.code = 'bad-request';
         break;
+    }
 
-    case 401:
+    case 401: {
         payload.status.code = 'not-authorised';
         break;
+    }
 
-    case 403:
+    case 403: {
         payload.status.code = 'forbidden';
         break;
+    }
 
-    case 404:
+    case 404: {
         payload.status.code = 'not-found';
         break;
+    }
 
-    case 426:
+    case 426: {
         payload.status.code = 'upgrade-required';
         break;
+    }
 
-    case 429:
+    case 429: {
         payload.status.code = 'too-many-requests';
         break;
+    }
 
-    case 500:
+    case 500: {
         payload.status.code = 'internal-server-error';
         break;
+    }
 
-    case 501:
+    case 501: {
         payload.status.code = 'not-implemented';
         break;
+    }
 
-    case 503:
+    case 503: {
         payload.status.code = 'service-unavailable';
         break;
+    }
     }
 
     return payload;

@@ -13,11 +13,11 @@ if (!databaseName) {
 const primaryDB = require(`./${databaseName}`);
 
 primaryDB.parseIntFields = function (data, intFields, requestedFields) {
-    intFields.forEach((field) => {
-        if (!requestedFields || !requestedFields.length || requestedFields.includes(field)) {
-            data[field] = parseInt(data[field], 10) || 0;
+    for (const field of intFields) {
+        if (!requestedFields || requestedFields.length === 0 || requestedFields.includes(field)) {
+            data[field] = Number.parseInt(data[field], 10) || 0;
         }
-    });
+    }
 };
 
 primaryDB.initSessionStore = async function () {
@@ -27,7 +27,7 @@ primaryDB.initSessionStore = async function () {
     if (nconf.get('session_store')) {
         sessionStoreDB = require(`./${sessionStoreConfig.name}`);
     } else if (nconf.get('redis')) {
-        // if redis is specified, use it as session store over others
+        // If redis is specified, use it as session store over others
         sessionStoreDB = require('./redis');
     }
 

@@ -1,76 +1,85 @@
 
 'use strict';
 
+const path = require('node:path');
 const nconf = require('nconf');
-const path = require('path');
 const winston = require('winston');
-
 const db = require('../database');
 const pubsub = require('../pubsub');
 const plugins = require('../plugins');
 const utils = require('../utils');
-const Meta = require('./index');
-const cacheBuster = require('./cacheBuster');
 const defaults = require('../../install/data/defaults.json');
+const cacheBuster = require('./cacheBuster');
+const Meta = require('./index');
 
 const Configs = module.exports;
 
 Meta.config = {};
 
-// called after data is loaded from db
+// Called after data is loaded from db
 function deserialize(config) {
     const deserialized = {};
-    Object.keys(config).forEach((key) => {
+    for (const key of Object.keys(config)) {
         const defaultType = typeof defaults[key];
         const type = typeof config[key];
-        const number = parseFloat(config[key]);
+        const number = Number.parseFloat(config[key]);
 
         if (defaultType === 'string' && type === 'number') {
             deserialized[key] = String(config[key]);
         } else if (defaultType === 'number' && type === 'string') {
-            if (!isNaN(number) && isFinite(config[key])) {
-                deserialized[key] = number;
-            } else {
-                deserialized[key] = defaults[key];
-            }
-        } else if (config[key] === 'true') {
-            deserialized[key] = true;
-        } else if (config[key] === 'false') {
-            deserialized[key] = false;
-        } else if (config[key] === null) {
-            deserialized[key] = defaults[key];
-        } else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
-            deserialized[key] = number;
-        } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
-            try {
-                deserialized[key] = JSON.parse(config[key] || '[]');
-            } catch (err) {
-                winston.error(err.stack);
-                deserialized[key] = defaults[key];
-            }
+            deserialized[key] = !isNaN(number) && isFinite(config[key]) ? number : defaults[key];
         } else {
-            deserialized[key] = config[key];
+            switch (config[key]) {
+            case 'true': {
+                deserialized[key] = true;
+
+                break;
+            }
+
+            case 'false': {
+                deserialized[key] = false;
+
+                break;
+            }
+
+            case null: {
+                deserialized[key] = defaults[key];
+
+                break;
+            }
+
+            default: { if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
+                deserialized[key] = number;
+            } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
+                try {
+                    deserialized[key] = JSON.parse(config[key] || '[]');
+                } catch (error) {
+                    winston.error(error.stack);
+                    deserialized[key] = defaults[key];
+                }
+            } else {
+                deserialized[key] = config[key];
+            }
+            }
+            }
         }
-    });
+    }
+
     return deserialized;
 }
 
-// called before data is saved to db
+// Called before data is saved to db
 function serialize(config) {
     const serialized = {};
-    Object.keys(config).forEach((key) => {
+    for (const key of Object.keys(config)) {
         const defaultType = typeof defaults[key];
         const type = typeof config[key];
-        const number = parseFloat(config[key]);
+        const number = Number.parseFloat(config[key]);
 
         if (defaultType === 'string' && type === 'number') {
             serialized[key] = String(config[key]);
         } else if (defaultType === 'number' && type === 'string') {
-            if (!isNaN(number) && isFinite(config[key])) {
-                serialized[key] = number;
-            } else {
-                serialized[key] = defaults[key];
-            }
+            serialized[key] = !isNaN(number) && isFinite(config[key]) ? number : defaults[key];
         } else if (config[key] === null) {
             serialized[key] = defaults[key];
         } else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
@@ -80,7 +89,8 @@ function serialize(config) {
         } else {
             serialized[key] = config[key];
         }
-    });
+    }
+
     return serialized;
 }
 
@@ -105,18 +115,15 @@ Configs.get = async function (field) {
 
 Configs.getFields = async function (fields) {
     let values;
-    if (fields.length) {
-        values = await db.getObjectFields('config', fields);
-    } else {
-        values = await db.getObject('config');
-    }
+    values = await (fields.length > 0 ? db.getObjectFields('config', fields) : db.getObject('config'));
 
     values = { ...defaults, ...(values ? deserialize(values) : {}) };
 
-    if (!fields.length) {
+    if (fields.length === 0) {
         values.version = nconf.get('version');
         values.registry = nconf.get('registry');
     }
+
     return values;
 };
 
@@ -151,18 +158,18 @@ Configs.remove = async function (field) {
 Configs.registerHooks = () => {
     plugins.hooks.register('core', {
         hook: 'filter:settings.set',
-        method: async ({ plugin, settings, quiet }) => {
+        async method({ plugin, settings, quiet }) {
             if (plugin === 'core.api' && Array.isArray(settings.tokens)) {
                 // Generate tokens if not present already
-                settings.tokens.forEach((set) => {
+                for (const set of settings.tokens) {
                     if (set.token === '') {
                         set.token = utils.generateUUID();
                     }
 
-                    if (isNaN(parseInt(set.uid, 10))) {
+                    if (isNaN(Number.parseInt(set.uid, 10))) {
                         set.uid = 0;
                     }
-                });
+                }
             }
 
             return { plugin, settings, quiet };
@@ -171,15 +178,15 @@ Configs.registerHooks = () => {
 
     plugins.hooks.register('core', {
         hook: 'filter:settings.get',
-        method: async ({ plugin, values }) => {
+        async method({ plugin, values }) {
             if (plugin === 'core.api' && Array.isArray(values.tokens)) {
-                values.tokens = values.tokens.map((tokenObj) => {
-                    tokenObj.uid = parseInt(tokenObj.uid, 10);
-                    if (tokenObj.timestamp) {
-                        tokenObj.timestampISO = new Date(parseInt(tokenObj.timestamp, 10)).toISOString();
+                values.tokens = values.tokens.map((tokenObject) => {
+                    tokenObject.uid = Number.parseInt(tokenObject.uid, 10);
+                    if (tokenObject.timestamp) {
+                        tokenObject.timestampISO = new Date(Number.parseInt(tokenObject.timestamp, 10)).toISOString();
                     }
 
-                    return tokenObj;
+                    return tokenObject;
                 });
             }
 
@@ -189,7 +196,7 @@ Configs.registerHooks = () => {
 };
 
 Configs.cookie = {
-    get: () => {
+    get() {
         const cookie = {};
 
         if (nconf.get('cookieDomain') || Meta.config.cookieDomain) {
@@ -229,7 +236,7 @@ async function processConfig(data) {
 
 function ensureInteger(data, field, min) {
     if (data.hasOwnProperty(field)) {
-        data[field] = parseInt(data[field], 10);
+        data[field] = Number.parseInt(data[field], 10);
         if (!(data[field] >= min)) {
             throw new Error('[[error:invalid-data]]');
         }
@@ -240,6 +247,7 @@ async function saveRenderedCss(data) {
     if (!data.customCSS) {
         return;
     }
+
     const less = require('less');
     const lessObject = await less.render(data.customCSS, {
         compress: true,
@@ -253,11 +261,12 @@ async function getLogoSize(data) {
     if (!data['brand:logo']) {
         return;
     }
+
     let size;
     try {
         size = await image.size(path.join(nconf.get('upload_path'), 'system', 'site-logo-x50.png'));
-    } catch (err) {
-        if (err.code === 'ENOENT') {
+    } catch (error) {
+        if (error.code === 'ENOENT') {
             // For whatever reason the x50 logo wasn't generated, gracefully error out
             winston.warn('[logo] The email-safe logo doesn\'t seem to have been created, please re-upload your site logo.');
             size = {
@@ -265,9 +274,10 @@ async function getLogoSize(data) {
                 width: 0,
             };
         } else {
-            throw err;
+            throw error;
         }
     }
+
     data['brand:emailLogo'] = nconf.get('url') + path.join(nconf.get('upload_url'), 'system', 'site-logo-x50.png');
     data['brand:emailLogo:height'] = size.height;
     data['brand:emailLogo:width'] = size.width;

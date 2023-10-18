@@ -7,7 +7,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Wipe all existing RSS tokens',
     timestamp: Date.UTC(2017, 6, 5),
-    method: function (callback) {
+    method(callback) {
         const { progress } = this;
 
         batch.processSortedSet('users:joindate', (uids, next) => {
@@ -16,7 +16,7 @@ module.exports = {
                 db.deleteObjectField(`user:${uid}`, 'rss_token', next);
             }, next);
         }, {
-            progress: progress,
+            progress,
         }, callback);
     },
 };

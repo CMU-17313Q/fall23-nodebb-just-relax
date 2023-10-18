@@ -1,10 +1,9 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const nconf = require('nconf');
-
-const db = require('./mocks/databasemock');
 const settings = require('../src/settings');
+const db = require('./mocks/databasemock');
 
 describe('settings v3', () => {
     let settings1;
@@ -26,9 +25,9 @@ describe('settings v3', () => {
 
     it('should pass change between settings object over pubsub', (done) => {
         settings1.set('foo', 3);
-        settings1.persist((err) => {
-            assert.ifError(err);
-            // give pubsub time to complete
+        settings1.persist((error) => {
+            assert.ifError(error);
+            // Give pubsub time to complete
             setTimeout(() => {
                 assert.equal(settings2.get('foo'), 3);
                 done();
@@ -43,8 +42,8 @@ describe('settings v3', () => {
     });
 
     it('should reset the settings to default', (done) => {
-        settings1.reset((err) => {
-            assert.ifError(err);
+        settings1.reset((error) => {
+            assert.ifError(error);
             assert.equal(settings1.get('foo'), 1);
             assert.equal(settings1.get('bar.derp'), 2);
             done();

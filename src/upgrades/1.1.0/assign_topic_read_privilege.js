@@ -8,7 +8,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Giving topics:read privs to any group/user that was previously allowed to Find & Access Category',
     timestamp: Date.UTC(2016, 4, 28),
-    method: async function () {
+    async method() {
         const groupsAPI = require('../../groups');
         const privilegesAPI = require('../../privileges');
 
@@ -29,6 +29,7 @@ module.exports = {
                     winston.verbose(`cid:${cid}:privileges:topics:read granted to uid: ${user.uid}`);
                 }
             }
+
             winston.verbose(`-- cid ${cid} upgraded`);
         }
     },

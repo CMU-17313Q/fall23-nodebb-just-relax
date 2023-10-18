@@ -1,7 +1,6 @@
 'use strict';
 
 const validator = require('validator');
-
 const db = require('../database');
 const user = require('../user');
 const plugins = require('../plugins');
@@ -26,15 +25,15 @@ module.exports = function (Messaging) {
     };
 
     function modifyRoomData(rooms) {
-        rooms.forEach((data) => {
+        for (const data of rooms) {
             if (data) {
                 data.roomName = data.roomName || '';
                 data.roomName = validator.escape(String(data.roomName));
                 if (data.hasOwnProperty('groupChat')) {
-                    data.groupChat = parseInt(data.groupChat, 10) === 1;
+                    data.groupChat = Number.parseInt(data.groupChat, 10) === 1;
                 }
             }
-        });
+        }
     }
 
     Messaging.newRoom = async (uid, toUids) => {
@@ -42,7 +41,7 @@ module.exports = function (Messaging) {
         const roomId = await db.incrObjectField('global', 'nextChatRoomId');
         const room = {
             owner: uid,
-            roomId: roomId,
+            roomId,
         };
 
         await Promise.all([
@@ -53,7 +52,7 @@ module.exports = function (Messaging) {
             Messaging.addUsersToRoom(uid, toUids, roomId),
             Messaging.addRoomToUsers(roomId, [uid].concat(toUids), now),
         ]);
-        // chat owner should also get the user-join system message
+        // Chat owner should also get the user-join system message
         await Messaging.addSystemMessage('user-join', uid, roomId);
 
         return roomId;
@@ -61,7 +60,7 @@ module.exports = function (Messaging) {
 
     Messaging.isUserInRoom = async (uid, roomId) => {
         const inRoom = await db.isSortedSetMember(`chat:room:${roomId}:uids`, uid);
-        const data = await plugins.hooks.fire('filter:messaging.isUserInRoom', { uid: uid, roomId: roomId, inRoom: inRoom });
+        const data = await plugins.hooks.fire('filter:messaging.isUserInRoom', { uid, roomId, inRoom });
         return data.inRoom;
     };
 
@@ -74,8 +73,9 @@ module.exports = function (Messaging) {
         if (!isArray) {
             uids = [uids];
         }
+
         const owner = await db.getObjectField(`chat:room:${roomId}`, 'owner');
-        const isOwners = uids.map(uid => parseInt(uid, 10) === parseInt(owner, 10));
+        const isOwners = uids.map(uid => Number.parseInt(uid, 10) === Number.parseInt(owner, 10));
 
         const result = await Promise.all(isOwners.map(async (isOwner, index) => {
             const payload = await plugins.hooks.fire('filter:messaging.isRoomOwner', { uid: uids[index], roomId, owner, isOwner });
@@ -160,7 +160,7 @@ module.exports = function (Messaging) {
 
         await Promise.all(
             roomIds.map(roomId => updateOwner(roomId))
-                .concat(roomIds.map(roomId => Messaging.addSystemMessage('user-leave', uid, roomId)))
+                .concat(roomIds.map(roomId => Messaging.addSystemMessage('user-leave', uid, roomId))),
         );
         await updateGroupChatField(roomIds);
     };
@@ -190,15 +190,16 @@ module.exports = function (Messaging) {
         if (!newName) {
             throw new Error('[[error:invalid-data]]');
         }
+
         newName = newName.trim();
         if (newName.length > 75) {
             throw new Error('[[error:chat-room-name-too-long]]');
         }
 
         const payload = await plugins.hooks.fire('filter:chat.renameRoom', {
-            uid: uid,
-            roomId: roomId,
-            newName: newName,
+            uid,
+            roomId,
+            newName,
         });
         const isOwner = await Messaging.isRoomOwner(payload.uid, payload.roomId);
         if (!isOwner) {
@@ -216,7 +217,7 @@ module.exports = function (Messaging) {
 
     Messaging.canReply = async (roomId, uid) => {
         const inRoom = await db.isSortedSetMember(`chat:room:${roomId}:uids`, uid);
-        const data = await plugins.hooks.fire('filter:messaging.canReply', { uid: uid, roomId: roomId, inRoom: inRoom, canReply: inRoom });
+        const data = await plugins.hooks.fire('filter:messaging.canReply', { uid, roomId, inRoom, canReply: inRoom });
         return data.canReply;
     };
 
@@ -225,6 +226,7 @@ module.exports = function (Messaging) {
         if (!canChat) {
             throw new Error('[[error:no-privileges]]');
         }
+
         const inRoom = await Messaging.isUserInRoom(uid, data.roomId);
         if (!inRoom) {
             return null;
@@ -245,8 +247,8 @@ module.exports = function (Messaging) {
 
         room.messages = messages;
         room.isOwner = await Messaging.isRoomOwner(uid, room.roomId);
-        room.users = users.filter(user => user && parseInt(user.uid, 10) &&
-            parseInt(user.uid, 10) !== parseInt(uid, 10));
+        room.users = users.filter(user => user && Number.parseInt(user.uid, 10) &&
+            Number.parseInt(user.uid, 10) !== Number.parseInt(uid, 10));
         room.canReply = canReply;
         room.groupChat = room.hasOwnProperty('groupChat') ? room.groupChat : users.length > 2;
         room.usernames = Messaging.generateUsernames(users, uid);

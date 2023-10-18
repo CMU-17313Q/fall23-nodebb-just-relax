@@ -1,56 +1,60 @@
 'use strict';
 
-module.exports = function (opts) {
+module.exports = function (options) {
     const TTLCache = require('@isaacs/ttlcache');
     const pubsub = require('../pubsub');
 
-    const ttlCache = new TTLCache(opts);
+    const ttlCache = new TTLCache(options);
 
     const cache = {};
-    cache.name = opts.name;
+    cache.name = options.name;
     cache.hits = 0;
     cache.misses = 0;
-    cache.enabled = opts.hasOwnProperty('enabled') ? opts.enabled : true;
+    cache.enabled = options.hasOwnProperty('enabled') ? options.enabled : true;
     const cacheSet = ttlCache.set;
 
-    // expose properties
+    // Expose properties
     const propertyMap = new Map([
         ['max', 'max'],
         ['itemCount', 'size'],
         ['size', 'size'],
         ['ttl', 'ttl'],
     ]);
-    propertyMap.forEach((ttlProp, cacheProp) => {
+    for (const [cacheProp, ttlProp] of propertyMap.entries()) {
         Object.defineProperty(cache, cacheProp, {
-            get: function () {
+            get() {
                 return ttlCache[ttlProp];
             },
             configurable: true,
             enumerable: true,
         });
-    });
+    }
 
     cache.set = function (key, value, ttl) {
         if (!cache.enabled) {
             return;
         }
-        const opts = {};
+
+        const options = {};
         if (ttl) {
-            opts.ttl = ttl;
+            options.ttl = ttl;
         }
-        cacheSet.apply(ttlCache, [key, value, opts]);
+
+        cacheSet.apply(ttlCache, [key, value, options]);
     };
 
     cache.get = function (key) {
         if (!cache.enabled) {
             return undefined;
         }
+
         const data = ttlCache.get(key);
         if (data === undefined) {
             cache.misses += 1;
         } else {
             cache.hits += 1;
         }
+
         return data;
     };
 
@@ -58,15 +62,20 @@ module.exports = function (opts) {
         if (!Array.isArray(keys)) {
             keys = [keys];
         }
+
         pubsub.publish(`${cache.name}:ttlCache:del`, keys);
-        keys.forEach(key => ttlCache.delete(key));
+        for (const key of keys) {
+            ttlCache.delete(key);
+        }
     };
+
     cache.delete = cache.del;
 
     cache.reset = function () {
         pubsub.publish(`${cache.name}:ttlCache:reset`);
         localReset();
     };
+
     cache.clear = cache.reset;
 
     function localReset() {
@@ -81,7 +90,9 @@ module.exports = function (opts) {
 
     pubsub.on(`${cache.name}:ttlCache:del`, (keys) => {
         if (Array.isArray(keys)) {
-            keys.forEach(key => ttlCache.delete(key));
+            for (const key of keys) {
+                ttlCache.delete(key);
+            }
         }
     });
 
@@ -89,6 +100,7 @@ module.exports = function (opts) {
         if (!cache.enabled) {
             return keys;
         }
+
         let data;
         let isCached;
         const unCachedKeys = keys.filter((key) => {
@@ -97,6 +109,7 @@ module.exports = function (opts) {
             if (isCached) {
                 cachedData[key] = data;
             }
+
             return !isCached;
         });
 
@@ -108,7 +121,7 @@ module.exports = function (opts) {
     };
 
     cache.dump = function () {
-        return Array.from(ttlCache.entries());
+        return [...ttlCache.entries()];
     };
 
     cache.peek = function (key) {

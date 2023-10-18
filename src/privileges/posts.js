@@ -2,23 +2,23 @@
 'use strict';
 
 const _ = require('lodash');
-
 const meta = require('../meta');
 const posts = require('../posts');
 const topics = require('../topics');
 const user = require('../user');
-const helpers = require('./helpers');
 const plugins = require('../plugins');
 const utils = require('../utils');
+const helpers = require('./helpers');
 const privsCategories = require('./categories');
 const privsTopics = require('./topics');
 
 const privsPosts = module.exports;
 
 privsPosts.get = async function (pids, uid) {
-    if (!Array.isArray(pids) || !pids.length) {
+    if (!Array.isArray(pids) || pids.length === 0) {
         return [];
     }
+
     const cids = await posts.getCidsByPids(pids);
     const uniqueCids = _.uniq(cids);
 
@@ -48,9 +48,9 @@ privsPosts.get = async function (pids, uid) {
         const viewHistory = results.isOwner[i] || privData['posts:history'][cid] || results.isAdmin;
 
         return {
-            editable: editable,
+            editable,
             move: isAdminOrMod,
-            isAdminOrMod: isAdminOrMod,
+            isAdminOrMod,
             'topics:read': privData['topics:read'][cid] || results.isAdmin,
             read: privData.read[cid] || results.isAdmin,
             'posts:history': viewHistory,
@@ -67,7 +67,7 @@ privsPosts.can = async function (privilege, pid, uid) {
 };
 
 privsPosts.filter = async function (privilege, pids, uid) {
-    if (!Array.isArray(pids) || !pids.length) {
+    if (!Array.isArray(pids) || pids.length === 0) {
         return [];
     }
 
@@ -83,8 +83,9 @@ privsPosts.filter = async function (privilege, pids, uid) {
             post.pid = pids[index];
             post.topic = tidToTopic[post.tid];
         }
+
         return tidToTopic[post.tid] && tidToTopic[post.tid].cid;
-    }).filter(cid => parseInt(cid, 10));
+    }).filter(cid => Number.parseInt(cid, 10));
 
     cids = _.uniq(cids);
 
@@ -100,15 +101,15 @@ privsPosts.filter = async function (privilege, pids, uid) {
         post.topic &&
         cidsSet.has(post.topic.cid) &&
         (privsTopics.canViewDeletedScheduled({
-            deleted: post.topic.deleted || post.deleted,
-            scheduled: post.topic.scheduled,
+        	deleted: post.topic.deleted || post.deleted,
+        	scheduled: post.topic.scheduled,
         }, {}, canViewDeleted[post.topic.cid], canViewScheduled[post.topic.cid]) || results.isAdmin)
     )).map(post => post.pid);
 
     const data = await plugins.hooks.fire('filter:privileges.posts.filter', {
-        privilege: privilege,
-        uid: uid,
-        pids: pids,
+        privilege,
+        uid,
+        pids,
     });
 
     return data ? data.pids : null;
@@ -136,6 +137,7 @@ privsPosts.canEdit = async function (pid, uid) {
     ) {
         return { flag: false, message: `[[error:post-edit-duration-expired, ${meta.config.postEditDuration}]]` };
     }
+
     if (
         !results.isMod &&
         meta.config.newbiePostEditDuration > 0 &&
@@ -150,11 +152,11 @@ privsPosts.canEdit = async function (pid, uid) {
         return { flag: false, message: '[[error:topic-locked]]' };
     }
 
-    if (!results.isMod && results.postData.deleted && parseInt(uid, 10) !== parseInt(results.postData.deleterUid, 10)) {
+    if (!results.isMod && results.postData.deleted && Number.parseInt(uid, 10) !== Number.parseInt(results.postData.deleterUid, 10)) {
         return { flag: false, message: '[[error:post-deleted]]' };
     }
 
-    results.pid = parseInt(pid, 10);
+    results.pid = Number.parseInt(pid, 10);
     results.uid = uid;
 
     const result = await plugins.hooks.fire('filter:privileges.posts.edit', results);
@@ -183,9 +185,10 @@ privsPosts.canDelete = async function (pid, uid) {
     if (!results.isMod && postDeleteDuration && (Date.now() - postData.timestamp > postDeleteDuration * 1000)) {
         return { flag: false, message: `[[error:post-delete-duration-expired, ${meta.config.postDeleteDuration}]]` };
     }
+
     const { deleterUid } = postData;
     const flag = results['posts:delete'] && ((results.isOwner && (deleterUid === 0 || deleterUid === postData.uid)) || results.isMod);
-    return { flag: flag, message: '[[error:no-privileges]]' };
+    return { flag, message: '[[error:no-privileges]]' };
 };
 
 privsPosts.canFlag = async function (pid, uid) {
@@ -211,6 +214,7 @@ privsPosts.canMove = async function (pid, uid) {
     if (isMain) {
         throw new Error('[[error:cant-move-mainpost]]');
     }
+
     return await isAdminOrMod(pid, uid);
 };
 
@@ -226,9 +230,10 @@ privsPosts.canPurge = async function (pid, uid) {
 };
 
 async function isAdminOrMod(pid, uid) {
-    if (parseInt(uid, 10) <= 0) {
+    if (Number.parseInt(uid, 10) <= 0) {
         return false;
     }
+
     const cid = await posts.getCidByPid(pid);
     return await privsCategories.isAdminOrMod(cid, uid);
 }

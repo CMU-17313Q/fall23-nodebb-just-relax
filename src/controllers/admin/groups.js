@@ -2,7 +2,6 @@
 
 const nconf = require('nconf');
 const validator = require('validator');
-
 const db = require('../../database');
 const user = require('../../user');
 const groups = require('../../groups');
@@ -13,8 +12,8 @@ const slugify = require('../../slugify');
 
 const groupsController = module.exports;
 
-groupsController.list = async function (req, res) {
-    const page = parseInt(req.query.page, 10) || 1;
+groupsController.list = async function (request, res) {
+    const page = Number.parseInt(request.query.page, 10) || 1;
     const groupsPerPage = 20;
 
     let groupNames = await getGroupNames();
@@ -27,21 +26,22 @@ groupsController.list = async function (req, res) {
     res.render('admin/manage/groups', {
         groups: groupData,
         pagination: pagination.create(page, pageCount),
-        yourid: req.uid,
+        yourid: request.uid,
     });
 };
 
-groupsController.get = async function (req, res, next) {
-    const slug = slugify(req.params.name);
+groupsController.get = async function (request, res, next) {
+    const slug = slugify(request.params.name);
     const groupName = await groups.getGroupNameByGroupSlug(slug);
     const [groupNames, group] = await Promise.all([
         getGroupNames(),
-        groups.get(groupName, { uid: req.uid, truncateUserList: true, userListCount: 20 }),
+        groups.get(groupName, { uid: request.uid, truncateUserList: true, userListCount: 20 }),
     ]);
 
     if (!group || groupName === groups.BANNED_USERS) {
         return next();
     }
+
     group.isOwner = true;
 
     const groupNameData = groupNames.map(name => ({
@@ -51,7 +51,7 @@ groupsController.get = async function (req, res, next) {
     }));
 
     res.render('admin/manage/group', {
-        group: group,
+        group,
         groupNames: groupNameData,
         allowPrivateGroups: meta.config.allowPrivateGroups,
         maximumGroupNameLength: meta.config.maximumGroupNameLength,
@@ -70,20 +70,21 @@ async function getGroupNames() {
     ));
 }
 
-groupsController.getCSV = async function (req, res) {
-    const { referer } = req.headers;
+groupsController.getCSV = async function (request, res) {
+    const { referer } = request.headers;
 
     if (!referer || !referer.replace(nconf.get('url'), '').startsWith('/admin/manage/groups')) {
         return res.status(403).send('[[error:invalid-origin]]');
     }
+
     await events.log({
         type: 'getGroupCSV',
-        uid: req.uid,
-        ip: req.ip,
-        group: req.params.groupname,
+        uid: request.uid,
+        ip: request.ip,
+        group: request.params.groupname,
     });
-    const groupName = req.params.groupname;
-    const members = (await groups.getMembersOfGroups([groupName]))[0];
+    const groupName = request.params.groupname;
+    const [members] = await groups.getMembersOfGroups([groupName]);
     const fields = ['email', 'username', 'uid'];
     const userData = await user.getUsersFields(members, fields);
     let csvContent = `${fields.join(',')}\n`;

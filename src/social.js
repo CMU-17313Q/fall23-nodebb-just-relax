@@ -9,7 +9,7 @@ exports.setActivePostSharingNetworks = exports.getActivePostSharing = exports.ge
 const lodash_1 = __importDefault(require("lodash"));
 const plugins_1 = __importDefault(require("./plugins"));
 const database_1 = __importDefault(require("./database"));
-let postSharing = null;
+let postSharing;
 async function getPostSharing() {
     if (postSharing) {
         return lodash_1.default.cloneDeep(postSharing);
@@ -19,22 +19,22 @@ async function getPostSharing() {
             id: 'facebook',
             name: 'Facebook',
             class: 'fa-facebook',
-            activated: null,
+            activated: undefined, // Initialize as undefined
         },
         {
             id: 'twitter',
             name: 'Twitter',
             class: 'fa-twitter',
-            activated: null,
+            activated: undefined, // Initialize as undefined
         },
     ];
     networks = await plugins_1.default.hooks.fire('filter:social.posts', networks);
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const activated = await database_1.default.getSetMembers('social:posts.activated');
-    networks.forEach((network) => {
+    for (const network of networks) {
         network.activated = activated.includes(network.id);
-    });
+    }
     postSharing = networks;
     return lodash_1.default.cloneDeep(networks);
 }
@@ -45,15 +45,15 @@ async function getActivePostSharing() {
 }
 exports.getActivePostSharing = getActivePostSharing;
 async function setActivePostSharingNetworks(networkIDs) {
-    postSharing = null;
+    postSharing = undefined; // Initialize as undefined
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await database_1.default.delete('social:posts.activated');
-    if (!networkIDs.length) {
+    if (networkIDs.length === 0) {
         return;
     }
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await database_1.default.setAdd('social:posts.activated', networkIDs);
 }
 exports.setActivePostSharingNetworks = setActivePostSharingNetworks;

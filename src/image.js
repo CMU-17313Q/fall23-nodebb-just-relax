@@ -1,11 +1,10 @@
 'use strict';
 
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const os = require('node:os');
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
 const winston = require('winston');
-
 const file = require('./file');
 const plugins = require('./plugins');
 const meta = require('./meta');
@@ -18,6 +17,7 @@ function requireSharp() {
         // https://github.com/lovell/sharp/issues/1259
         sharp.cache(false);
     }
+
     return sharp;
 }
 
@@ -26,6 +26,7 @@ image.isFileTypeAllowed = async function (path) {
     if (plugins.hooks.hasListeners('filter:image.isFileTypeAllowed')) {
         return await plugins.hooks.fire('filter:image.isFileTypeAllowed', path);
     }
+
     const sharp = require('sharp');
     await sharp(path, {
         failOnError: true,
@@ -50,7 +51,7 @@ image.resizeImage = async function (data) {
         });
         const metadata = await sharpImage.metadata();
 
-        sharpImage.rotate(); // auto-orients based on exif data
+        sharpImage.rotate(); // Auto-orients based on exif data
         sharpImage.resize(data.hasOwnProperty('width') ? data.width : null, data.hasOwnProperty('height') ? data.height : null);
 
         if (data.quality) {
@@ -80,12 +81,13 @@ image.resizeImage = async function (data) {
 image.normalise = async function (path) {
     if (plugins.hooks.hasListeners('filter:image.normalise')) {
         await plugins.hooks.fire('filter:image.normalise', {
-            path: path,
+            path,
         });
     } else {
         const sharp = requireSharp();
         await sharp(path, { failOnError: true }).png().toFile(`${path}.png`);
     }
+
     return `${path}.png`;
 };
 
@@ -93,12 +95,13 @@ image.size = async function (path) {
     let imageData;
     if (plugins.hooks.hasListeners('filter:image.size')) {
         imageData = await plugins.hooks.fire('filter:image.size', {
-            path: path,
+            path,
         });
     } else {
         const sharp = requireSharp();
         imageData = await sharp(path, { failOnError: true }).metadata();
     }
+
     return imageData ? { width: imageData.width, height: imageData.height } : undefined;
 };
 
@@ -106,18 +109,20 @@ image.stripEXIF = async function (path) {
     if (!meta.config.stripEXIFData || path.endsWith('.gif') || path.endsWith('.svg')) {
         return;
     }
+
     try {
         if (plugins.hooks.hasListeners('filter:image.stripEXIF')) {
             await plugins.hooks.fire('filter:image.stripEXIF', {
-                path: path,
+                path,
             });
             return;
         }
+
         const buffer = await fs.promises.readFile(path);
         const sharp = requireSharp();
         await sharp(buffer, { failOnError: true }).rotate().toFile(path);
-    } catch (err) {
-        winston.error(err.stack);
+    } catch (error) {
+        winston.error(error.stack);
     }
 };
 
@@ -167,9 +172,10 @@ image.uploadImage = async function (filename, folder, imageData) {
         return await plugins.hooks.fire('filter:uploadImage', {
             image: imageData,
             uid: imageData.uid,
-            folder: folder,
+            folder,
         });
     }
+
     await image.isFileTypeAllowed(imageData.path);
     const upload = await file.saveFileToLocal(filename, folder, imageData.path);
     return {

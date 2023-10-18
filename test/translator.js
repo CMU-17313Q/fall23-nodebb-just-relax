@@ -2,7 +2,7 @@
 
 // For tests relating to Transifex configuration, check i18n.js
 
-const assert = require('assert');
+const assert = require('node:assert');
 const shim = require('../src/translator');
 
 const { Translator } = shim;
@@ -250,17 +250,20 @@ describe('Translator modules', () => {
         const translator = Translator.create();
 
         Translator.registerModule('test-custom-integer-format', lang => function (key, args) {
-            const num = parseInt(args[0], 10) || 0;
+            const number_ = Number.parseInt(args[0], 10) || 0;
             if (key === 'binary') {
-                return num.toString(2);
+                return number_.toString(2);
             }
+
             if (key === 'hex') {
-                return num.toString(16);
+                return number_.toString(16);
             }
+
             if (key === 'octal') {
-                return num.toString(8);
+                return number_.toString(8);
             }
-            return num.toString();
+
+            return number_.toString();
         });
 
         return translator.translate('[[test-custom-integer-format:octal, 24]]').then((translation) => {
@@ -291,7 +294,7 @@ describe('Translator static methods', () => {
         it('should remove translator patterns from text', (done) => {
             assert.strictEqual(
                 Translator.removePatterns('Lorem ipsum dolor [[sit:amet]], consectetur adipiscing elit. [[sed:vitae, [[semper:dolor]]]] lorem'),
-                'Lorem ipsum dolor , consectetur adipiscing elit.  lorem'
+                'Lorem ipsum dolor , consectetur adipiscing elit.  lorem',
             );
             done();
         });
@@ -300,7 +303,7 @@ describe('Translator static methods', () => {
         it('should escape translation patterns within text', (done) => {
             assert.strictEqual(
                 Translator.escape('some nice text [[global:home]] here'),
-                'some nice text &lsqb;&lsqb;global:home&rsqb;&rsqb; here'
+                'some nice text &lsqb;&lsqb;global:home&rsqb;&rsqb; here',
             );
             done();
         });
@@ -310,11 +313,11 @@ describe('Translator static methods', () => {
         it('should unescape escaped translation patterns within text', (done) => {
             assert.strictEqual(
                 Translator.unescape('some nice text \\[\\[global:home\\]\\] here'),
-                'some nice text [[global:home]] here'
+                'some nice text [[global:home]] here',
             );
             assert.strictEqual(
                 Translator.unescape('some nice text &lsqb;&lsqb;global:home&rsqb;&rsqb; here'),
-                'some nice text [[global:home]] here'
+                'some nice text [[global:home]] here',
             );
             done();
         });
@@ -324,7 +327,7 @@ describe('Translator static methods', () => {
         it('should create a translator pattern from a key and list of arguments', (done) => {
             assert.strictEqual(
                 Translator.compile('amazing:cool', 'awesome', 'great'),
-                '[[amazing:cool, awesome, great]]'
+                '[[amazing:cool, awesome, great]]',
             );
             done();
         });
@@ -332,7 +335,7 @@ describe('Translator static methods', () => {
         it('should escape `%` and `,` in arguments', (done) => {
             assert.strictEqual(
                 Translator.compile('amazing:cool', '100% awesome!', 'one, two, and three'),
-                '[[amazing:cool, 100&#37; awesome!, one&#44; two&#44; and three]]'
+                '[[amazing:cool, 100&#37; awesome!, one&#44; two&#44; and three]]',
             );
             done();
         });
@@ -361,7 +364,7 @@ describe('Translator static methods', () => {
             assert.strictEqual(t1, 'this is best key1 translated');
             assert.strictEqual(t2, 'this is best key3 translated');
         });
-        it("should try the defaults if it didn't reach a string in a nested translation", async () => {
+        it('should try the defaults if it didn\'t reach a string in a nested translation', async () => {
             shim.addTranslation('en-GB', 'my-namespace', {
                 default1: {
                     default1: 'default1 translated',

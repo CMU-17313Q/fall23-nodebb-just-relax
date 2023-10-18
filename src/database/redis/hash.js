@@ -16,18 +16,22 @@ module.exports = function (module) {
             delete data[''];
         }
 
-        Object.keys(data).forEach((key) => {
+        for (const key of Object.keys(data)) {
             if (data[key] === undefined || data[key] === null) {
                 delete data[key];
             }
-        });
+        }
 
-        if (!Object.keys(data).length) {
+        if (Object.keys(data).length === 0) {
             return;
         }
+
         if (Array.isArray(key)) {
             const batch = module.client.batch();
-            key.forEach(k => batch.hmset(k, data));
+            for (const k of key) {
+                batch.hmset(k, data);
+            }
+
             await helpers.execBatch(batch);
         } else {
             await module.client.hmset(key, data);
@@ -38,21 +42,23 @@ module.exports = function (module) {
 
     module.setObjectBulk = async function (...args) {
         let data = args[0];
-        if (!Array.isArray(data) || !data.length) {
+        if (!Array.isArray(data) || data.length === 0) {
             return;
         }
+
         if (Array.isArray(args[1])) {
             console.warn('[deprecated] db.setObjectBulk(keys, data) usage is deprecated, please use db.setObjectBulk(data)');
-            // conver old format to new format for backwards compatibility
+            // Conver old format to new format for backwards compatibility
             data = args[0].map((key, i) => [key, args[1][i]]);
         }
 
         const batch = module.client.batch();
-        data.forEach((item) => {
-            if (Object.keys(item[1]).length) {
+        for (const item of data) {
+            if (Object.keys(item[1]).length > 0) {
                 batch.hmset(item[0], item[1]);
             }
-        });
+        }
+
         await helpers.execBatch(batch);
         cache.del(data.map(item => item[0]));
     };
@@ -61,9 +67,13 @@ module.exports = function (module) {
         if (!field) {
             return;
         }
+
         if (Array.isArray(key)) {
             const batch = module.client.batch();
-            key.forEach(k => batch.hset(k, field, value));
+            for (const k of key) {
+                batch.hset(k, field, value);
+            }
+
             await helpers.execBatch(batch);
         } else {
             await module.client.hset(key, field, value);
@@ -78,7 +88,7 @@ module.exports = function (module) {
         }
 
         const data = await module.getObjectsFields([key], fields);
-        return data && data.length ? data[0] : null;
+        return data && data.length > 0 ? data[0] : null;
     };
 
     module.getObjects = async function (keys, fields = []) {
@@ -89,11 +99,13 @@ module.exports = function (module) {
         if (!key) {
             return null;
         }
+
         const cachedData = {};
         cache.getUnCachedKeys([key], cachedData);
         if (cachedData[key]) {
             return cachedData[key].hasOwnProperty(field) ? cachedData[key][field] : null;
         }
+
         return await module.client.hget(key, String(field));
     };
 
@@ -101,12 +113,13 @@ module.exports = function (module) {
         if (!key) {
             return null;
         }
+
         const results = await module.getObjectsFields([key], fields);
         return results ? results[0] : null;
     };
 
     module.getObjectsFields = async function (keys, fields) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -116,34 +129,40 @@ module.exports = function (module) {
         let data = [];
         if (unCachedKeys.length > 1) {
             const batch = module.client.batch();
-            unCachedKeys.forEach(k => batch.hgetall(k));
+            for (const k of unCachedKeys) {
+                batch.hgetall(k);
+            }
+
             data = await helpers.execBatch(batch);
         } else if (unCachedKeys.length === 1) {
             data = [await module.client.hgetall(unCachedKeys[0])];
         }
 
-        // convert empty objects into null for back-compat with node_redis
-        data = data.map((elem) => {
-            if (!Object.keys(elem).length) {
+        // Convert empty objects into null for back-compat with node_redis
+        data = data.map((element) => {
+            if (Object.keys(element).length === 0) {
                 return null;
             }
-            return elem;
+
+            return element;
         });
 
-        unCachedKeys.forEach((key, i) => {
+        for (const [i, key] of unCachedKeys.entries()) {
             cachedData[key] = data[i] || null;
             cache.set(key, cachedData[key]);
-        });
+        }
 
-        if (!Array.isArray(fields) || !fields.length) {
+        if (!Array.isArray(fields) || fields.length === 0) {
             return keys.map(key => (cachedData[key] ? { ...cachedData[key] } : null));
         }
+
         return keys.map((key) => {
             const item = cachedData[key] || {};
             const result = {};
-            fields.forEach((field) => {
-                result[field] = item[field] !== undefined ? item[field] : null;
-            });
+            for (const field of fields) {
+                result[field] = item[field] === undefined ? null : item[field];
+            }
+
             return result;
         });
     };
@@ -163,7 +182,10 @@ module.exports = function (module) {
 
     module.isObjectFields = async function (key, fields) {
         const batch = module.client.batch();
-        fields.forEach(f => batch.hexists(String(key), String(f)));
+        for (const f of fields) {
+            batch.hexists(String(key), String(f));
+        }
+
         const results = await helpers.execBatch(batch);
         return Array.isArray(results) ? helpers.resultsToBool(results) : null;
     };
@@ -172,21 +194,27 @@ module.exports = function (module) {
         if (key === undefined || key === null || field === undefined || field === null) {
             return;
         }
+
         await module.client.hdel(key, field);
         cache.del(key);
     };
 
     module.deleteObjectFields = async function (key, fields) {
-        if (!key || (Array.isArray(key) && !key.length) || !Array.isArray(fields) || !fields.length) {
+        if (!key || (Array.isArray(key) && key.length === 0) || !Array.isArray(fields) || fields.length === 0) {
             return;
         }
+
         fields = fields.filter(Boolean);
-        if (!fields.length) {
+        if (fields.length === 0) {
             return;
         }
+
         if (Array.isArray(key)) {
             const batch = module.client.batch();
-            key.forEach(k => batch.hdel(k, fields));
+            for (const k of key) {
+                batch.hdel(k, fields);
+            }
+
             await helpers.execBatch(batch);
         } else {
             await module.client.hdel(key, fields);
@@ -204,33 +232,39 @@ module.exports = function (module) {
     };
 
     module.incrObjectFieldBy = async function (key, field, value) {
-        value = parseInt(value, 10);
+        value = Number.parseInt(value, 10);
         if (!key || isNaN(value)) {
             return null;
         }
+
         let result;
         if (Array.isArray(key)) {
             const batch = module.client.batch();
-            key.forEach(k => batch.hincrby(k, field, value));
+            for (const k of key) {
+                batch.hincrby(k, field, value);
+            }
+
             result = await helpers.execBatch(batch);
         } else {
             result = await module.client.hincrby(key, field, value);
         }
+
         cache.del(key);
-        return Array.isArray(result) ? result.map(value => parseInt(value, 10)) : parseInt(result, 10);
+        return Array.isArray(result) ? result.map(value => Number.parseInt(value, 10)) : Number.parseInt(result, 10);
     };
 
     module.incrObjectFieldByBulk = async function (data) {
-        if (!Array.isArray(data) || !data.length) {
+        if (!Array.isArray(data) || data.length === 0) {
             return;
         }
 
         const batch = module.client.batch();
-        data.forEach((item) => {
+        for (const item of data) {
             for (const [field, value] of Object.entries(item[1])) {
                 batch.hincrby(item[0], field, value);
             }
-        });
+        }
+
         await helpers.execBatch(batch);
         cache.del(data.map(item => item[0]));
     };

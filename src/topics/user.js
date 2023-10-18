@@ -4,10 +4,11 @@ const db = require('../database');
 
 module.exports = function (Topics) {
     Topics.isOwner = async function (tid, uid) {
-        uid = parseInt(uid, 10);
+        uid = Number.parseInt(uid, 10);
         if (uid <= 0) {
             return false;
         }
+
         const author = await Topics.getTopicField(tid, 'uid');
         return author === uid;
     };

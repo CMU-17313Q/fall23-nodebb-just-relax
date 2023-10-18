@@ -2,7 +2,6 @@
 
 const nconf = require('nconf');
 const validator = require('validator');
-
 const meta = require('../meta');
 const user = require('../user');
 const plugins = require('../plugins');
@@ -41,9 +40,9 @@ Controllers.composer = require('./composer');
 
 Controllers.write = require('./write');
 
-Controllers.reset = async function (req, res) {
+Controllers.reset = async function (request, res) {
     if (meta.config['password:disableEdit']) {
-        return helpers.notAllowed(req, res);
+        return helpers.notAllowed(request, res);
     }
 
     res.locals.metaTags = {
@@ -54,9 +53,9 @@ Controllers.reset = async function (req, res) {
 
     const renderReset = function (code, valid) {
         res.render('reset_code', {
-            valid: valid,
-            displayExpiryNotice: req.session.passwordExpired,
-            code: code,
+            valid,
+            displayExpiryNotice: request.session.passwordExpired,
+            code,
             minimumPasswordLength: meta.config.minimumPasswordLength,
             minimumPasswordStrength: meta.config.minimumPasswordStrength,
             breadcrumbs: helpers.buildBreadcrumbs([
@@ -70,18 +69,18 @@ Controllers.reset = async function (req, res) {
             ]),
             title: '[[pages:reset]]',
         });
-        delete req.session.passwordExpired;
+        delete request.session.passwordExpired;
     };
 
-    if (req.params.code) {
-        req.session.reset_code = req.params.code;
+    if (request.params.code) {
+        request.session.reset_code = request.params.code;
     }
 
-    if (req.session.reset_code) {
+    if (request.session.reset_code) {
         // Validate and save to local variable before removing from session
-        const valid = await user.reset.validate(req.session.reset_code);
-        renderReset(req.session.reset_code, valid);
-        delete req.session.reset_code;
+        const valid = await user.reset.validate(request.session.reset_code);
+        renderReset(request.session.reset_code, valid);
+        delete request.session.reset_code;
     } else {
         res.render('reset', {
             code: null,
@@ -93,25 +92,25 @@ Controllers.reset = async function (req, res) {
     }
 };
 
-Controllers.login = async function (req, res) {
+Controllers.login = async function (request, res) {
     const data = { loginFormEntry: [] };
     const loginStrategies = require('../routes/authentication').getLoginStrategies();
     const registrationType = meta.config.registrationType || 'normal';
     const allowLoginWith = (meta.config.allowLoginWith || 'username-email');
 
     let errorText;
-    if (req.query.error === 'csrf-invalid') {
+    if (request.query.error === 'csrf-invalid') {
         errorText = '[[error:csrf-invalid]]';
-    } else if (req.query.error) {
-        errorText = validator.escape(String(req.query.error));
+    } else if (request.query.error) {
+        errorText = validator.escape(String(request.query.error));
     }
 
-    if (req.headers['x-return-to']) {
-        req.session.returnTo = req.headers['x-return-to'];
+    if (request.headers['x-return-to']) {
+        request.session.returnTo = request.headers['x-return-to'];
     }
 
     // Occasionally, x-return-to is passed a full url.
-    req.session.returnTo = req.session.returnTo && req.session.returnTo.replace(nconf.get('base_url'), '').replace(nconf.get('relative_path'), '');
+    request.session.returnTo = request.session.returnTo && request.session.returnTo.replace(nconf.get('base_url'), '').replace(nconf.get('relative_path'), '');
 
     data.alternate_logins = loginStrategies.length > 0;
     data.authentication = loginStrategies;
@@ -120,27 +119,28 @@ Controllers.login = async function (req, res) {
     data.breadcrumbs = helpers.buildBreadcrumbs([{
         text: '[[global:login]]',
     }]);
-    data.error = req.flash('error')[0] || errorText;
+    data.error = request.flash('error')[0] || errorText;
     data.title = '[[pages:login]]';
     data.allowPasswordReset = !meta.config['password:disableEdit'];
 
     const hasLoginPrivilege = await privileges.global.canGroup('local:login', 'registered-users');
-    data.allowLocalLogin = hasLoginPrivilege || parseInt(req.query.local, 10) === 1;
+    data.allowLocalLogin = hasLoginPrivilege || Number.parseInt(request.query.local, 10) === 1;
 
     if (!data.allowLocalLogin && !data.allowRegistration && data.alternate_logins && data.authentication.length === 1) {
         return helpers.redirect(res, { external: data.authentication[0].url });
     }
 
     // Re-auth challenge, pre-fill username
-    if (req.loggedIn) {
-        const userData = await user.getUserFields(req.uid, ['username']);
+    if (request.loggedIn) {
+        const userData = await user.getUserFields(request.uid, ['username']);
         data.username = userData.username;
         data.alternate_logins = false;
     }
+
     res.render('login', data);
 };
 
-Controllers.register = async function (req, res, next) {
+Controllers.register = async function (request, res, next) {
     const registrationType = meta.config.registrationType || 'normal';
 
     if (registrationType === 'disabled') {
@@ -148,29 +148,30 @@ Controllers.register = async function (req, res, next) {
     }
 
     let errorText;
-    const returnTo = (req.headers['x-return-to'] || '').replace(nconf.get('base_url') + nconf.get('relative_path'), '');
-    if (req.query.error === 'csrf-invalid') {
+    const returnTo = (request.headers['x-return-to'] || '').replace(nconf.get('base_url') + nconf.get('relative_path'), '');
+    if (request.query.error === 'csrf-invalid') {
         errorText = '[[error:csrf-invalid]]';
     }
+
     try {
         if (registrationType === 'invite-only' || registrationType === 'admin-invite-only') {
             try {
-                await user.verifyInvitation(req.query);
-            } catch (e) {
+                await user.verifyInvitation(request.query);
+            } catch (error) {
                 return res.render('400', {
-                    error: e.message,
+                    error: error.message,
                 });
             }
         }
 
         if (returnTo) {
-            req.session.returnTo = returnTo;
+            request.session.returnTo = returnTo;
         }
 
         const loginStrategies = require('../routes/authentication').getLoginStrategies();
         res.render('register', {
-            'register_window:spansize': loginStrategies.length ? 'col-md-6' : 'col-md-12',
-            alternate_logins: !!loginStrategies.length,
+            'register_window:spansize': loginStrategies.length > 0 ? 'col-md-6' : 'col-md-12',
+            alternate_logins: loginStrategies.length > 0,
             authentication: loginStrategies,
 
             minimumUsernameLength: meta.config.minimumUsernameLength,
@@ -192,35 +193,36 @@ Controllers.register = async function (req, res, next) {
                     `,
                 },
             ],
-            error: req.flash('error')[0] || errorText,
+            error: request.flash('error')[0] || errorText,
             title: '[[pages:register]]',
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-Controllers.registerInterstitial = async function (req, res, next) {
-    if (!req.session.hasOwnProperty('registration')) {
+Controllers.registerInterstitial = async function (request, res, next) {
+    if (!request.session.hasOwnProperty('registration')) {
         return res.redirect(`${nconf.get('relative_path')}/register`);
     }
+
     try {
         const data = await plugins.hooks.fire('filter:register.interstitial', {
-            req,
-            userData: req.session.registration,
+            req: request,
+            userData: request.session.registration,
             interstitials: [],
         });
 
-        if (!data.interstitials.length) {
+        if (data.interstitials.length === 0) {
             // No interstitials, redirect to home
-            const returnTo = req.session.returnTo || req.session.registration.returnTo;
-            delete req.session.registration;
+            const returnTo = request.session.returnTo || request.session.registration.returnTo;
+            delete request.session.registration;
             return helpers.redirect(res, returnTo || '/');
         }
 
-        const errors = req.flash('errors');
+        const errors = request.flash('errors');
         const renders = data.interstitials.map(
-            interstitial => req.app.renderAsync(interstitial.template, { ...interstitial.data || {}, errors })
+            interstitial => request.app.renderAsync(interstitial.template, { ...interstitial.data, errors }),
         );
         const sections = await Promise.all(renders);
 
@@ -230,20 +232,20 @@ Controllers.registerInterstitial = async function (req, res, next) {
             sections,
             errors,
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-Controllers.confirmEmail = async (req, res, next) => {
+Controllers.confirmEmail = async (request, res, next) => {
     try {
-        await user.email.confirmByCode(req.params.code, req.session.id);
-    } catch (e) {
-        if (e.message === '[[error:invalid-data]]') {
+        await user.email.confirmByCode(request.params.code, request.session.id);
+    } catch (error) {
+        if (error.message === '[[error:invalid-data]]') {
             return next();
         }
 
-        throw e;
+        throw error;
     }
 
     res.render('confirm', {
@@ -251,7 +253,7 @@ Controllers.confirmEmail = async (req, res, next) => {
     });
 };
 
-Controllers.robots = function (req, res) {
+Controllers.robots = function (request, res) {
     res.set('Content-Type', 'text/plain');
 
     if (meta.config['robots:txt']) {
@@ -265,7 +267,7 @@ Controllers.robots = function (req, res) {
     }
 };
 
-Controllers.manifest = async function (req, res) {
+Controllers.manifest = async function (request, res) {
     const manifest = {
         name: meta.config.title || 'NodeBB',
         short_name: meta.config['title:short'] || meta.config.title || 'NodeBB',
@@ -287,7 +289,7 @@ Controllers.manifest = async function (req, res) {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-48.png`,
             sizes: '48x48',
             type: 'image/png',
-            density: 1.0,
+            density: 1,
         }, {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-72.png`,
             sizes: '72x72',
@@ -297,25 +299,24 @@ Controllers.manifest = async function (req, res) {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-96.png`,
             sizes: '96x96',
             type: 'image/png',
-            density: 2.0,
+            density: 2,
         }, {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-144.png`,
             sizes: '144x144',
             type: 'image/png',
-            density: 3.0,
+            density: 3,
         }, {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-192.png`,
             sizes: '192x192',
             type: 'image/png',
-            density: 4.0,
+            density: 4,
         }, {
             src: `${nconf.get('relative_path')}/assets/uploads/system/touchicon-512.png`,
             sizes: '512x512',
             type: 'image/png',
-            density: 10.0,
+            density: 10,
         });
     }
-
 
     if (meta.config['brand:maskableIcon']) {
         manifest.icons.push({
@@ -332,20 +333,36 @@ Controllers.manifest = async function (req, res) {
     }
 
     const data = await plugins.hooks.fire('filter:manifest.build', {
-        req: req,
-        res: res,
-        manifest: manifest,
+        req: request,
+        res,
+        manifest,
     });
     res.status(200).json(data.manifest);
 };
 
-Controllers.outgoing = function (req, res, next) {
-    const url = req.query.url || '';
+Controllers.outgoing = function (request, res, next) {
+    const url = request.query.url || '';
     const allowedProtocols = [
-        'http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher',
-        'nntp', 'feed', 'telnet', 'mms', 'rtsp', 'svn', 'tel', 'fax', 'xmpp', 'webcal',
+        'http',
+        'https',
+        'ftp',
+        'ftps',
+        'mailto',
+        'news',
+        'irc',
+        'gopher',
+        'nntp',
+        'feed',
+        'telnet',
+        'mms',
+        'rtsp',
+        'svn',
+        'tel',
+        'fax',
+        'xmpp',
+        'webcal',
     ];
-    const parsed = require('url').parse(url);
+    const parsed = require('node:url').parse(url);
 
     if (!url || !parsed.protocol || !allowedProtocols.includes(parsed.protocol.slice(0, -1))) {
         return next();
@@ -360,10 +377,11 @@ Controllers.outgoing = function (req, res, next) {
     });
 };
 
-Controllers.termsOfUse = async function (req, res, next) {
+Controllers.termsOfUse = async function (request, res, next) {
     if (!meta.config.termsOfUse) {
         return next();
     }
+
     const termsOfUse = await plugins.hooks.fire('filter:parse.post', {
         postData: {
             content: meta.config.termsOfUse || '',

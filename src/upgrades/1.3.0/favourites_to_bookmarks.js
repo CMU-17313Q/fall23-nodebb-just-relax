@@ -5,7 +5,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Favourites to Bookmarks',
     timestamp: Date.UTC(2016, 9, 8),
-    method: async function () {
+    async method() {
         const { progress } = this;
         const batch = require('../../batch');
 
@@ -15,13 +15,14 @@ module.exports = {
                     progress.incr();
                     await db.rename(`pid:${id}:users_favourited`, `pid:${id}:users_bookmarked`);
                     const reputation = await db.getObjectField(`post:${id}`, 'reputation');
-                    if (parseInt(reputation, 10)) {
+                    if (Number.parseInt(reputation, 10)) {
                         await db.setObjectField(`post:${id}`, 'bookmarks', reputation);
                     }
+
                     await db.deleteObjectField(`post:${id}`, 'reputation');
                 }));
             }, {
-                progress: progress,
+                progress,
             });
         }
 

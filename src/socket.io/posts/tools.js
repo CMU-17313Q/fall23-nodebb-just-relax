@@ -1,7 +1,6 @@
 'use strict';
 
 const nconf = require('nconf');
-
 const db = require('../../database');
 const posts = require('../../posts');
 const flags = require('../../flags');
@@ -27,7 +26,7 @@ module.exports = function (SocketPosts) {
             canDelete: privileges.posts.canDelete(data.pid, socket.uid),
             canPurge: privileges.posts.canPurge(data.pid, socket.uid),
             canFlag: privileges.posts.canFlag(data.pid, socket.uid),
-            flagged: flags.exists('post', data.pid, socket.uid), // specifically, whether THIS calling user flagged
+            flagged: flags.exists('post', data.pid, socket.uid), // Specifically, whether THIS calling user flagged
             bookmarked: posts.hasBookmarked(data.pid, socket.uid),
             postSharing: social.getActivePostSharing(),
             history: posts.diffs.exists(data.pid),
@@ -48,9 +47,9 @@ module.exports = function (SocketPosts) {
         postData.display_ip_ban = (results.isAdmin || results.isGlobalMod) && !postData.selfPost;
         postData.display_history = results.history;
         postData.flags = {
-            flagId: parseInt(results.posts.flagId, 10) || null,
+            flagId: Number.parseInt(results.posts.flagId, 10) || null,
             can: results.canFlag.flag,
-            exists: !!results.posts.flagId,
+            exists: Boolean(results.posts.flagId),
             flagged: results.flagged,
             state: await db.getObjectField(`flag:${postData.flagId}`, 'state'),
         };
@@ -58,6 +57,7 @@ module.exports = function (SocketPosts) {
         if (!results.isAdmin && !results.canViewInfo) {
             postData.ip = undefined;
         }
+
         const { tools } = await plugins.hooks.fire('filter:post.tools', {
             pid: data.pid,
             post: postData,
@@ -73,6 +73,7 @@ module.exports = function (SocketPosts) {
         if (!data || !Array.isArray(data.pids) || !data.toUid) {
             throw new Error('[[error:invalid-data]]');
         }
+
         const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(socket.uid);
         if (!isAdminOrGlobalMod) {
             throw new Error('[[error:no-privileges]]');
@@ -84,9 +85,9 @@ module.exports = function (SocketPosts) {
             uid: socket.uid,
             ip: socket.ip,
             targetUid: data.toUid,
-            pid: pid,
+            pid,
             originalUid: uid,
-            cid: cid,
+            cid,
         })));
 
         await Promise.all(logs);

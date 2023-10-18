@@ -1,10 +1,10 @@
 'use strict';
 
-const winston = require('winston');
+const fs = require('node:fs');
+const util = require('node:util');
+const path = require('node:path');
 const nconf = require('nconf');
-const fs = require('fs');
-const util = require('util');
-const path = require('path');
+const winston = require('winston');
 const rimraf = require('rimraf');
 
 const rimrafAsync = util.promisify(rimraf);
@@ -17,13 +17,26 @@ const minifier = require('./minifier');
 const CSS = module.exports;
 
 CSS.supportedSkins = [
-    'cerulean', 'cyborg', 'flatly', 'journal', 'lumen', 'paper', 'simplex',
-    'spacelab', 'united', 'cosmo', 'darkly', 'readable', 'sandstone',
-    'slate', 'superhero', 'yeti',
+    'cerulean',
+    'cyborg',
+    'flatly',
+    'journal',
+    'lumen',
+    'paper',
+    'simplex',
+    'spacelab',
+    'united',
+    'cosmo',
+    'darkly',
+    'readable',
+    'sandstone',
+    'slate',
+    'superhero',
+    'yeti',
 ];
 
 const buildImports = {
-    client: function (source) {
+    client(source) {
         return `@import "./theme";\n${source}\n${[
             '@import "../public/vendor/fontawesome/less/regular.less";',
             '@import "../public/vendor/fontawesome/less/solid.less";',
@@ -39,9 +52,9 @@ const buildImports = {
             '@import "../../public/less/mixins.less";',
             '@import "../../public/less/global.less";',
             '@import "../../public/less/modals.less";',
-        ].map(str => str.replace(/\//g, path.sep)).join('\n')}`;
+        ].map(string_ => string_.replaceAll('/', path.sep)).join('\n')}`;
     },
-    admin: function (source) {
+    admin(source) {
         return `${source}\n${[
             '@import "../public/vendor/fontawesome/less/regular.less";',
             '@import "../public/vendor/fontawesome/less/solid.less";',
@@ -54,7 +67,7 @@ const buildImports = {
             '@import "../../public/less/jquery-ui.less";',
             '@import (inline) "../node_modules/@adactive/bootstrap-tagsinput/src/bootstrap-tagsinput.css";',
             '@import (inline) "../public/vendor/mdl/material.css";',
-        ].map(str => str.replace(/\//g, path.sep)).join('\n')}`;
+        ].map(string_ => string_.replaceAll('/', path.sep)).join('\n')}`;
     },
 };
 
@@ -65,8 +78,9 @@ async function filterMissingFiles(filepaths) {
             if (!exists) {
                 winston.warn(`[meta/css] File not found! ${filepath}`);
             }
+
             return exists;
-        })
+        }),
     );
     return filepaths.filter((filePath, i) => exists[i]);
 }
@@ -75,18 +89,19 @@ async function getImports(files, prefix, extension) {
     const pluginDirectories = [];
     let source = '';
 
-    files.forEach((styleFile) => {
+    for (const styleFile of files) {
         if (styleFile.endsWith(extension)) {
             source += `${prefix + path.sep + styleFile}";`;
         } else {
             pluginDirectories.push(styleFile);
         }
-    });
+    }
+
     await Promise.all(pluginDirectories.map(async (directory) => {
         const styleFiles = await file.walk(directory);
-        styleFiles.forEach((styleFile) => {
+        for (const styleFile of styleFiles) {
             source += `${prefix + path.sep + styleFile}";`;
-        });
+        }
     }));
     return source;
 }
@@ -107,6 +122,7 @@ async function getBundleMetadata(target) {
             target = 'client';
         }
     }
+
     let skinImport = [];
     if (target === 'client') {
         const themeData = await db.getObjectFields('config', ['theme:type', 'theme:id', 'bootswatchSkin']);
@@ -116,9 +132,9 @@ async function getBundleMetadata(target) {
 
         themeData.bootswatchSkin = skin || themeData.bootswatchSkin;
         if (themeData && themeData.bootswatchSkin) {
-            skinImport.push(`\n@import "./@nodebb/bootswatch/${themeData.bootswatchSkin}/variables.less";`);
-            skinImport.push(`\n@import "./@nodebb/bootswatch/${themeData.bootswatchSkin}/bootswatch.less";`);
+            skinImport.push(`\n@import "./@nodebb/bootswatch/${themeData.bootswatchSkin}/variables.less";`, `\n@import "./@nodebb/bootswatch/${themeData.bootswatchSkin}/bootswatch.less";`);
         }
+
         skinImport = skinImport.join('');
     }
 
@@ -136,7 +152,7 @@ async function getBundleMetadata(target) {
     let imports = `${skinImport}\n${cssImports}\n${lessImports}\n${acpLessImports}`;
     imports = buildImports[target](imports);
 
-    return { paths: paths, imports: imports };
+    return { paths, imports };
 }
 
 CSS.buildBundle = async function (target, fork) {

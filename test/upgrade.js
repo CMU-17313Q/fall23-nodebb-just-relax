@@ -1,9 +1,8 @@
 'use strict';
 
-const assert = require('assert');
-
-const db = require('./mocks/databasemock');
+const assert = require('node:assert');
 const upgrade = require('../src/upgrade');
+const db = require('./mocks/databasemock');
 
 describe('Upgrade', () => {
     it('should get all upgrade scripts', async () => {
@@ -12,17 +11,18 @@ describe('Upgrade', () => {
     });
 
     it('should throw error', async () => {
-        let err;
+        let error;
         try {
             await upgrade.check();
-        } catch (_err) {
-            err = _err;
+        } catch (error_) {
+            error = error_;
         }
-        assert.equal(err.message, 'schema-out-of-date');
+
+        assert.equal(error.message, 'schema-out-of-date');
     });
 
     it('should run all upgrades', async () => {
-        // for upgrade scripts to run
+        // For upgrade scripts to run
         await db.set('schemaDate', 1);
         await upgrade.run();
     });

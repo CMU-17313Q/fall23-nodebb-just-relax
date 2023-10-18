@@ -1,16 +1,15 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
+const fs = require('node:fs');
 const nconf = require('nconf');
 const winston = require('winston');
 const _ = require('lodash');
-const fs = require('fs');
-
 const file = require('../file');
-const Meta = require('./index');
 const events = require('../events');
 const utils = require('../utils');
 const { themeNamePattern } = require('../constants');
+const Meta = require('./index');
 
 const Themes = module.exports;
 
@@ -21,7 +20,7 @@ Themes.get = async () => {
     }
 
     let themes = await getThemes(themePath);
-    themes = _.flatten(themes).filter(Boolean);
+    themes = themes.flat().filter(Boolean);
     themes = await Promise.all(themes.map(async (theme) => {
         const config = path.join(themePath, theme, 'theme.json');
         const pack = path.join(themePath, theme, 'package.json');
@@ -30,22 +29,18 @@ Themes.get = async () => {
                 fs.promises.readFile(config, 'utf8'),
                 fs.promises.readFile(pack, 'utf8'),
             ]);
-            const configObj = JSON.parse(configFile);
-            const packageObj = JSON.parse(packageFile);
+            const configObject = JSON.parse(configFile);
+            const packageObject = JSON.parse(packageFile);
 
-            configObj.id = packageObj.name;
+            configObject.id = packageObject.name;
 
             // Minor adjustments for API output
-            configObj.type = 'local';
-            if (configObj.screenshot) {
-                configObj.screenshot_url = `${nconf.get('relative_path')}/css/previews/${encodeURIComponent(configObj.id)}`;
-            } else {
-                configObj.screenshot_url = `${nconf.get('relative_path')}/assets/images/themes/default.png`;
-            }
+            configObject.type = 'local';
+            configObject.screenshot_url = configObject.screenshot ? `${nconf.get('relative_path')}/css/previews/${encodeURIComponent(configObject.id)}` : `${nconf.get('relative_path')}/assets/images/themes/default.png`;
 
-            return configObj;
-        } catch (err) {
-            if (err.code === 'ENOENT') {
+            return configObject;
+        } catch (error) {
+            if (error.code === 'ENOENT') {
                 return false;
             }
 
@@ -74,12 +69,12 @@ async function getThemes(themePath) {
 
             const themes = await getThemes(path.join(themePath, dir));
             return themes.map(theme => path.join(dir, theme));
-        } catch (err) {
-            if (err.code === 'ENOENT') {
+        } catch (error) {
+            if (error.code === 'ENOENT') {
                 return false;
             }
 
-            throw err;
+            throw error;
         }
     }));
 }
@@ -112,21 +107,24 @@ Themes.set = async (data) => {
 
             await events.log({
                 type: 'theme-set',
-                uid: parseInt(data.uid, 10) || 0,
+                uid: Number.parseInt(data.uid, 10) || 0,
                 ip: data.ip || '127.0.0.1',
                 text: data.id,
             });
 
             Meta.reloadRequired = true;
         }
+
         break;
     }
-    case 'bootswatch':
+
+    case 'bootswatch': {
         await Meta.configs.setMultiple({
             'theme:src': data.src,
             bootswatchSkin: data.id.toLowerCase(),
         });
         break;
+    }
     }
 };
 
@@ -142,26 +140,26 @@ Themes.setupPaths = async () => {
         winston.info(`[themes] Using theme ${themeId}`);
     }
 
-    const themeObj = data.themesData.find(themeObj => themeObj.id === themeId);
+    const themeObject = data.themesData.find(themeObject_ => themeObject_.id === themeId);
 
-    if (!themeObj) {
+    if (!themeObject) {
         throw new Error('[[error:theme-not-found]]');
     }
 
-    Themes.setPath(themeObj);
+    Themes.setPath(themeObject);
 };
 
-Themes.setPath = function (themeObj) {
+Themes.setPath = function (themeObject) {
     // Theme's templates path
     let themePath = nconf.get('base_templates_path');
-    const fallback = path.join(nconf.get('themes_path'), themeObj.id, 'templates');
+    const fallback = path.join(nconf.get('themes_path'), themeObject.id, 'templates');
 
-    if (themeObj.templates) {
-        themePath = path.join(nconf.get('themes_path'), themeObj.id, themeObj.templates);
+    if (themeObject.templates) {
+        themePath = path.join(nconf.get('themes_path'), themeObject.id, themeObject.templates);
     } else if (file.existsSync(fallback)) {
         themePath = fallback;
     }
 
     nconf.set('theme_templates_path', themePath);
-    nconf.set('theme_config', path.join(nconf.get('themes_path'), themeObj.id, 'theme.json'));
+    nconf.set('theme_config', path.join(nconf.get('themes_path'), themeObject.id, 'theme.json'));
 };

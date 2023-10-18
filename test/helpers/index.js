@@ -1,11 +1,10 @@
 'use strict';
 
+const fs = require('node:fs');
 const request = require('request');
 const requestAsync = require('request-promise-native');
 const nconf = require('nconf');
-const fs = require('fs');
 const winston = require('winston');
-
 const utils = require('../../src/utils');
 
 const helpers = module.exports;
@@ -33,9 +32,13 @@ helpers.request = async function (method, uri, options) {
         if (csrf_token) {
             options.headers['x-csrf-token'] = csrf_token;
         }
-        request[lowercaseMethod](`${nconf.get('url')}${uri}`, options, (err, res, body) => {
-            if (err) reject(err);
-            else resolve({ res, body });
+
+        request[lowercaseMethod](`${nconf.get('url')}${uri}`, options, (error, res, body) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve({ res, body });
+            }
         });
     });
 };
@@ -46,51 +49,52 @@ helpers.loginUser = function (username, password, callback) {
     request({
         url: `${nconf.get('url')}/api/config`,
         json: true,
-        jar: jar,
-    }, (err, res, body) => {
-        if (err || res.statusCode !== 200) {
-            return callback(err || new Error('[[error:invalid-response]]'));
+        jar,
+    }, (error, res, body) => {
+        if (error || res.statusCode !== 200) {
+            return callback(error || new Error('[[error:invalid-response]]'));
         }
+
         const { csrf_token } = body;
         request.post(`${nconf.get('url')}/login`, {
             form: {
-                username: username,
-                password: password,
+                username,
+                password,
             },
             json: true,
-            jar: jar,
+            jar,
             headers: {
                 'x-csrf-token': csrf_token,
             },
-        }, (err, res, body) => {
-            if (err) {
-                return callback(err || new Error('[[error:invalid-response]]'));
+        }, (error, res, body) => {
+            if (error) {
+                return callback(error || new Error('[[error:invalid-response]]'));
             }
-            callback(null, { jar, res, body, csrf_token: csrf_token });
+
+            callback(null, { jar, res, body, csrf_token });
         });
     });
 };
-
 
 helpers.logoutUser = function (jar, callback) {
     request({
         url: `${nconf.get('url')}/api/config`,
         json: true,
-        jar: jar,
-    }, (err, response, body) => {
-        if (err) {
-            return callback(err, response, body);
+        jar,
+    }, (error, response, body) => {
+        if (error) {
+            return callback(error, response, body);
         }
 
         request.post(`${nconf.get('url')}/logout`, {
             form: {},
             json: true,
-            jar: jar,
+            jar,
             headers: {
                 'x-csrf-token': body.csrf_token,
             },
-        }, (err, response, body) => {
-            callback(err, response, body);
+        }, (error, response, body) => {
+            callback(error, response, body);
         });
     });
 };
@@ -112,8 +116,8 @@ helpers.connectSocketIO = function (res, callback) {
         callback(null, socket);
     });
 
-    socket.on('error', (err) => {
-        callback(err);
+    socket.on('error', (error) => {
+        callback(error);
     });
 };
 
@@ -121,25 +125,27 @@ helpers.uploadFile = function (uploadEndPoint, filePath, body, jar, csrf_token, 
     let formData = {
         files: [
             fs.createReadStream(filePath),
-            fs.createReadStream(filePath), // see https://github.com/request/request/issues/2445
+            fs.createReadStream(filePath), // See https://github.com/request/request/issues/2445
         ],
     };
     formData = utils.merge(formData, body);
     request.post({
         url: uploadEndPoint,
-        formData: formData,
+        formData,
         json: true,
-        jar: jar,
+        jar,
         headers: {
             'x-csrf-token': csrf_token,
         },
-    }, (err, res, body) => {
-        if (err) {
-            return callback(err);
+    }, (error, res, body) => {
+        if (error) {
+            return callback(error);
         }
+
         if (res.statusCode !== 200) {
             winston.error(JSON.stringify(body));
         }
+
         callback(null, res, body);
     });
 };
@@ -149,10 +155,10 @@ helpers.registerUser = function (data, callback) {
     request({
         url: `${nconf.get('url')}/api/config`,
         json: true,
-        jar: jar,
-    }, (err, response, body) => {
-        if (err) {
-            return callback(err);
+        jar,
+    }, (error, response, body) => {
+        if (error) {
+            return callback(error);
         }
 
         if (!data.hasOwnProperty('password-confirm')) {
@@ -162,12 +168,12 @@ helpers.registerUser = function (data, callback) {
         request.post(`${nconf.get('url')}/register`, {
             form: data,
             json: true,
-            jar: jar,
+            jar,
             headers: {
                 'x-csrf-token': body.csrf_token,
             },
-        }, (err, response, body) => {
-            callback(err, jar, response, body);
+        }, (error, response, body) => {
+            callback(error, jar, response, body);
         });
     });
 };
@@ -177,21 +183,21 @@ helpers.copyFile = function (source, target, callback) {
     let cbCalled = false;
 
     const rd = fs.createReadStream(source);
-    rd.on('error', (err) => {
-        done(err);
+    rd.on('error', (error) => {
+        done(error);
     });
     const wr = fs.createWriteStream(target);
-    wr.on('error', (err) => {
-        done(err);
+    wr.on('error', (error) => {
+        done(error);
     });
     wr.on('close', () => {
         done();
     });
     rd.pipe(wr);
 
-    function done(err) {
+    function done(error) {
         if (!cbCalled) {
-            callback(err);
+            callback(error);
             cbCalled = true;
         }
     }
@@ -199,8 +205,8 @@ helpers.copyFile = function (source, target, callback) {
 
 helpers.invite = async function (body, uid, jar, csrf_token) {
     const res = await requestAsync.post(`${nconf.get('url')}/api/v3/users/${uid}/invites`, {
-        jar: jar,
-        // using "form" since client "api" module make requests with "application/x-www-form-urlencoded" content-type
+        jar,
+        // Using "form" since client "api" module make requests with "application/x-www-form-urlencoded" content-type
         form: body,
         headers: {
             'x-csrf-token': csrf_token,

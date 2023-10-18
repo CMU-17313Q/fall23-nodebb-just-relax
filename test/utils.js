@@ -1,7 +1,6 @@
 'use strict';
 
-
-const assert = require('assert');
+const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 const slugify = require('../src/slugify');
 const db = require('./mocks/databasemock');
@@ -22,15 +21,15 @@ describe('Utility Methods', () => {
     it('should decode HTML entities', (done) => {
         assert.strictEqual(
             utils.decodeHTMLEntities('Ken Thompson &amp; Dennis Ritchie'),
-            'Ken Thompson & Dennis Ritchie'
+            'Ken Thompson & Dennis Ritchie',
         );
         assert.strictEqual(
             utils.decodeHTMLEntities('3 &lt; 4'),
-            '3 < 4'
+            '3 < 4',
         );
         assert.strictEqual(
             utils.decodeHTMLEntities('http:&#47;&#47;'),
-            'http://'
+            'http://',
         );
         done();
     });
@@ -54,7 +53,7 @@ describe('Utility Methods', () => {
 
     describe('username validation', () => {
         it('accepts latin-1 characters', () => {
-            const username = "John\"'-. Doeäâèéë1234";
+            const username = 'John"\'-. Doeäâèéë1234';
             assert(utils.isUserNameValid(username), 'invalid username');
         });
 
@@ -146,11 +145,11 @@ describe('Utility Methods', () => {
     it('should shallow merge two objects', (done) => {
         const a = { foo: 1, cat1: 'ginger' };
         const b = { baz: 2, cat2: 'phoebe' };
-        const obj = utils.merge(a, b);
-        assert.strictEqual(obj.foo, 1);
-        assert.strictEqual(obj.baz, 2);
-        assert.strictEqual(obj.cat1, 'ginger');
-        assert.strictEqual(obj.cat2, 'phoebe');
+        const object = utils.merge(a, b);
+        assert.strictEqual(object.foo, 1);
+        assert.strictEqual(object.baz, 2);
+        assert.strictEqual(object.cat1, 'ginger');
+        assert.strictEqual(object.cat2, 'phoebe');
         done();
     });
 
@@ -195,9 +194,9 @@ describe('Utility Methods', () => {
     });
 
     it('should make numbers human readable on elements', (done) => {
-        const el = $('<div title="100000"></div>');
-        utils.makeNumbersHumanReadable(el);
-        assert.equal(el.html(), '100.0k');
+        const element = $('<div title="100000"></div>');
+        utils.makeNumbersHumanReadable(element);
+        assert.equal(element.html(), '100.0k');
         done();
     });
 
@@ -217,9 +216,9 @@ describe('Utility Methods', () => {
     });
 
     it('should add commas to elements', (done) => {
-        const el = $('<div>1000000</div>');
-        utils.addCommasToNumbers(el);
-        assert.equal(el.html(), '1,000,000');
+        const element = $('<div>1000000</div>');
+        utils.addCommasToNumbers(element);
+        assert.equal(element.html(), '1,000,000');
         done();
     });
 
@@ -253,30 +252,30 @@ describe('Utility Methods', () => {
     });
 
     it('should check if element is in viewport', (done) => {
-        const el = $('<div>some text</div>');
-        assert(utils.isElementInViewport(el));
+        const element = $('<div>some text</div>');
+        assert(utils.isElementInViewport(element));
         done();
     });
 
     it('should get empty object for url params', (done) => {
-        const params = utils.params();
-        assert.equal(Object.keys(params), 0);
+        const parameters = utils.params();
+        assert.equal(Object.keys(parameters), 0);
         done();
     });
 
     it('should get url params', (done) => {
-        const params = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp=2' });
-        assert.strictEqual(params.foo, 1);
-        assert.strictEqual(params.bar, 'test');
-        assert.strictEqual(params.herp, 2);
+        const parameters = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp=2' });
+        assert.strictEqual(parameters.foo, 1);
+        assert.strictEqual(parameters.bar, 'test');
+        assert.strictEqual(parameters.herp, 2);
         done();
     });
 
     it('should get url params as arrays', (done) => {
-        const params = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp[]=2&herp[]=3' });
-        assert.strictEqual(params.foo, 1);
-        assert.strictEqual(params.bar, 'test');
-        assert.deepStrictEqual(params.herp, [2, 3]);
+        const parameters = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp[]=2&herp[]=3' });
+        assert.strictEqual(parameters.foo, 1);
+        assert.strictEqual(parameters.bar, 'test');
+        assert.deepStrictEqual(parameters.herp, [2, 3]);
         done();
     });
 
@@ -286,11 +285,11 @@ describe('Utility Methods', () => {
     });
 
     it('should get the full URLSearchParams object', async () => {
-        const params = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp[]=2&herp[]=3', full: true });
-        assert(params instanceof URLSearchParams);
-        assert.strictEqual(params.get('foo'), '1');
-        assert.strictEqual(params.get('bar'), 'test');
-        assert.strictEqual(params.get('herp[]'), '2');
+        const parameters = utils.params({ url: 'http://nodebb.org?foo=1&bar=test&herp[]=2&herp[]=3', full: true });
+        assert(parameters instanceof URLSearchParams);
+        assert.strictEqual(parameters.get('foo'), '1');
+        assert.strictEqual(parameters.get('bar'), 'test');
+        assert.strictEqual(parameters.get('herp[]'), '2');
     });
 
     describe('toType', () => {
@@ -321,8 +320,8 @@ describe('Utility Methods', () => {
         });
 
         it('should return string as is if its not json,true,false or number', (done) => {
-            const regularStr = 'this is a regular string';
-            assert.equal(regularStr, utils.toType(regularStr));
+            const regularString = 'this is a regular string';
+            assert.equal(regularString, utils.toType(regularString));
             done();
         });
     });
@@ -336,8 +335,8 @@ describe('Utility Methods', () => {
         });
 
         it('should return nested object', (done) => {
-            const obj = utils.props(data, 'a.b.c');
-            assert.equal(obj.d, 10);
+            const object = utils.props(data, 'a.b.c');
+            assert.equal(object.d, 10);
             done();
         });
 
@@ -403,6 +402,7 @@ describe('Utility Methods', () => {
             assert.equal(hours[index], `${hour}:00`);
             index -= 1;
         }
+
         done();
     });
 
@@ -412,10 +412,11 @@ describe('Utility Methods', () => {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         let index = 0;
         for (let x = 29; x >= 0; x -= 1) {
-            const tmpDate = new Date(currentDay - (1000 * 60 * 60 * 24 * x));
-            assert.equal(`${months[tmpDate.getMonth()]} ${tmpDate.getDate()}`, days[index]);
+            const temporaryDate = new Date(currentDay - (1000 * 60 * 60 * 24 * x));
+            assert.equal(`${months[temporaryDate.getMonth()]} ${temporaryDate.getDate()}`, days[index]);
             index += 1;
         }
+
         done();
     });
 

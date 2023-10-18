@@ -14,7 +14,7 @@ Tags.create = async function (socket, data) {
 
 Tags.rename = async function (socket, data) {
     if (!Array.isArray(data)) {
-        throw new Error('[[error:invalid-data]]');
+        throw new TypeError('[[error:invalid-data]]');
     }
 
     await topics.renameTags(data);

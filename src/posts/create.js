@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const meta = require('../meta');
 const db = require('../database');
 const plugins = require('../plugins');
@@ -19,14 +18,14 @@ module.exports = function (Posts) {
         const content = data.content.toString();
         const timestamp = data.timestamp || Date.now();
         const isMain = data.isMain || false;
-        // added a new var --Maria
+        // Added a new var --Maria
         const typeOfPost = String(data.typeOfPost);
-        // a print statment to check the type of the post
+        // A print statment to check the type of the post
         // console.log(typeOfPost);
         // addded a new var --Rama
         const isAnonymous = String(data.isAnonymous);
-        //  console.log(isAnonymous);
-        if (!uid && parseInt(uid, 10) !== 0) {
+        //  Console.log(isAnonymous);
+        if (!uid && Number.parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
         }
 
@@ -36,26 +35,28 @@ module.exports = function (Posts) {
 
         const pid = await db.incrObjectField('global', 'nextPid');
         let postData = {
-            pid: pid,
-            uid: uid,
-            tid: tid,
-            content: content,
-            timestamp: timestamp,
-            typeOfPost: typeOfPost,
-            isAnonymous: isAnonymous,
+            pid,
+            uid,
+            tid,
+            content,
+            timestamp,
+            typeOfPost,
+            isAnonymous,
         };
 
         if (data.toPid) {
             postData.toPid = data.toPid;
         }
+
         if (data.ip && meta.config.trackIpPerPost) {
             postData.ip = data.ip;
         }
-        if (data.handle && !parseInt(uid, 10)) {
+
+        if (data.handle && !Number.parseInt(uid, 10)) {
             postData.handle = data.handle;
         }
 
-        let result = await plugins.hooks.fire('filter:post.create', { post: postData, data: data });
+        let result = await plugins.hooks.fire('filter:post.create', { post: postData, data });
         postData = result.post;
         await db.setObject(`post:${postData.pid}`, postData);
 
@@ -83,6 +84,7 @@ module.exports = function (Posts) {
         if (!postData.toPid) {
             return;
         }
+
         await Promise.all([
             db.sortedSetAdd(`pid:${postData.toPid}:replies`, timestamp, postData.pid),
             db.incrObjectField(`post:${postData.toPid}`, 'replies'),

@@ -37,7 +37,7 @@ module.exports = () => {
         .arguments('<uids...>')
         .addOption(
             new Option('-t, --type [operation]', 'Delete user content ([purge]), leave content ([account]), or delete content only ([content])')
-                .choices(['purge', 'account', 'content']).default('purge')
+                .choices(['purge', 'account', 'content']).default('purge'),
         )
         .action((...args) => execute(userCommands.deleteUser, args));
 
@@ -90,9 +90,9 @@ async function execute(cmd, args) {
     await init();
     try {
         await cmd(...args);
-    } catch (err) {
-        const userError = err.name === 'UserError';
-        winston.error(`[userCmd/${cmd.name}] ${userError ? `${err.message}` : 'Command failed.'}`, userError ? '' : err);
+    } catch (error) {
+        const userError = error.name === 'UserError';
+        winston.error(`[userCmd/${cmd.name}] ${userError ? `${error.message}` : 'Command failed.'}`, userError ? '' : error);
         process.exit(1);
     }
 
@@ -103,10 +103,11 @@ function UserCmdHelpers() {
     async function getAdminUidOrFail() {
         const adminUid = await user.getFirstAdminUid();
         if (!adminUid) {
-            const err = new Error('An admin account does not exists to execute the operation.');
-            err.name = 'UserError';
-            throw err;
+            const error = new Error('An admin account does not exists to execute the operation.');
+            error.name = 'UserError';
+            throw error;
         }
+
         return adminUid;
     }
 
@@ -133,13 +134,14 @@ function UserCmdHelpers() {
     }
 
     const argParsers = {
-        intParse: (value, varName) => {
-            const parsedValue = parseInt(value, 10);
+        intParse(value, varName) {
+            const parsedValue = Number.parseInt(value, 10);
             if (isNaN(parsedValue)) {
-                const err = new Error(`"${varName}" expected to be a number.`);
-                err.name = 'UserError';
-                throw err;
+                const error = new Error(`"${varName}" expected to be a number.`);
+                error.name = 'UserError';
+                throw error;
             }
+
             return parsedValue;
         },
         intArrayParse: (values, varName) => values.map(value => argParsers.intParse(value, varName)),
@@ -204,7 +206,7 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
 
         const userExists = await user.exists(uid);
         if (!userExists) {
-            return winston.error(`[userCmd/reset] A user with given uid does not exists.`);
+            return winston.error('[userCmd/reset] A user with given uid does not exists.');
         }
 
         let pwGenerated = false;
@@ -229,6 +231,7 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
             if (!userEmail) {
                 return winston.error('User doesn\'t have an email address to send reset email.');
             }
+
             await setupApp();
             await user.reset.send(userEmail);
             winston.info('[userCmd/reset] Password reset email has been sent.');
@@ -239,26 +242,31 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
         uids = argParsers.intArrayParse(uids, 'uids');
 
         const userExists = await user.exists(uids);
-        if (!userExists || userExists.some(r => r === false)) {
-            return winston.error(`[userCmd/reset] A user with given uid does not exists.`);
+        if (!userExists || userExists.includes(false)) {
+            return winston.error('[userCmd/reset] A user with given uid does not exists.');
         }
 
         await db.initSessionStore();
         const adminUid = await getAdminUidOrFail();
 
         switch (type) {
-        case 'purge':
+        case 'purge': {
             await Promise.all(uids.map(uid => user.delete(adminUid, uid)));
-            winston.info(`[userCmd/delete] User(s) with their content has been deleted.`);
+            winston.info('[userCmd/delete] User(s) with their content has been deleted.');
             break;
-        case 'account':
+        }
+
+        case 'account': {
             await Promise.all(uids.map(uid => user.deleteAccount(uid)));
-            winston.info(`[userCmd/delete] User(s) has been deleted, their content left intact.`);
+            winston.info('[userCmd/delete] User(s) has been deleted, their content left intact.');
             break;
-        case 'content':
+        }
+
+        case 'content': {
             await Promise.all(uids.map(uid => user.deleteContent(adminUid, uid)));
-            winston.info(`[userCmd/delete] User(s)' content has been deleted.`);
+            winston.info('[userCmd/delete] User(s)\' content has been deleted.');
             break;
+        }
         }
     }
 

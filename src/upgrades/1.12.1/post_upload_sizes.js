@@ -7,7 +7,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Calculate image sizes of all uploaded images',
     timestamp: Date.UTC(2019, 2, 16),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('posts:pid', async (pids) => {
@@ -17,7 +17,7 @@ module.exports = {
             progress.incr(pids.length);
         }, {
             batch: 100,
-            progress: progress,
+            progress,
         });
     },
 };

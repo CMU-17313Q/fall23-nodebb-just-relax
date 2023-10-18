@@ -1,11 +1,10 @@
 'use strict';
 
+const url = require('node:url');
+const path = require('node:path');
 const nconf = require('nconf');
-const url = require('url');
 const winston = require('winston');
-const path = require('path');
 const chalk = require('chalk');
-
 const pkg = require('../package.json');
 const { paths } = require('./constants');
 
@@ -63,12 +62,13 @@ function loadConfig(configFile) {
     // Explicitly cast as Bool, loader.js passes in isCluster as string 'true'/'false'
     const castAsBool = ['isCluster', 'isPrimary', 'jobsDisabled'];
     nconf.stores.env.readOnly = false;
-    castAsBool.forEach((prop) => {
+    for (const prop of castAsBool) {
         const value = nconf.get(prop);
         if (value !== undefined) {
             nconf.set(prop, ['1', 1, 'true', true].includes(value));
         }
-    });
+    }
+
     nconf.stores.env.readOnly = true;
     nconf.set('runJobs', nconf.get('isPrimary') && !nconf.get('jobsDisabled'));
 
@@ -80,8 +80,7 @@ function loadConfig(configFile) {
     nconf.set('upload_path', path.resolve(nconf.get('base_dir'), nconf.get('upload_path')));
     nconf.set('upload_url', '/assets/uploads');
 
-
-    // nconf defaults, if not set in config
+    // Nconf defaults, if not set in config
     if (!nconf.get('sessionKey')) {
         nconf.set('sessionKey', 'express.sid');
     }
@@ -91,17 +90,18 @@ function loadConfig(configFile) {
         nconf.set('url_parsed', url.parse(nconf.get('url')));
         // Parse out the relative_url and other goodies from the configured URL
         const urlObject = url.parse(nconf.get('url'));
-        const relativePath = urlObject.pathname !== '/' ? urlObject.pathname.replace(/\/+$/, '') : '';
+        const relativePath = urlObject.pathname === '/' ? '' : urlObject.pathname.replace(/\/+$/, '');
         nconf.set('base_url', `${urlObject.protocol}//${urlObject.host}`);
         nconf.set('secure', urlObject.protocol === 'https:');
-        nconf.set('use_port', !!urlObject.port);
+        nconf.set('use_port', Boolean(urlObject.port));
         nconf.set('relative_path', relativePath);
         if (!nconf.get('asset_base_url')) {
             nconf.set('asset_base_url', `${relativePath}/assets`);
         }
+
         nconf.set('port', nconf.get('PORT') || nconf.get('port') || urlObject.port || (nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) || 4567);
 
-        // cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
+        // Cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
         const domain = nconf.get('cookieDomain') || urlObject.hostname;
         const origins = nconf.get('socket.io:origins') || `${urlObject.protocol}//${domain}:*`;
         nconf.set('socket.io:origins', origins);

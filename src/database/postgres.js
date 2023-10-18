@@ -5,7 +5,6 @@ const async = require('async');
 const nconf = require('nconf');
 const session = require('express-session');
 const semver = require('semver');
-
 const connection = require('./postgres/connection');
 
 const postgresModule = module.exports;
@@ -31,7 +30,9 @@ postgresModule.questions = [
         description: 'Password of your PostgreSQL database',
         hidden: true,
         default: nconf.get('postgres:password') || '',
-        before: function (value) { value = value || nconf.get('postgres:password') || ''; return value; },
+        before(value) {
+            value = value || nconf.get('postgres:password') || ''; return value;
+        },
     },
     {
         name: 'postgres:database',
@@ -54,14 +55,13 @@ postgresModule.init = async function () {
     const client = await pool.connect();
     try {
         await checkUpgrade(client);
-    } catch (err) {
-        winston.error(`NodeBB could not connect to your PostgreSQL database. PostgreSQL returned the following error: ${err.message}`);
-        throw err;
+    } catch (error) {
+        winston.error(`NodeBB could not connect to your PostgreSQL database. PostgreSQL returned the following error: ${error.message}`);
+        throw error;
     } finally {
         client.release();
     }
 };
-
 
 async function checkUpgrade(client) {
     const res = await client.query(`
@@ -84,7 +84,7 @@ SELECT EXISTS(SELECT *
         return;
     }
 
-    await client.query(`BEGIN`);
+    await client.query('BEGIN');
     try {
         if (!res.rows[0].b) {
             await client.query(`
@@ -257,9 +257,10 @@ SELECT "data"->>'_key',
           FROM jsonb_object_keys("data" - 'expireAt')) = 2
    AND (("data" ? 'value')
      OR ("data" ? 'data'))`);
-                await client.query(`DROP TABLE "objects" CASCADE`);
-                await client.query(`DROP FUNCTION "fun__objects__expireAt"() CASCADE`);
+                await client.query('DROP TABLE "objects" CASCADE');
+                await client.query('DROP FUNCTION "fun__objects__expireAt"() CASCADE');
             }
+
             await client.query(`
 CREATE VIEW "legacy_object_live" AS
 SELECT "_key", "type"
@@ -282,11 +283,12 @@ STABLE
 STRICT
 PARALLEL SAFE`);
         }
-    } catch (ex) {
-        await client.query(`ROLLBACK`);
-        throw ex;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
     }
-    await client.query(`COMMIT`);
+
+    await client.query('COMMIT');
 }
 
 postgresModule.createSessionStore = async function (options) {
@@ -335,13 +337,14 @@ postgresModule.createIndices = function (callback) {
 
     winston.info('[database] Checking database indices.');
     async.series([
-        async.apply(query, `CREATE INDEX IF NOT EXISTS "idx__legacy_zset__key__score" ON "legacy_zset"("_key" ASC, "score" DESC)`),
-        async.apply(query, `CREATE INDEX IF NOT EXISTS "idx__legacy_object__expireAt" ON "legacy_object"("expireAt" ASC)`),
-    ], (err) => {
-        if (err) {
-            winston.error(`Error creating index ${err.message}`);
-            return callback(err);
+        async.apply(query, 'CREATE INDEX IF NOT EXISTS "idx__legacy_zset__key__score" ON "legacy_zset"("_key" ASC, "score" DESC)'),
+        async.apply(query, 'CREATE INDEX IF NOT EXISTS "idx__legacy_object__expireAt" ON "legacy_object"("expireAt" ASC)'),
+    ], (error) => {
+        if (error) {
+            winston.error(`Error creating index ${error.message}`);
+            return callback(error);
         }
+
         winston.info('[database] Checking database indices done!');
         callback();
     });
@@ -364,6 +367,7 @@ postgresModule.info = async function (db) {
     if (!db) {
         db = await connection.connect(nconf.get('postgres'));
     }
+
     postgresModule.pool = postgresModule.pool || db;
     const res = await db.query(`
         SELECT true "postgres",

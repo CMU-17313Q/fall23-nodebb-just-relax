@@ -1,30 +1,32 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const categories = require('../categories');
 const plugins = require('../plugins');
 
 module.exports = function (User) {
     User.setCategoryWatchState = async function (uid, cids, state) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return;
         }
-        const isStateValid = Object.values(categories.watchStates).includes(parseInt(state, 10));
+
+        const isStateValid = Object.values(categories.watchStates).includes(Number.parseInt(state, 10));
         if (!isStateValid) {
             throw new Error('[[error:invalid-watch-state]]');
         }
+
         cids = Array.isArray(cids) ? cids : [cids];
         const exists = await categories.exists(cids);
         if (exists.includes(false)) {
             throw new Error('[[error:no-category]]');
         }
+
         await db.sortedSetsAdd(cids.map(cid => `cid:${cid}:uid:watch:state`), state, uid);
     };
 
     User.getCategoryWatchState = async function (uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return {};
         }
 
@@ -34,33 +36,36 @@ module.exports = function (User) {
     };
 
     User.getIgnoredCategories = async function (uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return [];
         }
+
         const cids = await User.getCategoriesByStates(uid, [categories.watchStates.ignoring]);
         const result = await plugins.hooks.fire('filter:user.getIgnoredCategories', {
-            uid: uid,
-            cids: cids,
+            uid,
+            cids,
         });
         return result.cids;
     };
 
     User.getWatchedCategories = async function (uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return [];
         }
+
         const cids = await User.getCategoriesByStates(uid, [categories.watchStates.watching]);
         const result = await plugins.hooks.fire('filter:user.getWatchedCategories', {
-            uid: uid,
-            cids: cids,
+            uid,
+            cids,
         });
         return result.cids;
     };
 
     User.getCategoriesByStates = async function (uid, states) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return await categories.getAllCidsFromSet('categories:cid');
         }
+
         const cids = await categories.getAllCidsFromSet('categories:cid');
         const userState = await categories.getWatchState(cids, uid);
         return cids.filter((cid, index) => states.includes(userState[index]));

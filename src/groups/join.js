@@ -1,7 +1,6 @@
 'use strict';
 
 const winston = require('winston');
-
 const db = require('../database');
 const user = require('../user');
 const plugins = require('../plugins');
@@ -12,9 +11,11 @@ module.exports = function (Groups) {
         if (!groupNames) {
             throw new Error('[[error:invalid-data]]');
         }
-        if (Array.isArray(groupNames) && !groupNames.length) {
+
+        if (Array.isArray(groupNames) && groupNames.length === 0) {
             return;
         }
+
         if (!Array.isArray(groupNames)) {
             groupNames = [groupNames];
         }
@@ -32,9 +33,10 @@ module.exports = function (Groups) {
         const groupsToCreate = groupNames.filter((groupName, index) => groupName && !exists[index]);
         const groupsToJoin = groupNames.filter((groupName, index) => !isMembers[index]);
 
-        if (!groupsToJoin.length) {
+        if (groupsToJoin.length === 0) {
             return;
         }
+
         await createNonExistingGroups(groupsToCreate);
 
         const promises = [
@@ -53,11 +55,11 @@ module.exports = function (Groups) {
         const groupData = await Groups.getGroupsFields(groupsToJoin, ['name', 'hidden', 'memberCount']);
         const visibleGroups = groupData.filter(groupData => groupData && !groupData.hidden);
 
-        if (visibleGroups.length) {
+        if (visibleGroups.length > 0) {
             await db.sortedSetAdd(
                 'groups:visible:memberCount',
                 visibleGroups.map(groupData => groupData.memberCount),
-                visibleGroups.map(groupData => groupData.name)
+                visibleGroups.map(groupData => groupData.name),
             );
         }
 
@@ -65,12 +67,12 @@ module.exports = function (Groups) {
 
         plugins.hooks.fire('action:group.join', {
             groupNames: groupsToJoin,
-            uid: uid,
+            uid,
         });
     };
 
     async function createNonExistingGroups(groupsToCreate) {
-        if (!groupsToCreate.length) {
+        if (groupsToCreate.length === 0) {
             return;
         }
 
@@ -81,21 +83,21 @@ module.exports = function (Groups) {
                     name: groupName,
                     hidden: 1,
                 });
-            } catch (err) {
-                if (err && err.message !== '[[error:group-already-exists]]') {
-                    winston.error(`[groups.join] Could not create new hidden group (${groupName})\n${err.stack}`);
-                    throw err;
+            } catch (error) {
+                if (error && error.message !== '[[error:group-already-exists]]') {
+                    winston.error(`[groups.join] Could not create new hidden group (${groupName})\n${error.stack}`);
+                    throw error;
                 }
             }
         }
     }
 
     async function setGroupTitleIfNotSet(groupNames, uid) {
-        const ignore = ['registered-users', 'verified-users', 'unverified-users', Groups.BANNED_USERS];
+        const ignore = new Set(['registered-users', 'verified-users', 'unverified-users', Groups.BANNED_USERS]);
         groupNames = groupNames.filter(
-            groupName => !ignore.includes(groupName) && !Groups.isPrivilegeGroup(groupName)
+            groupName => !ignore.has(groupName) && !Groups.isPrivilegeGroup(groupName),
         );
-        if (!groupNames.length) {
+        if (groupNames.length === 0) {
             return;
         }
 

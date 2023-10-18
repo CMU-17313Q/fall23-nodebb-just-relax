@@ -3,11 +3,10 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
     name: 'Update global and user sound settings',
     timestamp: Date.UTC(2017, 1, 25),
-    method: function (callback) {
+    method(callback) {
         const meta = require('../../meta');
         const batch = require('../../batch');
 
@@ -21,16 +20,16 @@ module.exports = {
             function (cb) {
                 const keys = ['chat-incoming', 'chat-outgoing', 'notification'];
 
-                db.getObject('settings:sounds', (err, settings) => {
-                    if (err || !settings) {
-                        return cb(err);
+                db.getObject('settings:sounds', (error, settings) => {
+                    if (error || !settings) {
+                        return cb(error);
                     }
 
-                    keys.forEach((key) => {
+                    for (const key of keys) {
                         if (settings[key] && !settings[key].includes(' | ')) {
                             settings[key] = map[settings[key]] || '';
                         }
-                    });
+                    }
 
                     meta.configs.setMultiple(settings, cb);
                 });
@@ -40,18 +39,19 @@ module.exports = {
 
                 batch.processSortedSet('users:joindate', (ids, next) => {
                     async.each(ids, (uid, next) => {
-                        db.getObject(`user:${uid}:settings`, (err, settings) => {
-                            if (err || !settings) {
-                                return next(err);
+                        db.getObject(`user:${uid}:settings`, (error, settings) => {
+                            if (error || !settings) {
+                                return next(error);
                             }
+
                             const newSettings = {};
-                            keys.forEach((key) => {
+                            for (const key of keys) {
                                 if (settings[key] && !settings[key].includes(' | ')) {
                                     newSettings[key] = map[settings[key]] || '';
                                 }
-                            });
+                            }
 
-                            if (Object.keys(newSettings).length) {
+                            if (Object.keys(newSettings).length > 0) {
                                 db.setObject(`user:${uid}:settings`, newSettings, next);
                             } else {
                                 setImmediate(next);

@@ -6,7 +6,7 @@ const batch = require('../../batch');
 module.exports = {
     name: 'Remove flag reporters sorted set',
     timestamp: Date.UTC(2020, 6, 31),
-    method: async function () {
+    async method() {
         const { progress } = this;
         progress.total = await db.sortedSetCard('flags:datetime');
 
@@ -27,7 +27,7 @@ module.exports = {
             }));
         }, {
             batch: 500,
-            progress: progress,
+            progress,
         });
     },
 };

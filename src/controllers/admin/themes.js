@@ -1,8 +1,7 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-
+const path = require('node:path');
+const fs = require('node:fs');
 const file = require('../../file');
 const { paths } = require('../../constants');
 
@@ -10,19 +9,20 @@ const themesController = module.exports;
 
 const defaultScreenshotPath = path.join(__dirname, '../../../public/images/themes/default.png');
 
-themesController.get = async function (req, res, next) {
-    const themeDir = path.join(paths.themes, req.params.theme);
+themesController.get = async function (request, res, next) {
+    const themeDir = path.join(paths.themes, request.params.theme);
     const themeConfigPath = path.join(themeDir, 'theme.json');
 
     let themeConfig;
     try {
         themeConfig = await fs.promises.readFile(themeConfigPath, 'utf8');
         themeConfig = JSON.parse(themeConfig);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            return next(Error('invalid-data'));
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return next(new Error('invalid-data'));
         }
-        return next(err);
+
+        return next(error);
     }
 
     const screenshotPath = themeConfig.screenshot ? path.join(themeDir, themeConfig.screenshot) : defaultScreenshotPath;

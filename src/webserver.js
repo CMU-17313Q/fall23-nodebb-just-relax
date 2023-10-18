@@ -1,10 +1,10 @@
 
 'use strict';
 
-const fs = require('fs');
-const util = require('util');
-const path = require('path');
-const os = require('os');
+const fs = require('node:fs');
+const util = require('node:util');
+const path = require('node:path');
+const os = require('node:os');
 const nconf = require('nconf');
 const express = require('express');
 const chalk = require('chalk');
@@ -21,7 +21,6 @@ const useragent = require('express-useragent');
 const favicon = require('serve-favicon');
 const detector = require('spider-detector');
 const helmet = require('helmet');
-
 const Benchpress = require('benchpressjs');
 const db = require('./database');
 const analytics = require('./analytics');
@@ -35,32 +34,31 @@ const topicEvents = require('./topics/events');
 const privileges = require('./privileges');
 const routes = require('./routes');
 const auth = require('./routes/authentication');
-
 const helpers = require('./helpers');
 
 if (nconf.get('ssl')) {
-    server = require('https').createServer({
+    server = require('node:https').createServer({
         key: fs.readFileSync(nconf.get('ssl').key),
         cert: fs.readFileSync(nconf.get('ssl').cert),
     }, app);
 } else {
-    server = require('http').createServer(app);
+    server = require('node:http').createServer(app);
 }
 
 module.exports.server = server;
 module.exports.app = app;
 
-server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        winston.error(`NodeBB address in use, exiting...\n${err.stack}`);
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        winston.error(`NodeBB address in use, exiting...\n${error.stack}`);
     } else {
-        winston.error(err.stack);
+        winston.error(error.stack);
     }
 
-    throw err;
+    throw error;
 });
 
-// see https://github.com/isaacs/server-destroy/blob/master/index.js
+// See https://github.com/isaacs/server-destroy/blob/master/index.js
 const connections = {};
 server.on('connection', (conn) => {
     const key = `${conn.remoteAddress}:${conn.remotePort}`;
@@ -101,8 +99,8 @@ async function initializeNodeBB() {
     await plugins.init(app, middleware);
     await plugins.hooks.fire('static:assets.prepare', {});
     await plugins.hooks.fire('static:app.preload', {
-        app: app,
-        middleware: middleware,
+        app,
+        middleware,
     });
     await routes(app, middleware);
     await privileges.init();
@@ -140,11 +138,13 @@ function setupExpressApp(app) {
         const compression = require('compression');
         app.use(compression());
     }
+
     if (relativePath) {
-        app.use((req, res, next) => {
-            if (!req.path.startsWith(relativePath)) {
-                return require('./controllers/helpers').redirect(res, req.path);
+        app.use((request, res, next) => {
+            if (!request.path.startsWith(relativePath)) {
+                return require('./controllers/helpers').redirect(res, request.path);
             }
+
             next();
         });
     }
@@ -176,10 +176,10 @@ function setupExpressApp(app) {
     app.use(middleware.processRender);
     auth.initialize(app, middleware);
     const als = require('./als');
-    app.use((req, res, next) => {
-        als.run({ uid: req.uid }, next);
+    app.use((request, res, next) => {
+        als.run({ uid: request.uid }, next);
     });
-    app.use(middleware.autoLocale); // must be added after auth middlewares are added
+    app.use(middleware.autoLocale); // Must be added after auth middlewares are added
 
     const toobusy = require('toobusy-js');
     toobusy.maxLag(meta.config.eventLoopLagThreshold);
@@ -188,7 +188,7 @@ function setupExpressApp(app) {
 
 function setupHelmet(app) {
     const options = {
-        contentSecurityPolicy: false, // defaults are too restrive and break plugins that load external assets... 🔜
+        contentSecurityPolicy: false, // Defaults are too restrive and break plugins that load external assets... 🔜
         crossOriginOpenerPolicy: { policy: meta.config['cross-origin-opener-policy'] },
         crossOriginResourcePolicy: { policy: meta.config['cross-origin-resource-policy'] },
         referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
@@ -197,17 +197,17 @@ function setupHelmet(app) {
     if (!meta.config['cross-origin-embedder-policy']) {
         options.crossOriginEmbedderPolicy = false;
     }
+
     if (meta.config['hsts-enabled']) {
         options.hsts = {
             maxAge: meta.config['hsts-maxage'],
-            includeSubDomains: !!meta.config['hsts-subdomains'],
-            preload: !!meta.config['hsts-preload'],
+            includeSubDomains: Boolean(meta.config['hsts-subdomains']),
+            preload: Boolean(meta.config['hsts-preload']),
         };
     }
 
     app.use(helmet(options));
 }
-
 
 function setupFavicon(app) {
     let faviconPath = meta.config['brand:favicon'] || 'favicon.ico';
@@ -218,14 +218,15 @@ function setupFavicon(app) {
 }
 
 function configureBodyParser(app) {
-    const urlencodedOpts = nconf.get('bodyParser:urlencoded') || {};
-    if (!urlencodedOpts.hasOwnProperty('extended')) {
-        urlencodedOpts.extended = true;
+    const urlencodedOptions = nconf.get('bodyParser:urlencoded') || {};
+    if (!urlencodedOptions.hasOwnProperty('extended')) {
+        urlencodedOptions.extended = true;
     }
-    app.use(bodyParser.urlencoded(urlencodedOpts));
 
-    const jsonOpts = nconf.get('bodyParser:json') || {};
-    app.use(bodyParser.json(jsonOpts));
+    app.use(bodyParser.urlencoded(urlencodedOptions));
+
+    const jsonOptions = nconf.get('bodyParser:json') || {};
+    app.use(bodyParser.json(jsonOptions));
 }
 
 function setupCookie() {
@@ -242,7 +243,7 @@ async function listen() {
     const socketPath = isSocket ? nconf.get('port') : '';
 
     if (Array.isArray(port)) {
-        if (!port.length) {
+        if (port.length === 0) {
             winston.error('[startup] empty ports array in config.json');
             process.exit();
         }
@@ -255,7 +256,8 @@ async function listen() {
             process.exit();
         }
     }
-    port = parseInt(port, 10);
+
+    port = Number.parseInt(port, 10);
     if ((port !== 80 && port !== 443) || nconf.get('trust_proxy') === true) {
         winston.info('🤝 Enabling \'trust proxy\'');
         app.enable('trust proxy');
@@ -273,18 +275,18 @@ async function listen() {
         oldUmask = process.umask('0000');
         try {
             await exports.testSocket(socketPath);
-        } catch (err) {
-            winston.error(`[startup] NodeBB was unable to secure domain socket access (${socketPath})\n${err.stack}`);
-            throw err;
+        } catch (error) {
+            winston.error(`[startup] NodeBB was unable to secure domain socket access (${socketPath})\n${error.stack}`);
+            throw error;
         }
     }
 
     return new Promise((resolve, reject) => {
-        server.listen(...args.concat([function (err) {
+        server.listen(...args, (error) => {
             const onText = `${isSocket ? socketPath : `${bind_address}:${port}`}`;
-            if (err) {
+            if (error) {
                 winston.error(`[startup] NodeBB was unable to listen on: ${chalk.yellow(onText)}`);
-                reject(err);
+                reject(error);
             }
 
             winston.info(`📡 NodeBB is now listening on: ${chalk.yellow(onText)}`);
@@ -292,30 +294,38 @@ async function listen() {
             if (oldUmask) {
                 process.umask(oldUmask);
             }
+
             resolve();
-        }]));
+        });
     });
 }
 
 exports.testSocket = async function (socketPath) {
     if (typeof socketPath !== 'string') {
-        throw new Error(`invalid socket path : ${socketPath}`);
+        throw new TypeError(`invalid socket path : ${socketPath}`);
     }
-    const net = require('net');
+
+    const net = require('node:net');
     const file = require('./file');
     const exists = await file.exists(socketPath);
     if (!exists) {
         return;
     }
+
     return new Promise((resolve, reject) => {
         const testSocket = new net.Socket();
-        testSocket.on('error', (err) => {
-            if (err.code !== 'ECONNREFUSED') {
-                return reject(err);
+        testSocket.on('error', (error) => {
+            if (error.code !== 'ECONNREFUSED') {
+                return reject(error);
             }
+
             // The socket was stale, kick it out of the way
-            fs.unlink(socketPath, (err) => {
-                if (err) reject(err); else resolve();
+            fs.unlink(socketPath, (error) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
             });
         });
         testSocket.connect({ path: socketPath }, () => {

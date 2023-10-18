@@ -2,21 +2,20 @@
 
 const express = require('express');
 const nconf = require('nconf');
-
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require('node:fs').promises;
+const path = require('node:path');
 
 module.exports = function (app) {
     const router = express.Router();
 
-    router.get('/test', async (req, res) => {
+    router.get('/test', async (request, res) => {
         res.redirect(404);
     });
 
     // Redoc
-    router.get('/spec/:type', async (req, res, next) => {
+    router.get('/spec/:type', async (request, res, next) => {
         const types = ['read', 'write'];
-        const { type } = req.params;
+        const { type } = request.params;
         if (!types.includes(type)) {
             return next();
         }

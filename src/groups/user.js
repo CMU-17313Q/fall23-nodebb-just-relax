@@ -10,6 +10,7 @@ module.exports = function (Groups) {
         if (fields) {
             return await user.getUsersFields(uids, fields);
         }
+
         return await user.getUsersData(uids);
     };
 
@@ -54,7 +55,7 @@ module.exports = function (Groups) {
 
         let inviteGroups = [];
         if (isAdmin) {
-            inviteGroups = inviteGroups.concat(adminModGroups).concat(privateGroups);
+            inviteGroups = [...inviteGroups, ...adminModGroups].concat(privateGroups);
         } else if (isGlobalMod) {
             inviteGroups = inviteGroups.concat(privateGroups);
         } else {

@@ -62,11 +62,8 @@ Groups.isPrivilegeGroup = function (groupName) {
 
 Groups.getGroupsFromSet = async function (set, start, stop) {
     let groupNames;
-    if (set === 'groups:visible:name') {
-        groupNames = await db.getSortedSetRangeByLex(set, '-', '+', start, stop - start + 1);
-    } else {
-        groupNames = await db.getSortedSetRevRange(set, start, stop);
-    }
+    groupNames = await (set === 'groups:visible:name' ? db.getSortedSetRangeByLex(set, '-', '+', start, stop - start + 1) : db.getSortedSetRevRange(set, start, stop));
+
     if (set === 'groups:visible:name') {
         groupNames = groupNames.map(name => name.split(':')[1]);
     }
@@ -81,6 +78,7 @@ Groups.getGroupsBySort = async function (sort, start, stop) {
     } else if (sort === 'date') {
         set = 'groups:visible:createtime';
     }
+
     return await Groups.getGroupsFromSet(set, start, stop);
 };
 
@@ -100,12 +98,13 @@ Groups.getGroupsAndMembers = async function (groupNames) {
         Groups.getGroupsData(groupNames),
         Groups.getMemberUsers(groupNames, 0, 9),
     ]);
-    groups.forEach((group, index) => {
+    for (const [index, group] of groups.entries()) {
         if (group) {
             group.members = members[index] || [];
             group.truncated = group.memberCount > group.members.length;
         }
-    });
+    }
+
     return groups;
 };
 
@@ -117,7 +116,7 @@ Groups.get = async function (groupName, options) {
     let stop = -1;
 
     if (options.truncateUserList) {
-        stop = (parseInt(options.userListCount, 10) || 4) - 1;
+        stop = (Number.parseInt(options.userListCount, 10) || 4) - 1;
     }
 
     const [groupData, members, pending, invited, isMember, isPending, isInvited, isOwner] = await Promise.all([
@@ -134,6 +133,7 @@ Groups.get = async function (groupName, options) {
     if (!groupData) {
         return null;
     }
+
     const descriptionParsed = await plugins.hooks.fire('filter:parse.raw', String(groupData.description || ''));
     groupData.descriptionParsed = descriptionParsed;
     groupData.members = members;
@@ -155,13 +155,13 @@ Groups.getOwners = async function (groupName) {
 Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
     const ownerUids = await db.getSetMembers(`group:${groupName}:owners`);
     const countToReturn = stop - start + 1;
-    const ownerUidsOnPage = ownerUids.slice(start, stop !== -1 ? stop + 1 : undefined);
+    const ownerUidsOnPage = ownerUids.slice(start, stop === -1 ? undefined : stop + 1);
     const owners = await user.getUsers(ownerUidsOnPage, uid);
-    owners.forEach((user) => {
+    for (const user of owners) {
         if (user) {
             user.isOwner = true;
         }
-    });
+    }
 
     let done = false;
     let returnUsers = owners;
@@ -171,9 +171,10 @@ Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
     memberStop = Math.max(0, memberStop);
     async function addMembers(start, stop) {
         let batch = await user.getUsersFromSet(`group:${groupName}:members`, uid, start, stop);
-        if (!batch.length) {
+        if (batch.length === 0) {
             done = true;
         }
+
         batch = batch.filter(user => user && user.uid && !ownerUids.includes(user.uid.toString()));
         returnUsers = returnUsers.concat(batch);
     }
@@ -188,12 +189,13 @@ Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
             memberStop = memberStart + countToReturn - 1;
         }
     }
+
     returnUsers = countToReturn > 0 ? returnUsers.slice(0, countToReturn) : returnUsers;
     const result = await plugins.hooks.fire('filter:group.getOwnersAndMembers', {
         users: returnUsers,
-        uid: uid,
-        start: start,
-        stop: stop,
+        uid,
+        start,
+        stop,
     });
     return result.users;
 };
@@ -204,6 +206,7 @@ Groups.getByGroupslug = async function (slug, options) {
     if (!groupName) {
         throw new Error('[[error:no-group]]');
     }
+
     return await Groups.get(groupName, options);
 };
 
@@ -221,7 +224,7 @@ Groups.isHidden = async function (groupName) {
 
 async function isFieldOn(groupName, field) {
     const value = await db.getObjectField(`group:${groupName}`, field);
-    return parseInt(value, 10) === 1;
+    return Number.parseInt(value, 10) === 1;
 }
 
 Groups.exists = async function (name) {
@@ -231,6 +234,7 @@ Groups.exists = async function (name) {
         const isMembersOfEphemeralGroups = slugs.map(slug => Groups.ephemeralGroups.includes(slug));
         return name.map((n, index) => isMembersOfRealGroups[index] || isMembersOfEphemeralGroups[index]);
     }
+
     const slug = slugify(name);
     const isMemberOfRealGroups = await db.isSortedSetMember('groups:createtime', name);
     const isMemberOfEphemeralGroups = Groups.ephemeralGroups.includes(slug);
@@ -241,6 +245,7 @@ Groups.existsBySlug = async function (slug) {
     if (Array.isArray(slug)) {
         return await db.isObjectFields('groupslug:groupname', slug);
     }
+
     return await db.isObjectField('groupslug:groupname', slug);
 };
 

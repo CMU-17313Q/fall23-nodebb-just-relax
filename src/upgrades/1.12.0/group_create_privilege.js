@@ -5,9 +5,9 @@ const privileges = require('../../privileges');
 module.exports = {
     name: 'Group create global privilege',
     timestamp: Date.UTC(2019, 0, 4),
-    method: function (callback) {
+    method(callback) {
         const meta = require('../../meta');
-        if (parseInt(meta.config.allowGroupCreation, 10) === 1) {
+        if (Number.parseInt(meta.config.allowGroupCreation, 10) === 1) {
             privileges.global.give(['groups:group:create'], 'registered-users', callback);
         } else {
             setImmediate(callback);

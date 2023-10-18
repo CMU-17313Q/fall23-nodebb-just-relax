@@ -1,8 +1,8 @@
 'use strict';
 
+const util = require('node:util');
 const winston = require('winston');
 const validator = require('validator');
-const util = require('util');
 const _ = require('lodash');
 const db = require('../database');
 const meta = require('../meta');
@@ -14,17 +14,20 @@ module.exports = function (User) {
     User.auth = {};
 
     User.auth.logAttempt = async function (uid, ip) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return;
         }
+
         const exists = await db.exists(`lockout:${uid}`);
         if (exists) {
             throw new Error('[[error:account-locked]]');
         }
+
         const attempts = await db.increment(`loginAttempts:${uid}`);
         if (attempts <= meta.config.loginAttempts) {
             return await db.pexpire(`loginAttempts:${uid}`, 1000 * 60 * 60);
         }
+
         // Lock out the account
         await db.set(`lockout:${uid}`, '');
         const duration = 1000 * 60 * meta.config.lockoutDuration;
@@ -33,21 +36,23 @@ module.exports = function (User) {
         await db.pexpire(`lockout:${uid}`, duration);
         await events.log({
             type: 'account-locked',
-            uid: uid,
-            ip: ip,
+            uid,
+            ip,
         });
         throw new Error('[[error:account-locked]]');
     };
 
     User.auth.getFeedToken = async function (uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return;
         }
+
         const _token = await db.getObjectField(`user:${uid}`, 'rss_token');
         const token = _token || utils.generateUUID();
         if (!_token) {
             await User.setUserField(uid, 'rss_token', token);
         }
+
         return token;
     };
 
@@ -63,23 +68,24 @@ module.exports = function (User) {
     };
 
     const getSessionFromStore = util.promisify(
-        (sid, callback) => db.sessionStore.get(sid, (err, sessObj) => callback(err, sessObj || null))
+        (sid, callback) => db.sessionStore.get(sid, (error, sessObject) => callback(error, sessObject || null)),
     );
     const sessionStoreDestroy = util.promisify(
-        (sid, callback) => db.sessionStore.destroy(sid, err => callback(err))
+        (sid, callback) => db.sessionStore.destroy(sid, error => callback(error)),
     );
 
     User.auth.getSessions = async function (uid, curSessionId) {
         await cleanExpiredSessions(uid);
         const sids = await db.getSortedSetRevRange(`uid:${uid}:sessions`, 0, 19);
         let sessions = await Promise.all(sids.map(sid => getSessionFromStore(sid)));
-        sessions = sessions.map((sessObj, idx) => {
-            if (sessObj && sessObj.meta) {
-                sessObj.meta.current = curSessionId === sids[idx];
-                sessObj.meta.datetimeISO = new Date(sessObj.meta.datetime).toISOString();
-                sessObj.meta.ip = validator.escape(String(sessObj.meta.ip));
+        sessions = sessions.map((sessObject, idx) => {
+            if (sessObject && sessObject.meta) {
+                sessObject.meta.current = curSessionId === sids[idx];
+                sessObject.meta.datetimeISO = new Date(sessObject.meta.datetime).toISOString();
+                sessObject.meta.ip = validator.escape(String(sessObject.meta.ip));
             }
-            return sessObj && sessObj.meta;
+
+            return sessObject && sessObject.meta;
         }).filter(Boolean);
         return sessions;
     };
@@ -89,14 +95,15 @@ module.exports = function (User) {
         if (!uuidMapping) {
             return;
         }
+
         const expiredUUIDs = [];
         const expiredSids = [];
         await Promise.all(Object.keys(uuidMapping).map(async (uuid) => {
             const sid = uuidMapping[uuid];
-            const sessionObj = await getSessionFromStore(sid);
-            const expired = !sessionObj || !sessionObj.hasOwnProperty('passport') ||
-                !sessionObj.passport.hasOwnProperty('user') ||
-                parseInt(sessionObj.passport.user, 10) !== parseInt(uid, 10);
+            const sessionObject = await getSessionFromStore(sid);
+            const expired = !sessionObject || !sessionObject.hasOwnProperty('passport') ||
+                !sessionObject.passport.hasOwnProperty('user') ||
+                Number.parseInt(sessionObject.passport.user, 10) !== Number.parseInt(uid, 10);
             if (expired) {
                 expiredUUIDs.push(uuid);
                 expiredSids.push(sid);
@@ -107,9 +114,10 @@ module.exports = function (User) {
     }
 
     User.auth.addSession = async function (uid, sessionId) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return;
         }
+
         await cleanExpiredSessions(uid);
         await db.sortedSetAdd(`uid:${uid}:sessions`, Date.now(), sessionId);
         await revokeSessionsAboveThreshold(uid, meta.config.maxUserSessions);
@@ -125,10 +133,11 @@ module.exports = function (User) {
 
     User.auth.revokeSession = async function (sessionId, uid) {
         winston.verbose(`[user.auth] Revoking session ${sessionId} for user ${uid}`);
-        const sessionObj = await getSessionFromStore(sessionId);
-        if (sessionObj && sessionObj.meta && sessionObj.meta.uuid) {
-            await db.deleteObjectField(`uid:${uid}:sessionUUID:sessionId`, sessionObj.meta.uuid);
+        const sessionObject = await getSessionFromStore(sessionId);
+        if (sessionObject && sessionObject.meta && sessionObject.meta.uuid) {
+            await db.deleteObjectField(`uid:${uid}:sessionUUID:sessionId`, sessionObject.meta.uuid);
         }
+
         await Promise.all([
             db.sortedSetRemove(`uid:${uid}:sessions`, sessionId),
             sessionStoreDestroy(sessionId),
@@ -139,12 +148,13 @@ module.exports = function (User) {
         uids = Array.isArray(uids) ? uids : [uids];
         const sids = await db.getSortedSetsMembers(uids.map(uid => `uid:${uid}:sessions`));
         const promises = [];
-        uids.forEach((uid, index) => {
+        for (const [index, uid] of uids.entries()) {
             const ids = sids[index].filter(id => id !== except);
-            if (ids.length) {
+            if (ids.length > 0) {
                 promises.push(ids.map(s => User.auth.revokeSession(s, uid)));
             }
-        });
+        }
+
         await Promise.all(promises);
     };
 
@@ -152,7 +162,7 @@ module.exports = function (User) {
         await batch.processSortedSet('users:joindate', async (uids) => {
             const sessionKeys = uids.map(uid => `uid:${uid}:sessions`);
             const sessionUUIDKeys = uids.map(uid => `uid:${uid}:sessionUUID:sessionId`);
-            const sids = _.flatten(await db.getSortedSetRange(sessionKeys, 0, -1));
+            const sids = (await db.getSortedSetRange(sessionKeys, 0, -1)).flat();
 
             await Promise.all([
                 db.deleteAll(sessionKeys.concat(sessionUUIDKeys)),

@@ -31,6 +31,7 @@ module.exports = function (Posts) {
         if (!canDelete.flag) {
             throw new Error(canDelete.message);
         }
+
         let post;
         if (isDelete) {
             require('./cache').del(pid);
@@ -39,6 +40,7 @@ module.exports = function (Posts) {
             post = await Posts.restore(pid, uid);
             post = await Posts.parsePost(post);
         }
+
         return post;
     }
 };

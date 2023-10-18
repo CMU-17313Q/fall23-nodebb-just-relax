@@ -9,9 +9,11 @@ module.exports = function (module) {
         if (!Array.isArray(value)) {
             value = [value];
         }
-        if (!value.length) {
+
+        if (value.length === 0) {
             return;
         }
+
         await module.transaction(async (client) => {
             await helpers.ensureLegacyObjectType(client, key, 'set');
             await client.query({
@@ -28,7 +30,7 @@ DO NOTHING`,
     };
 
     module.setsAdd = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
@@ -74,7 +76,7 @@ DELETE FROM "legacy_set"
     };
 
     module.setsRemove = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
 
@@ -106,11 +108,11 @@ SELECT 1
             values: [key, value],
         });
 
-        return !!res.rows.length;
+        return res.rows.length > 0;
     };
 
     module.isSetMembers = async function (key, values) {
-        if (!key || !Array.isArray(values) || !values.length) {
+        if (!key || !Array.isArray(values) || values.length === 0) {
             return [];
         }
 
@@ -133,7 +135,7 @@ SELECT s."member" m
     };
 
     module.isMemberOfSets = async function (sets, value) {
-        if (!Array.isArray(sets) || !sets.length) {
+        if (!Array.isArray(sets) || sets.length === 0) {
             return [];
         }
 
@@ -176,7 +178,7 @@ SELECT s."member" m
     };
 
     module.getSetsMembers = async function (keys) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return [];
         }
 
@@ -214,7 +216,7 @@ SELECT COUNT(*) c
             values: [key],
         });
 
-        return parseInt(res.rows[0].c, 10);
+        return Number.parseInt(res.rows[0].c, 10);
     };
 
     module.setsCount = async function (keys) {
@@ -256,6 +258,6 @@ DELETE FROM "legacy_set" s
 RETURNING A."member" m`,
             values: [key],
         });
-        return res.rows.length ? res.rows[0].m : null;
+        return res.rows.length > 0 ? res.rows[0].m : null;
     };
 };

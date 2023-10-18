@@ -5,10 +5,10 @@ const db = require('../../database');
 module.exports = {
     name: 'Add default settings for notification delivery types',
     timestamp: Date.UTC(2018, 1, 14),
-    method: async function () {
+    async method() {
         const config = await db.getObject('config');
-        const postNotifications = parseInt(config.sendPostNotifications, 10) === 1 ? 'notification' : 'none';
-        const chatNotifications = parseInt(config.sendChatNotifications, 10) === 1 ? 'notification' : 'none';
+        const postNotifications = Number.parseInt(config.sendPostNotifications, 10) === 1 ? 'notification' : 'none';
+        const chatNotifications = Number.parseInt(config.sendChatNotifications, 10) === 1 ? 'notification' : 'none';
         await db.setObject('config', {
             notificationType_upvote: config.notificationType_upvote || 'notification',
             'notificationType_new-topic': config['notificationType_new-topic'] || 'notification',

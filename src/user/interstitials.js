@@ -1,14 +1,13 @@
 'use strict';
 
+const util = require('node:util');
 const winston = require('winston');
-const util = require('util');
-
-const user = require('.');
 const db = require('../database');
 const meta = require('../meta');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
 const utils = require('../utils');
+const user = require('.');
 
 const sleep = util.promisify(setTimeout);
 
@@ -18,6 +17,7 @@ Interstitials.email = async (data) => {
     if (!data.userData) {
         throw new Error('[[error:invalid-data]]');
     }
+
     if (!data.userData.updateEmail) {
         return data;
     }
@@ -37,9 +37,9 @@ Interstitials.email = async (data) => {
         data: {
             email,
             requireEmailAddress: meta.config.requireEmailAddress,
-            issuePasswordChallenge: !!data.userData.uid && hasPassword,
+            issuePasswordChallenge: Boolean(data.userData.uid) && hasPassword,
         },
-        callback: async (userData, formData) => {
+        async callback(userData, formData) {
             // Validate and send email confirmation
             if (userData.uid) {
                 const [isPasswordCorrect, canEdit, { email: current, 'email:confirmed': confirmed }, { allowed, error }] = await Promise.all([
@@ -50,7 +50,7 @@ Interstitials.email = async (data) => {
                         uid: userData.uid,
                         email: formData.email,
                         registration: false,
-                        allowed: true, // change this value to disallow
+                        allowed: true, // Change this value to disallow
                         error: '[[error:invalid-email]]',
                     }),
                 ]);
@@ -59,7 +59,7 @@ Interstitials.email = async (data) => {
                     await sleep(2000);
                 }
 
-                if (formData.email && formData.email.length) {
+                if (formData.email && formData.email.length > 0) {
                     if (!allowed || !utils.isEmailValid(formData.email)) {
                         throw new Error(error);
                     }
@@ -85,8 +85,8 @@ Interstitials.email = async (data) => {
                         await user.email.sendValidationEmail(userData.uid, {
                             email: formData.email,
                             force: true,
-                        }).catch((err) => {
-                            winston.error(`[user.interstitials.email] Validation email failed to send\n[emailer.send] ${err.stack}`);
+                        }).catch((error_) => {
+                            winston.error(`[user.interstitials.email] Validation email failed to send\n[emailer.send] ${error_.stack}`);
                         });
                         data.req.session.emailChanged = 1;
                     } else {
@@ -98,7 +98,7 @@ Interstitials.email = async (data) => {
                         throw new Error('[[error:invalid-email]]');
                     }
 
-                    if (current.length && (!hasPassword || (hasPassword && isPasswordCorrect) || isAdminOrGlobalMod)) {
+                    if (current.length > 0 && (!hasPassword || (hasPassword && isPasswordCorrect) || isAdminOrGlobalMod)) {
                         // User explicitly clearing their email
                         await user.email.remove(userData.uid, data.req.session.id);
                     }
@@ -108,11 +108,11 @@ Interstitials.email = async (data) => {
                     uid: null,
                     email: formData.email,
                     registration: true,
-                    allowed: true, // change this value to disallow
+                    allowed: true, // Change this value to disallow
                     error: '[[error:invalid-email]]',
                 });
 
-                if (!allowed || (meta.config.requireEmailAddress && !(formData.email && formData.email.length))) {
+                if (!allowed || (meta.config.requireEmailAddress && !(formData.email && formData.email.length > 0))) {
                     throw new Error(error);
                 }
 
@@ -131,13 +131,14 @@ Interstitials.gdpr = async function (data) {
     if (!meta.config.gdpr_enabled || (data.userData && data.userData.gdpr_consent)) {
         return data;
     }
+
     if (!data.userData) {
         throw new Error('[[error:invalid-data]]');
     }
 
     if (data.userData.uid) {
         const consented = await db.getObjectField(`user:${data.userData.uid}`, 'gdpr_consent');
-        if (parseInt(consented, 10)) {
+        if (Number.parseInt(consented, 10)) {
             return data;
         }
     }
@@ -148,7 +149,7 @@ Interstitials.gdpr = async function (data) {
             digestFrequency: meta.config.dailyDigestFreq,
             digestEnabled: meta.config.dailyDigestFreq !== 'off',
         },
-        callback: function (userData, formData, next) {
+        callback(userData, formData, next) {
             if (formData.gdpr_agree_data === 'on' && formData.gdpr_agree_email === 'on') {
                 userData.gdpr_consent = true;
             }
@@ -163,14 +164,15 @@ Interstitials.tou = async function (data) {
     if (!data.userData) {
         throw new Error('[[error:invalid-data]]');
     }
+
     if (!meta.config.termsOfUse || data.userData.acceptTos) {
-        // no ToS or ToS accepted, nothing to do
+        // No ToS or ToS accepted, nothing to do
         return data;
     }
 
     if (data.userData.uid) {
         const accepted = await db.getObjectField(`user:${data.userData.uid}`, 'acceptTos');
-        if (parseInt(accepted, 10)) {
+        if (Number.parseInt(accepted, 10)) {
             return data;
         }
     }
@@ -186,7 +188,7 @@ Interstitials.tou = async function (data) {
         data: {
             termsOfUse: termsOfUse.postData.content,
         },
-        callback: function (userData, formData, next) {
+        callback(userData, formData, next) {
             if (formData['agree-terms'] === 'on') {
                 userData.acceptTos = true;
             }

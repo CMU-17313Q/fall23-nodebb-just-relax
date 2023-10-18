@@ -1,24 +1,24 @@
 'use strict';
 
 const validator = require('validator');
-
 const user = require('../user');
 const meta = require('../meta');
 const messaging = require('../messaging');
 const plugins = require('../plugins');
 
-// const websockets = require('../socket.io');
+// Const websockets = require('../socket.io');
 const socketHelpers = require('../socket.io/helpers');
 
 const chatsAPI = module.exports;
 
 function rateLimitExceeded(caller) {
-    const session = caller.request ? caller.request.session : caller.session; // socket vs req
+    const session = caller.request ? caller.request.session : caller.session; // Socket vs req
     const now = Date.now();
     session.lastChatMessageTime = session.lastChatMessageTime || 0;
     if (now - session.lastChatMessageTime < meta.config.chatMessageDelay) {
         return true;
     }
+
     session.lastChatMessageTime = now;
     return false;
 }
@@ -78,9 +78,10 @@ chatsAPI.users = async (caller, data) => {
         messaging.isRoomOwner(caller.uid, data.roomId),
         messaging.getUsersInRoom(data.roomId, 0, -1),
     ]);
-    users.forEach((user) => {
-        user.canKick = (parseInt(user.uid, 10) !== parseInt(caller.uid, 10)) && isOwner;
-    });
+    for (const user of users) {
+        user.canKick = (Number.parseInt(user.uid, 10) !== Number.parseInt(caller.uid, 10)) && isOwner;
+    }
+
     return { users };
 };
 
@@ -95,6 +96,7 @@ chatsAPI.invite = async (caller, data) => {
     if (!uidsExist.every(Boolean)) {
         throw new Error('[[error:no-user]]');
     }
+
     await Promise.all(data.uids.map(async uid => messaging.canMessageUser(caller.uid, uid)));
     await messaging.addUsersToRoom(caller.uid, data.uids, data.roomId);
 
@@ -109,11 +111,7 @@ chatsAPI.kick = async (caller, data) => {
     }
 
     // Additional checks if kicking vs leaving
-    if (data.uids.length === 1 && parseInt(data.uids[0], 10) === caller.uid) {
-        await messaging.leaveRoom([caller.uid], data.roomId);
-    } else {
-        await messaging.removeUsersFromRoom(caller.uid, data.uids, data.roomId);
-    }
+    await (data.uids.length === 1 && Number.parseInt(data.uids[0], 10) === caller.uid ? messaging.leaveRoom([caller.uid], data.roomId) : messaging.removeUsersFromRoom(caller.uid, data.uids, data.roomId));
 
     delete data.uids;
     return chatsAPI.users(caller, data);

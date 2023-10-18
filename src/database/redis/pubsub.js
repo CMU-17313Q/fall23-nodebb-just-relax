@@ -1,9 +1,9 @@
 'use strict';
 
+const util = require('node:util');
+const { EventEmitter } = require('node:events');
 const nconf = require('nconf');
-const util = require('util');
 const winston = require('winston');
-const { EventEmitter } = require('events');
 const connection = require('./connection');
 
 let channelName;
@@ -20,17 +20,20 @@ const PubSub = function () {
             }
 
             try {
-                const msg = JSON.parse(message);
-                self.emit(msg.event, msg.data);
-            } catch (err) {
-                winston.error(err.stack);
+                const message_ = JSON.parse(message);
+                self.emit(message_.event, message_.data);
+            } catch (error) {
+                winston.error(error.stack);
             }
         });
     });
 
     connection.connect().then((client) => {
         self.pubClient = client;
-        self.queue.forEach(payload => client.publish(channelName, payload));
+        for (const payload of self.queue) {
+            client.publish(channelName, payload);
+        }
+
         self.queue.length = 0;
     });
 };
@@ -38,7 +41,7 @@ const PubSub = function () {
 util.inherits(PubSub, EventEmitter);
 
 PubSub.prototype.publish = function (event, data) {
-    const payload = JSON.stringify({ event: event, data: data });
+    const payload = JSON.stringify({ event, data });
     if (this.pubClient) {
         this.pubClient.publish(channelName, payload);
     } else {

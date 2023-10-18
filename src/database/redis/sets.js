@@ -7,18 +7,24 @@ module.exports = function (module) {
         if (!Array.isArray(value)) {
             value = [value];
         }
-        if (!value.length) {
+
+        if (value.length === 0) {
             return;
         }
+
         await module.client.sadd(key, value);
     };
 
     module.setsAdd = async function (keys, value) {
-        if (!Array.isArray(keys) || !keys.length) {
+        if (!Array.isArray(keys) || keys.length === 0) {
             return;
         }
+
         const batch = module.client.batch();
-        keys.forEach(k => batch.sadd(String(k), String(value)));
+        for (const k of keys) {
+            batch.sadd(String(k), String(value));
+        }
+
         await helpers.execBatch(batch);
     };
 
@@ -26,21 +32,29 @@ module.exports = function (module) {
         if (!Array.isArray(value)) {
             value = [value];
         }
+
         if (!Array.isArray(key)) {
             key = [key];
         }
-        if (!value.length) {
+
+        if (value.length === 0) {
             return;
         }
 
         const batch = module.client.batch();
-        key.forEach(k => batch.srem(String(k), value));
+        for (const k of key) {
+            batch.srem(String(k), value);
+        }
+
         await helpers.execBatch(batch);
     };
 
     module.setsRemove = async function (keys, value) {
         const batch = module.client.batch();
-        keys.forEach(k => batch.srem(String(k), value));
+        for (const k of keys) {
+            batch.srem(String(k), value);
+        }
+
         await helpers.execBatch(batch);
     };
 
@@ -51,14 +65,20 @@ module.exports = function (module) {
 
     module.isSetMembers = async function (key, values) {
         const batch = module.client.batch();
-        values.forEach(v => batch.sismember(String(key), String(v)));
+        for (const v of values) {
+            batch.sismember(String(key), String(v));
+        }
+
         const results = await helpers.execBatch(batch);
         return results ? helpers.resultsToBool(results) : null;
     };
 
     module.isMemberOfSets = async function (sets, value) {
         const batch = module.client.batch();
-        sets.forEach(s => batch.sismember(String(s), String(value)));
+        for (const s of sets) {
+            batch.sismember(String(s), String(value));
+        }
+
         const results = await helpers.execBatch(batch);
         return results ? helpers.resultsToBool(results) : null;
     };
@@ -69,7 +89,10 @@ module.exports = function (module) {
 
     module.getSetsMembers = async function (keys) {
         const batch = module.client.batch();
-        keys.forEach(k => batch.smembers(String(k)));
+        for (const k of keys) {
+            batch.smembers(String(k));
+        }
+
         return await helpers.execBatch(batch);
     };
 
@@ -79,7 +102,10 @@ module.exports = function (module) {
 
     module.setsCount = async function (keys) {
         const batch = module.client.batch();
-        keys.forEach(k => batch.scard(String(k)));
+        for (const k of keys) {
+            batch.scard(String(k));
+        }
+
         return await helpers.execBatch(batch);
     };
 

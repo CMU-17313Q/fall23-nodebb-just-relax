@@ -1,9 +1,9 @@
 'use strict';
 
-const socketUser = require('./user');
-const socketGroup = require('./groups');
 const image = require('../image');
 const meta = require('../meta');
+const socketUser = require('./user');
+const socketGroup = require('./groups');
 
 const inProgress = {};
 
@@ -35,16 +35,18 @@ uploads.upload = async function (socket, data) {
         if (size > maxSize * 1024) {
             throw new Error(`[[error:file-too-big, ${maxSize}]]`);
         }
+
         if (socketUploads[method].imageData.length < data.params.size) {
             return;
         }
+
         data.params.imageData = socketUploads[method].imageData;
         const result = await methodToFunc[data.params.method](socket, data.params);
         delete socketUploads[method];
         return result;
-    } catch (err) {
+    } catch (error) {
         delete inProgress[socket.id];
-        throw err;
+        throw error;
     }
 };
 

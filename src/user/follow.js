@@ -14,22 +14,25 @@ module.exports = function (User) {
     };
 
     async function toggleFollow(type, uid, theiruid) {
-        if (parseInt(uid, 10) <= 0 || parseInt(theiruid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0 || Number.parseInt(theiruid, 10) <= 0) {
             throw new Error('[[error:invalid-uid]]');
         }
 
-        if (parseInt(uid, 10) === parseInt(theiruid, 10)) {
+        if (Number.parseInt(uid, 10) === Number.parseInt(theiruid, 10)) {
             throw new Error('[[error:you-cant-follow-yourself]]');
         }
+
         const exists = await User.exists(theiruid);
         if (!exists) {
             throw new Error('[[error:no-user]]');
         }
+
         const isFollowing = await User.isFollowing(uid, theiruid);
         if (type === 'follow') {
             if (isFollowing) {
                 throw new Error('[[error:already-following]]');
             }
+
             const now = Date.now();
             await Promise.all([
                 db.sortedSetAddBulk([
@@ -41,6 +44,7 @@ module.exports = function (User) {
             if (!isFollowing) {
                 throw new Error('[[error:not-following]]');
             }
+
             await Promise.all([
                 db.sortedSetRemoveBulk([
                     [`following:${uid}`, theiruid],
@@ -68,23 +72,25 @@ module.exports = function (User) {
     };
 
     async function getFollow(uid, type, start, stop) {
-        if (parseInt(uid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0) {
             return [];
         }
+
         const uids = await db.getSortedSetRevRange(`${type}:${uid}`, start, stop);
         const data = await plugins.hooks.fire(`filter:user.${type}`, {
-            uids: uids,
-            uid: uid,
-            start: start,
-            stop: stop,
+            uids,
+            uid,
+            start,
+            stop,
         });
         return await User.getUsers(data.uids, uid);
     }
 
     User.isFollowing = async function (uid, theirid) {
-        if (parseInt(uid, 10) <= 0 || parseInt(theirid, 10) <= 0) {
+        if (Number.parseInt(uid, 10) <= 0 || Number.parseInt(theirid, 10) <= 0) {
             return false;
         }
+
         return await db.isSortedSetMember(`following:${uid}`, theirid);
     };
 };

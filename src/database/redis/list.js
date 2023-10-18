@@ -7,6 +7,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         await module.client.lpush(key, value);
     };
 
@@ -14,6 +15,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         await module.client.rpush(key, value);
     };
 
@@ -21,6 +23,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         return await module.client.rpop(key);
     };
 
@@ -28,6 +31,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         if (Array.isArray(value)) {
             const batch = module.client.batch();
             value.forEach(value => batch.lrem(key, 0, value));
@@ -41,6 +45,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         await module.client.ltrim(key, start, stop);
     };
 
@@ -48,6 +53,7 @@ module.exports = function (module) {
         if (!key) {
             return;
         }
+
         return await module.client.lrange(key, start, stop);
     };
 

@@ -1,21 +1,20 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const sanitizeHTML = require('sanitize-html');
 const nconf = require('nconf');
 const winston = require('winston');
-
 const file = require('../file');
 const { Translator } = require('../translator');
 
 function filterDirectories(directories) {
     return directories.map(
-        // get the relative path
+        // Get the relative path
         // convert dir to use forward slashes
-        dir => dir.replace(/^.*(admin.*?).tpl$/, '$1').split(path.sep).join('/')
+        dir => dir.replace(/^.*(admin.*?).tpl$/, '$1').split(path.sep).join('/'),
     ).filter(
-        // exclude .js files
+        // Exclude .js files
         // exclude partials
         // only include subpaths
         // exclude category.tpl, group.tpl, category-analytics.tpl
@@ -24,7 +23,7 @@ function filterDirectories(directories) {
             !dir.includes('/partials/') &&
             /\/.*\//.test(dir) &&
             !/manage\/(category|group|category-analytics)$/.test(dir)
-        )
+        ),
     );
 }
 
@@ -34,7 +33,7 @@ async function getAdminNamespaces() {
 }
 
 function sanitize(html) {
-    // reduce the template to just meaningful text
+    // Reduce the template to just meaningful text
     // remove all tags and strip out scripts, etc completely
     return sanitizeHTML(html, {
         allowedTags: [],
@@ -44,16 +43,16 @@ function sanitize(html) {
 
 function simplify(translations) {
     return translations
-    // remove all mustaches
-        .replace(/(?:\{{1,2}[^}]*?\}{1,2})/g, '')
-    // collapse whitespace
-        .replace(/(?:[ \t]*[\n\r]+[ \t]*)+/g, '\n')
-        .replace(/[\t ]+/g, ' ');
+    // Remove all mustaches
+        .replaceAll(/(?:{{1,2}[^}]*?}{1,2})/g, '')
+    // Collapse whitespace
+        .replaceAll(/(?:[ \t]*[\n\r]+[ \t]*)+/g, '\n')
+        .replaceAll(/[\t ]+/g, ' ');
 }
 
 function nsToTitle(namespace) {
-    return namespace.replace('admin/', '').split('/').map(str => str[0].toUpperCase() + str.slice(1)).join(' > ')
-        .replace(/[^a-zA-Z> ]/g, ' ');
+    return namespace.replace('admin/', '').split('/').map(string_ => string_[0].toUpperCase() + string_.slice(1)).join(' > ')
+        .replaceAll(/[^a-zA-Z> ]/g, ' ');
 }
 
 const fallbackCache = {};
@@ -68,9 +67,9 @@ async function initFallback(namespace) {
     translations += `\n${title}`;
 
     return {
-        namespace: namespace,
-        translations: translations,
-        title: title,
+        namespace,
+        translations,
+        title,
     };
 }
 
@@ -79,9 +78,9 @@ async function fallback(namespace) {
         return fallbackCache[namespace];
     }
 
-    const params = await initFallback(namespace);
-    fallbackCache[namespace] = params;
-    return params;
+    const parameters = await initFallback(namespace);
+    fallbackCache[namespace] = parameters;
+    return parameters;
 }
 
 async function initDict(language) {
@@ -93,12 +92,13 @@ async function buildNamespace(language, namespace) {
     const translator = Translator.create(language);
     try {
         const translations = await translator.getTranslation(namespace);
-        if (!translations || !Object.keys(translations).length) {
+        if (!translations || Object.keys(translations).length === 0) {
             return await fallback(namespace);
         }
-        // join all translations into one string separated by newlines
-        let str = Object.keys(translations).map(key => translations[key]).join('\n');
-        str = sanitize(str);
+
+        // Join all translations into one string separated by newlines
+        let string_ = Object.keys(translations).map(key => translations[key]).join('\n');
+        string_ = sanitize(string_);
 
         let title = namespace;
         title = title.match(/admin\/(.+?)\/(.+?)$/);
@@ -109,14 +109,14 @@ async function buildNamespace(language, namespace) {
 
         title = await translator.translate(title);
         return {
-            namespace: namespace,
-            translations: `${str}\n${title}`,
-            title: title,
+            namespace,
+            translations: `${string_}\n${title}`,
+            title,
         };
-    } catch (err) {
-        winston.error(err.stack);
+    } catch (error) {
+        winston.error(error.stack);
         return {
-            namespace: namespace,
+            namespace,
             translations: '',
         };
     }
@@ -129,9 +129,9 @@ async function getDictionary(language) {
         return cache[language];
     }
 
-    const params = await initDict(language);
-    cache[language] = params;
-    return params;
+    const parameters = await initDict(language);
+    cache[language] = parameters;
+    return parameters;
 }
 
 module.exports.getDictionary = getDictionary;

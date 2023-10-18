@@ -1,7 +1,6 @@
 'use strict';
 
 const request = require('request');
-
 const meta = require('../meta');
 
 let versionCache = '';
@@ -21,11 +20,11 @@ function getLatestVersion(callback) {
 
     request('https://api.github.com/repos/NodeBB/NodeBB/releases/latest', {
         json: true,
-        headers: headers,
+        headers,
         timeout: 2000,
-    }, (err, res, latestRelease) => {
-        if (err) {
-            return callback(err);
+    }, (error, res, latestRelease) => {
+        if (error) {
+            return callback(error);
         }
 
         if (res.statusCode === 304) {
@@ -39,6 +38,7 @@ function getLatestVersion(callback) {
         if (!latestRelease || !latestRelease.tag_name) {
             return callback(new Error('[[error:cant-get-latest-release]]'));
         }
+
         const tagName = latestRelease.tag_name.replace(/^v/, '');
         versionCache = tagName;
         versionCacheLastModified = res.headers['last-modified'];

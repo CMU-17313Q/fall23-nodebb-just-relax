@@ -9,7 +9,7 @@ const now = Date.now();
 module.exports = {
     name: 'Move banned users to banned-users group',
     timestamp: Date.UTC(2020, 11, 13),
-    method: async function () {
+    async method() {
         const { progress } = this;
         const timestamp = await db.getObjectField('group:administrators', 'timestamp');
         const bannedExists = await groups.exists('banned-users');
@@ -31,7 +31,7 @@ module.exports = {
             await db.sortedSetAdd(
                 'group:banned-users:members',
                 uids.map(() => now),
-                uids
+                uids,
             );
 
             await db.sortedSetRemove(
@@ -41,13 +41,12 @@ module.exports = {
                     'group:unverified-users:members',
                     'group:Global Moderators:members',
                 ],
-                uids
+                uids,
             );
         }, {
             batch: 500,
             progress: this.progress,
         });
-
 
         const bannedCount = await db.sortedSetCard('group:banned-users:members');
         const registeredCount = await db.sortedSetCard('group:registered-users:members');

@@ -1,9 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs').promises;
-const assert = require('assert');
-
+const path = require('node:path');
+const fs = require('node:fs').promises;
+const assert = require('node:assert');
 const pkgInstall = require('../src/cli/package-install');
 
 describe('Package install lib', () => {
@@ -21,13 +20,13 @@ describe('Package install lib', () => {
 
         before(async () => {
             // Move `install/package.json` and `package.json` out of the way for now
-            await fs.copyFile(sourcePackagePath, path.resolve(__dirname, '../install/package.json.bak')); // safekeeping
-            await fs.copyFile(packageFilePath, path.resolve(__dirname, '../package.json.bak')); // safekeeping
+            await fs.copyFile(sourcePackagePath, path.resolve(__dirname, '../install/package.json.bak')); // Safekeeping
+            await fs.copyFile(packageFilePath, path.resolve(__dirname, '../package.json.bak')); // Safekeeping
         });
 
         beforeEach(async () => {
             await fs.copyFile(path.resolve(__dirname, '../install/package.json.bak'), sourcePackagePath);
-            await fs.copyFile(sourcePackagePath, packageFilePath); // match files for testing
+            await fs.copyFile(sourcePackagePath, packageFilePath); // Match files for testing
             source = JSON.parse(await fs.readFile(sourcePackagePath));
             current = JSON.parse(await fs.readFile(packageFilePath));
         });
@@ -39,7 +38,7 @@ describe('Package install lib', () => {
 
             pkgInstall.updatePackageFile();
 
-            // assert it removed the extra package
+            // Assert it removed the extra package
             const packageCleaned = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
             assert(!packageCleaned.dependencies.dotenv, 'dependency was not removed');
         });

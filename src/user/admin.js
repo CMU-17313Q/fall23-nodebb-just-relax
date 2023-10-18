@@ -1,11 +1,10 @@
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const winston = require('winston');
 const validator = require('validator');
-
 const { baseDir } = require('../constants').paths;
 const db = require('../database');
 const plugins = require('../plugins');
@@ -13,9 +12,10 @@ const batch = require('../batch');
 
 module.exports = function (User) {
     User.logIP = async function (uid, ip) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (!(Number.parseInt(uid, 10) > 0)) {
             return;
         }
+
         const now = Date.now();
         const bulk = [
             [`uid:${uid}:ip`, now, ip || 'Unknown'],
@@ -23,6 +23,7 @@ module.exports = function (User) {
         if (ip) {
             bulk.push([`ip:${ip}:uid`, now, uid]);
         }
+
         await db.sortedSetAddBulk(bulk);
     };
 
@@ -56,11 +57,11 @@ module.exports = function (User) {
         });
         const fd = await fs.promises.open(
             path.join(baseDir, 'build/export', 'users.csv'),
-            'w'
+            'w',
         );
         fs.promises.appendFile(fd, `${fields.join(',')}${showIps ? ',ip' : ''}\n`);
         await batch.processSortedSet('users:joindate', async (uids) => {
-            const usersData = await User.getUsersFields(uids, fields.slice());
+            const usersData = await User.getUsersFields(uids, [...fields]);
             let userIPs = '';
             let ips = [];
 
@@ -69,7 +70,7 @@ module.exports = function (User) {
             }
 
             let line = '';
-            usersData.forEach((user, index) => {
+            for (const [index, user] of usersData.entries()) {
                 line += `${fields.map(field => user[field]).join(',')}`;
                 if (showIps) {
                     userIPs = ips[index] ? ips[index].join(',') : '';
@@ -77,7 +78,7 @@ module.exports = function (User) {
                 } else {
                     line += '\n';
                 }
-            });
+            }
 
             await fs.promises.appendFile(fd, line);
         }, {

@@ -1,13 +1,11 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const nconf = require('nconf');
 const request = require('request');
 const winston = require('winston');
-const crypto = require('crypto');
 const cronJob = require('cron').CronJob;
-
 const pkg = require('../../package.json');
-
 const meta = require('../meta');
 
 module.exports = function (Plugins) {
@@ -19,7 +17,7 @@ module.exports = function (Plugins) {
 
     Plugins.submitUsageData = function (callback) {
         callback = callback || function () {};
-        if (!meta.config.submitPluginUsage || !Plugins.loadedPlugins.length || global.env !== 'production') {
+        if (!meta.config.submitPluginUsage || Plugins.loadedPlugins.length === 0 || global.env !== 'production') {
             return callback();
         }
 
@@ -32,16 +30,17 @@ module.exports = function (Plugins) {
                 plugins: Plugins.loadedPlugins,
             },
             timeout: 5000,
-        }, (err, res, body) => {
-            if (err) {
-                winston.error(err.stack);
-                return callback(err);
+        }, (error, res, body) => {
+            if (error) {
+                winston.error(error.stack);
+                return callback(error);
             }
-            if (res.statusCode !== 200) {
+
+            if (res.statusCode === 200) {
+                callback();
+            } else {
                 winston.error(`[plugins.submitUsageData] received ${res.statusCode} ${body}`);
                 callback(new Error(`[[error:nbbpm-${res.statusCode}]]`));
-            } else {
-                callback();
             }
         });
     };

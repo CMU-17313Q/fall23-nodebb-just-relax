@@ -1,17 +1,16 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const async = require('async');
 const request = require('request');
 const nconf = require('nconf');
-
-const db = require('./mocks/databasemock');
 const topics = require('../src/topics');
 const categories = require('../src/categories');
 const groups = require('../src/groups');
 const user = require('../src/user');
 const meta = require('../src/meta');
 const privileges = require('../src/privileges');
+const db = require('./mocks/databasemock');
 const helpers = require('./helpers');
 
 describe('feeds', () => {
@@ -22,30 +21,30 @@ describe('feeds', () => {
     before((done) => {
         meta.config['feeds:disableRSS'] = 1;
         async.series({
-            category: function (next) {
+            category(next) {
                 categories.create({
                     name: 'Test Category',
                     description: 'Test category created by testing script',
                 }, next);
             },
-            user: function (next) {
+            user(next) {
                 user.create({ username: 'foo', password: 'barbar', email: 'foo@test.com' }, next);
             },
-        }, (err, results) => {
-            if (err) {
-                return done(err);
+        }, (error, results) => {
+            if (error) {
+                return done(error);
             }
+
             cid = results.category.cid;
             fooUid = results.user;
 
-            topics.post({ uid: results.user, title: 'test topic title', content: 'test topic content', cid: results.category.cid }, (err, result) => {
+            topics.post({ uid: results.user, title: 'test topic title', content: 'test topic content', cid: results.category.cid }, (error, result) => {
                 tid = result.topicData.tid;
                 pid = result.postData.pid;
-                done(err);
+                done(error);
             });
         });
     });
-
 
     it('should 404', (done) => {
         const feedUrls = [
@@ -62,39 +61,39 @@ describe('feeds', () => {
             `${nconf.get('url')}/tags/nodebb.rss`,
         ];
         async.eachSeries(feedUrls, (url, next) => {
-            request(url, (err, res) => {
-                assert.ifError(err);
+            request(url, (error, res) => {
+                assert.ifError(error);
                 assert.equal(res.statusCode, 404);
                 next();
             });
-        }, (err) => {
-            assert.ifError(err);
+        }, (error) => {
+            assert.ifError(error);
             meta.config['feeds:disableRSS'] = 0;
             done();
         });
     });
 
     it('should 404 if topic does not exist', (done) => {
-        request(`${nconf.get('url')}/topic/${1000}.rss`, (err, res) => {
-            assert.ifError(err);
+        request(`${nconf.get('url')}/topic/${1000}.rss`, (error, res) => {
+            assert.ifError(error);
             assert.equal(res.statusCode, 404);
             done();
         });
     });
 
     it('should 404 if category id is not a number', (done) => {
-        request(`${nconf.get('url')}/category/invalid.rss`, (err, res) => {
-            assert.ifError(err);
+        request(`${nconf.get('url')}/category/invalid.rss`, (error, res) => {
+            assert.ifError(error);
             assert.equal(res.statusCode, 404);
             done();
         });
     });
 
     it('should redirect if we do not have read privilege', (done) => {
-        privileges.categories.rescind(['groups:topics:read'], cid, 'guests', (err) => {
-            assert.ifError(err);
-            request(`${nconf.get('url')}/topic/${tid}.rss`, (err, res, body) => {
-                assert.ifError(err);
+        privileges.categories.rescind(['groups:topics:read'], cid, 'guests', (error) => {
+            assert.ifError(error);
+            request(`${nconf.get('url')}/topic/${tid}.rss`, (error, res, body) => {
+                assert.ifError(error);
                 assert.equal(res.statusCode, 200);
                 assert(body);
                 assert(body.includes('Login to your account'));
@@ -104,18 +103,18 @@ describe('feeds', () => {
     });
 
     it('should 404 if user is not found', (done) => {
-        request(`${nconf.get('url')}/user/doesnotexist/topics.rss`, (err, res) => {
-            assert.ifError(err);
+        request(`${nconf.get('url')}/user/doesnotexist/topics.rss`, (error, res) => {
+            assert.ifError(error);
             assert.equal(res.statusCode, 404);
             done();
         });
     });
 
     it('should redirect if we do not have read privilege', (done) => {
-        privileges.categories.rescind(['groups:read'], cid, 'guests', (err) => {
-            assert.ifError(err);
-            request(`${nconf.get('url')}/category/${cid}.rss`, (err, res, body) => {
-                assert.ifError(err);
+        privileges.categories.rescind(['groups:read'], cid, 'guests', (error) => {
+            assert.ifError(error);
+            request(`${nconf.get('url')}/category/${cid}.rss`, (error, res, body) => {
+                assert.ifError(error);
                 assert.equal(res.statusCode, 200);
                 assert(body);
                 assert(body.includes('Login to your account'));
@@ -132,27 +131,26 @@ describe('feeds', () => {
         });
 
         it('should load feed if its not private', (done) => {
-            request(`${nconf.get('url')}/category/${cid}.rss`, { }, (err, res, body) => {
-                assert.ifError(err);
+            request(`${nconf.get('url')}/category/${cid}.rss`, {}, (error, res, body) => {
+                assert.ifError(error);
                 assert.equal(res.statusCode, 200);
                 assert(body);
                 done();
             });
         });
 
-
         it('should not allow access if uid or token is missing', (done) => {
-            privileges.categories.rescind(['groups:read'], cid, 'guests', (err) => {
-                assert.ifError(err);
+            privileges.categories.rescind(['groups:read'], cid, 'guests', (error) => {
+                assert.ifError(error);
                 async.parallel({
-                    test1: function (next) {
-                        request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}`, { }, next);
+                    test1(next) {
+                        request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}`, {}, next);
                     },
-                    test2: function (next) {
-                        request(`${nconf.get('url')}/category/${cid}.rss?token=sometoken`, { }, next);
+                    test2(next) {
+                        request(`${nconf.get('url')}/category/${cid}.rss?token=sometoken`, {}, next);
                     },
-                }, (err, results) => {
-                    assert.ifError(err);
+                }, (error, results) => {
+                    assert.ifError(error);
                     assert.equal(results.test1[0].statusCode, 200);
                     assert.equal(results.test2[0].statusCode, 200);
                     assert(results.test1[0].body.includes('Login to your account'));
@@ -163,8 +161,8 @@ describe('feeds', () => {
         });
 
         it('should not allow access if token is wrong', (done) => {
-            request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=sometoken`, { }, (err, res, body) => {
-                assert.ifError(err);
+            request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=sometoken`, {}, (error, res, body) => {
+                assert.ifError(error);
                 assert.equal(res.statusCode, 200);
                 assert(body.includes('Login to your account'));
                 done();
@@ -172,11 +170,11 @@ describe('feeds', () => {
         });
 
         it('should allow access if token is correct', (done) => {
-            request(`${nconf.get('url')}/api/category/${cid}`, { jar: jar, json: true }, (err, res, body) => {
-                assert.ifError(err);
+            request(`${nconf.get('url')}/api/category/${cid}`, { jar, json: true }, (error, res, body) => {
+                assert.ifError(error);
                 rssToken = body.rssFeedUrl.split('token')[1].slice(1);
-                request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`, { }, (err, res, body) => {
-                    assert.ifError(err);
+                request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`, {}, (error, res, body) => {
+                    assert.ifError(error);
                     assert.equal(res.statusCode, 200);
                     assert(body.startsWith('<?xml version="1.0"'));
                     done();
@@ -185,10 +183,10 @@ describe('feeds', () => {
         });
 
         it('should not allow access if token is correct but has no privilege', (done) => {
-            privileges.categories.rescind(['groups:read'], cid, 'registered-users', (err) => {
-                assert.ifError(err);
-                request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`, { }, (err, res, body) => {
-                    assert.ifError(err);
+            privileges.categories.rescind(['groups:read'], cid, 'registered-users', (error) => {
+                assert.ifError(error);
+                request(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`, {}, (error, res, body) => {
+                    assert.ifError(error);
                     assert.equal(res.statusCode, 200);
                     assert(body.includes('Login to your account'));
                     done();

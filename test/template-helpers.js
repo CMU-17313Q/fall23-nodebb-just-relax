@@ -1,10 +1,9 @@
 'use strict';
 
+const assert = require('node:assert');
 const nconf = require('nconf');
-const assert = require('assert');
-
-const db = require('./mocks/databasemock');
 const helpers = require('../src/helpers');
+const db = require('./mocks/databasemock');
 
 describe('helpers', () => {
     it('should return false if item doesn\'t exist', (done) => {
@@ -53,14 +52,14 @@ describe('helpers', () => {
     });
 
     it('should stringify object', (done) => {
-        const str = helpers.stringify({ a: 'herp < derp > and & quote "' });
-        assert.equal(str, '{&quot;a&quot;:&quot;herp &lt; derp &gt; and &amp; quote \\&quot;&quot;}');
+        const string_ = helpers.stringify({ a: 'herp < derp > and & quote "' });
+        assert.equal(string_, '{&quot;a&quot;:&quot;herp &lt; derp &gt; and &amp; quote \\&quot;&quot;}');
         done();
     });
 
     it('should escape html', (done) => {
-        const str = helpers.escape('gdkfhgk < some > and &');
-        assert.equal(str, 'gdkfhgk &lt; some &gt; and &amp;');
+        const string_ = helpers.escape('gdkfhgk < some > and &');
+        assert.equal(string_, 'gdkfhgk &lt; some &gt; and &amp;');
         done();
     });
 
@@ -153,16 +152,16 @@ describe('helpers', () => {
     });
 
     it('should render thumb as topic image', (done) => {
-        const topicObj = { thumb: '/uploads/1.png', user: { username: 'baris' } };
-        const html = helpers.renderTopicImage(topicObj);
-        assert.equal(html, `<img src="${topicObj.thumb}" class="img-circle user-img" title="${topicObj.user.username}" />`);
+        const topicObject = { thumb: '/uploads/1.png', user: { username: 'baris' } };
+        const html = helpers.renderTopicImage(topicObject);
+        assert.equal(html, `<img src="${topicObject.thumb}" class="img-circle user-img" title="${topicObject.user.username}" />`);
         done();
     });
 
     it('should render user picture as topic image', (done) => {
-        const topicObj = { thumb: '', user: { uid: 1, username: 'baris', picture: '/uploads/2.png' } };
-        const html = helpers.renderTopicImage(topicObj);
-        assert.equal(html, `<img component="user/picture" data-uid="${topicObj.user.uid}" src="${topicObj.user.picture}" class="user-img" title="${topicObj.user.username}" />`);
+        const topicObject = { thumb: '', user: { uid: 1, username: 'baris', picture: '/uploads/2.png' } };
+        const html = helpers.renderTopicImage(topicObject);
+        assert.equal(html, `<img component="user/picture" data-uid="${topicObject.user.uid}" src="${topicObject.user.picture}" class="user-img" title="${topicObject.user.username}" />`);
         done();
     });
 

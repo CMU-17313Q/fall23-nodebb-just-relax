@@ -11,19 +11,20 @@ const Email = module.exports;
 
 Email.test = async function (socket, data) {
     const payload = {
-        ...(data.payload || {}),
+        ...data.payload,
         subject: '[[email:test-email.subject]]',
     };
 
     switch (data.template) {
-    case 'digest':
+    case 'digest': {
         await userDigest.execute({
             interval: 'month',
             subscribers: [socket.uid],
         });
         break;
+    }
 
-    case 'banned':
+    case 'banned': {
         Object.assign(payload, {
             username: 'test-user',
             until: utils.toISOString(Date.now()),
@@ -31,15 +32,17 @@ Email.test = async function (socket, data) {
         });
         await emailer.send(data.template, socket.uid, payload);
         break;
+    }
 
     case 'verify-email':
-    case 'welcome':
+    case 'welcome': {
         await userEmail.sendValidationEmail(socket.uid, {
             force: 1,
             template: data.template,
             subject: data.template === 'welcome' ? `[[email:welcome-to, ${meta.config.title || meta.config.browserTitle || 'NodeBB'}]]` : undefined,
         });
         break;
+    }
 
     case 'notification': {
         const notification = await notifications.create({
@@ -61,8 +64,9 @@ Email.test = async function (socket, data) {
         break;
     }
 
-    default:
+    default: {
         await emailer.send(data.template, socket.uid, payload);
         break;
+    }
     }
 };

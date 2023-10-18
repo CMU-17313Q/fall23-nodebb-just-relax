@@ -1,13 +1,12 @@
 'use strict';
 
 const async = require('async');
-
 const batch = require('../../batch');
 
 module.exports = {
     name: 'Give tag privilege to registered-users on all categories',
     timestamp: Date.UTC(2017, 5, 16),
-    method: function (callback) {
+    method(callback) {
         const { progress } = this;
         const privileges = require('../../privileges');
         batch.processSortedSet('categories:cid', (cids, next) => {
@@ -16,7 +15,7 @@ module.exports = {
                 privileges.categories.give(['groups:topics:tag'], cid, 'registered-users', next);
             }, next);
         }, {
-            progress: progress,
+            progress,
         }, callback);
     },
 };

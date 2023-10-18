@@ -37,7 +37,7 @@ module.exports = function (app, name, middleware, controllers) {
     setupPageRoute(app, `/${name}/:userslug/edit/username`, accountMiddlewares, controllers.accounts.edit.username);
     setupPageRoute(app, `/${name}/:userslug/edit/email`, accountMiddlewares, controllers.accounts.edit.email);
     setupPageRoute(app, `/${name}/:userslug/edit/password`, accountMiddlewares, controllers.accounts.edit.password);
-    app.use('/.well-known/change-password', (req, res) => {
+    app.use('/.well-known/change-password', (request, res) => {
         res.redirect('/me/edit/password');
     });
     setupPageRoute(app, `/${name}/:userslug/info`, accountMiddlewares, controllers.accounts.info.get);

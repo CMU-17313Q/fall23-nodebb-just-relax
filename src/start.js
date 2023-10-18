@@ -49,19 +49,24 @@ start.start = async function () {
                 action: 'listening',
             });
         }
-    } catch (err) {
-        switch (err.message) {
-        case 'dependencies-out-of-date':
+    } catch (error) {
+        switch (error.message) {
+        case 'dependencies-out-of-date': {
             winston.error('One or more of NodeBB\'s dependent packages are out-of-date. Please run the following command to update them:');
             winston.error('    ./nodebb upgrade');
             break;
-        case 'dependencies-missing':
+        }
+
+        case 'dependencies-missing': {
             winston.error('One or more of NodeBB\'s dependent packages are missing. Please run the following command to update them:');
             winston.error('    ./nodebb upgrade');
             break;
-        default:
-            winston.error(err.stack);
+        }
+
+        default: {
+            winston.error(error.stack);
             break;
+        }
         }
 
         // Either way, bad stuff happened. Abort start.
@@ -73,11 +78,11 @@ async function runUpgrades() {
     const upgrade = require('./upgrade');
     try {
         await upgrade.check();
-    } catch (err) {
-        if (err && err.message === 'schema-out-of-date') {
+    } catch (error) {
+        if (error && error.message === 'schema-out-of-date') {
             await upgrade.run();
         } else {
-            throw err;
+            throw error;
         }
     }
 }
@@ -87,7 +92,7 @@ function printStartupInfo() {
         winston.info('Initializing NodeBB v%s %s', nconf.get('version'), nconf.get('url'));
 
         const host = nconf.get(`${nconf.get('database')}:host`);
-        const storeLocation = host ? `at ${host}${!host.includes('/') ? `:${nconf.get(`${nconf.get('database')}:port`)}` : ''}` : '';
+        const storeLocation = host ? `at ${host}${host.includes('/') ? '' : `:${nconf.get(`${nconf.get('database')}:port`)}`}` : '';
 
         winston.verbose('* using %s store %s', nconf.get('database'), storeLocation);
         winston.verbose('* using themes stored in: %s', nconf.get('themes_path'));
@@ -98,17 +103,17 @@ function addProcessHandlers() {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
     process.on('SIGHUP', restart);
-    process.on('uncaughtException', (err) => {
-        winston.error(err.stack);
+    process.on('uncaughtException', (error) => {
+        winston.error(error.stack);
 
         require('./meta').js.killMinifier();
         shutdown(1);
     });
-    process.on('message', (msg) => {
-        if (msg && msg.compiling === 'tpl') {
+    process.on('message', (message) => {
+        if (message && message.compiling === 'tpl') {
             const benchpressjs = require('benchpressjs');
             benchpressjs.flush();
-        } else if (msg && msg.compiling === 'lang') {
+        } else if (message && message.compiling === 'lang') {
             const translator = require('./translator');
             translator.flush();
         }
@@ -138,8 +143,8 @@ async function shutdown(code) {
         winston.info('[app] Database connection closed.');
         winston.info('[app] Shutdown complete.');
         process.exit(code || 0);
-    } catch (err) {
-        winston.error(err.stack);
+    } catch (error) {
+        winston.error(error.stack);
         return process.exit(code || 0);
     }
 }

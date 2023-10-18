@@ -1,14 +1,13 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const assert = require('assert');
+const path = require('node:path');
+const fs = require('node:fs');
+const assert = require('node:assert');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 const async = require('async');
-
-const db = require('./mocks/databasemock');
 const file = require('../src/file');
+const db = require('./mocks/databasemock');
 
 describe('minifier', () => {
     const testPath = path.join(__dirname, '../test/build');
@@ -37,15 +36,15 @@ describe('minifier', () => {
 
         minifier.js.bundle({
             files: scripts,
-            destPath: destPath,
+            destPath,
             filename: 'concatenated.js',
-        }, false, false, (err) => {
-            assert.ifError(err);
+        }, false, false, (error) => {
+            assert.ifError(error);
 
             assert(file.existsSync(destPath));
 
             assert.strictEqual(
-                fs.readFileSync(destPath).toString().replace(/\r\n/g, '\n'),
+                fs.readFileSync(destPath).toString().replaceAll('\r\n', '\n'),
                 '(function (window, document) {' +
                 '\n    window.doStuff = function () {' +
                 '\n        document.body.innerHTML = \'Stuff has been done\';' +
@@ -55,7 +54,7 @@ describe('minifier', () => {
                 '\n;function foo(name, age) {' +
                 '\n    return \'The person known as "\' + name + \'" is \' + age + \' years old\';' +
                 '\n}' +
-                '\n'
+                '\n',
             );
             done();
         });
@@ -65,35 +64,35 @@ describe('minifier', () => {
 
         minifier.js.bundle({
             files: scripts,
-            destPath: destPath,
+            destPath,
             filename: 'minified.js',
-        }, true, false, (err) => {
-            assert.ifError(err);
+        }, true, false, (error) => {
+            assert.ifError(error);
 
             assert(file.existsSync(destPath));
 
             assert.strictEqual(
                 fs.readFileSync(destPath).toString(),
                 '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);function foo(n,o){return\'The person known as "\'+n+\'" is \'+o+" years old"}' +
-                '\n//# sourceMappingURL=minified.js.map'
+                '\n//# sourceMappingURL=minified.js.map',
             );
             done();
         });
     });
 
     it('.js.minifyBatch() should minify each script', (done) => {
-        minifier.js.minifyBatch(scripts, false, (err) => {
-            assert.ifError(err);
+        minifier.js.minifyBatch(scripts, false, (error) => {
+            assert.ifError(error);
 
             assert(file.existsSync(scripts[0].destPath));
             assert(file.existsSync(scripts[1].destPath));
 
-            fs.readFile(scripts[0].destPath, (err, buffer) => {
-                assert.ifError(err);
+            fs.readFile(scripts[0].destPath, (error, buffer) => {
+                assert.ifError(error);
                 assert.strictEqual(
                     buffer.toString(),
                     '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);' +
-                    '\n//# sourceMappingURL=1.js.map'
+                    '\n//# sourceMappingURL=1.js.map',
                 );
                 done();
             });
@@ -108,16 +107,16 @@ describe('minifier', () => {
         path.resolve(__dirname, './files'),
     ];
     it('.css.bundle() should concat styles', (done) => {
-        minifier.css.bundle(styles, paths, false, false, (err, bundle) => {
-            assert.ifError(err);
+        minifier.css.bundle(styles, paths, false, false, (error, bundle) => {
+            assert.ifError(error);
             assert.strictEqual(bundle.code, '.help { margin: 10px; } .yellow { background: yellow; }\n.help {\n  display: block;\n}\n.help .blue {\n  background: blue;\n}\n');
             done();
         });
     });
 
     it('.css.bundle() should minify styles', (done) => {
-        minifier.css.bundle(styles, paths, true, false, (err, bundle) => {
-            assert.ifError(err);
+        minifier.css.bundle(styles, paths, true, false, (error, bundle) => {
+            assert.ifError(error);
             assert.strictEqual(bundle.code, '.help{margin:10px}.yellow{background:#ff0}.help{display:block}.help .blue{background:#00f}');
             done();
         });
@@ -135,15 +134,15 @@ describe('Build', () => {
     });
 
     it('should build plugin static dirs', (done) => {
-        build.build(['plugin static dirs'], (err) => {
-            assert.ifError(err);
+        build.build(['plugin static dirs'], (error) => {
+            assert.ifError(error);
             done();
         });
     });
 
     it('should build requirejs modules', (done) => {
-        build.build(['requirejs modules'], (err) => {
-            assert.ifError(err);
+        build.build(['requirejs modules'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/src/modules/alerts.js');
             assert(file.existsSync(filename));
             done();
@@ -151,8 +150,8 @@ describe('Build', () => {
     });
 
     it('should build client js bundle', (done) => {
-        build.build(['client js bundle'], (err) => {
-            assert.ifError(err);
+        build.build(['client js bundle'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/scripts-client.js');
             assert(file.existsSync(filename));
             assert(fs.readFileSync(filename).length > 1000);
@@ -161,8 +160,8 @@ describe('Build', () => {
     });
 
     it('should build admin js bundle', (done) => {
-        build.build(['admin js bundle'], (err) => {
-            assert.ifError(err);
+        build.build(['admin js bundle'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/scripts-admin.js');
             assert(file.existsSync(filename));
             assert(fs.readFileSync(filename).length > 1000);
@@ -171,8 +170,8 @@ describe('Build', () => {
     });
 
     it('should build client side styles', (done) => {
-        build.build(['client side styles'], (err) => {
-            assert.ifError(err);
+        build.build(['client side styles'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/client.css');
             assert(file.existsSync(filename));
             assert(fs.readFileSync(filename).toString().startsWith('/*! normalize.css'));
@@ -181,8 +180,8 @@ describe('Build', () => {
     });
 
     it('should build admin control panel styles', (done) => {
-        build.build(['admin control panel styles'], (err) => {
-            assert.ifError(err);
+        build.build(['admin control panel styles'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/admin.css');
             assert(file.existsSync(filename));
             const adminCSS = fs.readFileSync(filename).toString();
@@ -191,12 +190,12 @@ describe('Build', () => {
             } else {
                 assert(adminCSS.startsWith('.recent-replies'));
             }
+
             done();
         });
     });
 
-
-    /* disabled, doesn't work on gh actions in prod mode
+    /* Disabled, doesn't work on gh actions in prod mode
     it('should build bundle files', function (done) {
         this.timeout(0);
         build.buildAll(async (err) => {
@@ -216,8 +215,8 @@ describe('Build', () => {
 
     it('should build templates', function (done) {
         this.timeout(0);
-        build.build(['templates'], (err) => {
-            assert.ifError(err);
+        build.build(['templates'], (error) => {
+            assert.ifError(error);
             const filename = path.join(__dirname, '../build/public/templates/admin/header.tpl');
             assert(file.existsSync(filename));
             assert(fs.readFileSync(filename).toString().startsWith('<!DOCTYPE html>'));
@@ -226,8 +225,8 @@ describe('Build', () => {
     });
 
     it('should build languages', (done) => {
-        build.build(['languages'], (err) => {
-            assert.ifError(err);
+        build.build(['languages'], (error) => {
+            assert.ifError(error);
 
             const globalFile = path.join(__dirname, '../build/public/language/en-GB/global.json');
             assert(file.existsSync(globalFile), 'global.json exists');

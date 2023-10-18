@@ -2,8 +2,8 @@
 
 const winston = require('winston');
 
-function warn(msg) {
-    winston.warn(msg);
+function warn(message) {
+    winston.warn(message);
 }
 
 module.exports = require('../public/src/modules/translator.common')(require('./utils'), (lang, namespace) => {

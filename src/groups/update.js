@@ -1,7 +1,6 @@
 'use strict';
 
 const winston = require('winston');
-
 const categories = require('../categories');
 const plugins = require('../plugins');
 const slugify = require('../slugify');
@@ -11,7 +10,6 @@ const batch = require('../batch');
 const meta = require('../meta');
 const cache = require('../cache');
 
-
 module.exports = function (Groups) {
     Groups.update = async function (groupName, values) {
         const exists = await db.exists(`group:${groupName}`);
@@ -20,17 +18,17 @@ module.exports = function (Groups) {
         }
 
         ({ values } = await plugins.hooks.fire('filter:group.update', {
-            groupName: groupName,
-            values: values,
+            groupName,
+            values,
         }));
 
         // Cast some values as bool (if not boolean already)
         // 'true' and '1' = true, everything else false
-        ['userTitleEnabled', 'private', 'hidden', 'disableJoinRequests', 'disableLeave'].forEach((prop) => {
+        for (const prop of ['userTitleEnabled', 'private', 'hidden', 'disableJoinRequests', 'disableLeave']) {
             if (values.hasOwnProperty(prop) && typeof values[prop] !== 'boolean') {
-                values[prop] = values[prop] === 'true' || parseInt(values[prop], 10) === 1;
+                values[prop] = values[prop] === 'true' || Number.parseInt(values[prop], 10) === 1;
             }
-        });
+        }
 
         const payload = {
             description: values.description || '',
@@ -77,7 +75,7 @@ module.exports = function (Groups) {
 
         if (values.hasOwnProperty('memberPostCids')) {
             const validCids = await categories.getCidsByPrivilege('categories:cid', groupName, 'topics:read');
-            const cidsArray = values.memberPostCids.split(',').map(cid => parseInt(cid.trim(), 10)).filter(Boolean);
+            const cidsArray = values.memberPostCids.split(',').map(cid => Number.parseInt(cid.trim(), 10)).filter(Boolean);
             payload.memberPostCids = cidsArray.filter(cid => validCids.includes(cid)).join(',') || '';
         }
 
@@ -86,7 +84,7 @@ module.exports = function (Groups) {
 
         plugins.hooks.fire('action:group.update', {
             name: groupName,
-            values: values,
+            values,
         });
     };
 
@@ -99,6 +97,7 @@ module.exports = function (Groups) {
             ]);
             return;
         }
+
         const groupData = await db.getObjectFields(`group:${groupName}`, ['createtime', 'memberCount']);
         await db.sortedSetAddBulk([
             ['groups:visible:createtime', groupData.createtime, groupName],
@@ -129,8 +128,9 @@ module.exports = function (Groups) {
         if (!currentlyPrivate || currentlyPrivate === isPrivate) {
             return;
         }
+
         const pendingUids = await db.getSetMembers(`group:${groupName}:pending`);
-        if (!pendingUids.length) {
+        if (pendingUids.length === 0) {
             return;
         }
 
@@ -140,6 +140,7 @@ module.exports = function (Groups) {
             /* eslint-disable no-await-in-loop */
             await Groups.join(groupName, uid);
         }
+
         await db.delete(`group:${groupName}:pending`);
     }
 
@@ -147,11 +148,13 @@ module.exports = function (Groups) {
         if (Groups.isPrivilegeGroup(newName)) {
             throw new Error('[[error:invalid-group-name]]');
         }
+
         const currentSlug = slugify(currentName);
         const newSlug = slugify(newName);
         if (currentName === newName || currentSlug === newSlug) {
             return;
         }
+
         Groups.validateGroupName(newName);
         const [group, exists] = await Promise.all([
             Groups.getGroupData(currentName),
@@ -175,6 +178,7 @@ module.exports = function (Groups) {
         if (oldName === newName || !newName || String(newName).length === 0) {
             return;
         }
+
         const group = await db.getObject(`group:${oldName}`);
         if (!group) {
             return;
@@ -220,10 +224,10 @@ module.exports = function (Groups) {
             let usersData = await user.getUsersData(uids);
             usersData = usersData.filter(userData => userData && userData.groupTitleArray.includes(oldName));
 
-            usersData.forEach((userData) => {
+            for (const userData of usersData) {
                 userData.newTitleArray = userData.groupTitleArray
                     .map(oldTitle => (oldTitle === oldName ? newName : oldTitle));
-            });
+            }
 
             await Promise.all(usersData.map(u => user.setUserField(u.uid, 'groupTitle', JSON.stringify(u.newTitleArray))));
         }, {});
@@ -232,9 +236,10 @@ module.exports = function (Groups) {
     async function renameGroupsMember(keys, oldName, newName) {
         const isMembers = await db.isMemberOfSortedSets(keys, oldName);
         keys = keys.filter((key, index) => isMembers[index]);
-        if (!keys.length) {
+        if (keys.length === 0) {
             return;
         }
+
         const scores = await db.sortedSetsScore(keys, oldName);
         await db.sortedSetsRemove(keys, oldName);
         await db.sortedSetsAdd(keys, scores, newName);
@@ -243,11 +248,12 @@ module.exports = function (Groups) {
     async function updateNavigationItems(oldName, newName) {
         const navigation = require('../navigation/admin');
         const navItems = await navigation.get();
-        navItems.forEach((navItem) => {
+        for (const navItem of navItems) {
             if (navItem && Array.isArray(navItem.groups) && navItem.groups.includes(oldName)) {
                 navItem.groups.splice(navItem.groups.indexOf(oldName), 1, newName);
             }
-        });
+        }
+
         navigation.unescapeFields(navItems);
         await navigation.save(navItems);
     }
@@ -258,17 +264,18 @@ module.exports = function (Groups) {
 
         const data = await admin.get();
 
-        data.areas.forEach((area) => {
+        for (const area of data.areas) {
             area.widgets = area.data;
-            area.widgets.forEach((widget) => {
+            for (const widget of area.widgets) {
                 if (widget && widget.data && Array.isArray(widget.data.groups) &&
                     widget.data.groups.includes(oldName)) {
                     widget.data.groups.splice(widget.data.groups.indexOf(oldName), 1, newName);
                 }
-            });
-        });
+            }
+        }
+
         for (const area of data.areas) {
-            if (area.data.length) {
+            if (area.data.length > 0) {
                 await widgets.setArea(area);
             }
         }
@@ -277,13 +284,14 @@ module.exports = function (Groups) {
     async function updateConfig(oldName, newName) {
         if (meta.config.groupsExemptFromPostQueue.includes(oldName)) {
             meta.config.groupsExemptFromPostQueue.splice(
-                meta.config.groupsExemptFromPostQueue.indexOf(oldName), 1, newName
+                meta.config.groupsExemptFromPostQueue.indexOf(oldName), 1, newName,
             );
             await meta.configs.set('groupsExemptFromPostQueue', meta.config.groupsExemptFromPostQueue);
         }
+
         if (meta.config.groupsExemptFromMaintenanceMode.includes(oldName)) {
             meta.config.groupsExemptFromMaintenanceMode.splice(
-                meta.config.groupsExemptFromMaintenanceMode.indexOf(oldName), 1, newName
+                meta.config.groupsExemptFromMaintenanceMode.indexOf(oldName), 1, newName,
             );
             await meta.configs.set('groupsExemptFromMaintenanceMode', meta.config.groupsExemptFromMaintenanceMode);
         }

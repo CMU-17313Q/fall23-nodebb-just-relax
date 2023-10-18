@@ -8,14 +8,16 @@ const rewards = module.exports;
 
 rewards.save = async function (data) {
     async function save(data) {
-        if (!Object.keys(data.rewards).length) {
+        if (Object.keys(data.rewards).length === 0) {
             return;
         }
+
         const rewardsData = data.rewards;
         delete data.rewards;
-        if (!parseInt(data.id, 10)) {
+        if (!Number.parseInt(data.id, 10)) {
             data.id = await db.incrObjectField('global', 'rewards:id');
         }
+
         await rewards.delete(data);
         await db.setAdd('rewards:list', data.id);
         await db.setObject(`rewards:id:${data.id}`, data);
@@ -49,11 +51,11 @@ async function saveConditions(data) {
     await db.delete('conditions:active');
     const conditions = [];
 
-    data.forEach((reward) => {
+    for (const reward of data) {
         conditions.push(reward.condition);
         rewardsPerCondition[reward.condition] = rewardsPerCondition[reward.condition] || [];
         rewardsPerCondition[reward.condition].push(reward.id);
-    });
+    }
 
     await db.setAdd('conditions:active', conditions);
 
@@ -70,6 +72,7 @@ async function getActiveRewards() {
             main.disabled = main.disabled === 'true';
             main.rewards = rewards;
         }
+
         return main;
     }
 

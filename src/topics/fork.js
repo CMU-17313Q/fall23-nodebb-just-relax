@@ -20,7 +20,7 @@ module.exports = function (Topics) {
             throw new Error(`[[error:title-too-long, ${meta.config.maximumTitleLength}]]`);
         }
 
-        if (!pids || !pids.length) {
+        if (!pids || pids.length === 0) {
             throw new Error('[[error:invalid-pid]]');
         }
 
@@ -39,14 +39,14 @@ module.exports = function (Topics) {
         }
 
         const scheduled = postData.timestamp > Date.now();
-        const params = {
+        const parameters = {
             uid: postData.uid,
-            title: title,
-            cid: cid,
+            title,
+            cid,
             timestamp: scheduled && postData.timestamp,
         };
         const result = await plugins.hooks.fire('filter:topic.fork', {
-            params: params,
+            params: parameters,
             tid: postData.tid,
         });
 
@@ -59,6 +59,7 @@ module.exports = function (Topics) {
             if (!canEdit.flag) {
                 throw new Error(canEdit.message);
             }
+
             await Topics.movePostToTopic(uid, pid, tid, scheduled);
         }
 
@@ -73,20 +74,22 @@ module.exports = function (Topics) {
             Topics.events.log(fromTid, { type: 'fork', uid, href: `/topic/${tid}`, timestamp: postData.timestamp }),
         ]);
 
-        plugins.hooks.fire('action:topic.fork', { tid: tid, fromTid: fromTid, uid: uid });
+        plugins.hooks.fire('action:topic.fork', { tid, fromTid, uid });
 
         return await Topics.getTopicData(tid);
     };
 
     Topics.movePostToTopic = async function (callerUid, pid, tid, forceScheduled = false) {
-        tid = parseInt(tid, 10);
+        tid = Number.parseInt(tid, 10);
         const topicData = await Topics.getTopicFields(tid, ['tid', 'scheduled']);
         if (!topicData.tid) {
             throw new Error('[[error:no-topic]]');
         }
+
         if (!forceScheduled && topicData.scheduled) {
             throw new Error('[[error:cant-move-posts-to-scheduled]]');
         }
+
         const postData = await posts.getPostFields(pid, ['tid', 'uid', 'timestamp', 'upvotes', 'downvotes']);
         if (!postData || !postData.tid) {
             throw new Error('[[error:no-post]]');
@@ -114,7 +117,7 @@ module.exports = function (Topics) {
             Topics.updateLastPostTimeFromLastPid(tid),
             Topics.updateLastPostTimeFromLastPid(postData.tid),
         ]);
-        plugins.hooks.fire('action:post.move', { uid: callerUid, post: postData, tid: tid });
+        plugins.hooks.fire('action:post.move', { uid: callerUid, post: postData, tid });
     };
 
     async function updateCategory(postData, toTid) {
@@ -127,13 +130,16 @@ module.exports = function (Topics) {
         if (!topicData[0].pinned) {
             await db.sortedSetIncrBy(`cid:${topicData[0].cid}:tids:posts`, -1, postData.tid);
         }
+
         if (!topicData[1].pinned) {
             await db.sortedSetIncrBy(`cid:${topicData[1].cid}:tids:posts`, 1, toTid);
         }
+
         if (topicData[0].cid === topicData[1].cid) {
             await categories.updateRecentTidForCid(topicData[0].cid);
             return;
         }
+
         const removeFrom = [
             `cid:${topicData[0].cid}:pids`,
             `cid:${topicData[0].cid}:uid:${postData.uid}:pids`,

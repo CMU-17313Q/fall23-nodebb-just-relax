@@ -6,8 +6,8 @@ const pagination = require('../../pagination');
 
 const digestController = module.exports;
 
-digestController.get = async function (req, res) {
-    const page = parseInt(req.query.page, 10) || 1;
+digestController.get = async function (request, res) {
+    const page = Number.parseInt(request.query.page, 10) || 1;
     const resultsPerPage = 50;
     const start = Math.max(0, page - 1) * resultsPerPage;
     const stop = start + resultsPerPage - 1;

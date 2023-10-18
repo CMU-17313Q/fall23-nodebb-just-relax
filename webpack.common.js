@@ -1,9 +1,8 @@
 'use strict';
 
-const path = require('path');
-const url = require('url');
+const path = require('node:path');
+const url = require('node:url');
 const nconf = require('nconf');
-
 const activePlugins = require('./build/active_plugins.json');
 
 let relativePath = nconf.get('relative_path');
@@ -13,7 +12,7 @@ if (relativePath === undefined) {
     });
 
     const urlObject = url.parse(nconf.get('url'));
-    relativePath = urlObject.pathname !== '/' ? urlObject.pathname.replace(/\/+$/, '') : '';
+    relativePath = urlObject.pathname === '/' ? '' : urlObject.pathname.replace(/\/+$/, '');
 }
 
 module.exports = {
@@ -29,8 +28,7 @@ module.exports = {
         publicPath: `${relativePath}/assets/`,
         clean: {
             keep(asset) {
-                return asset === 'installer.min.js' ||
-                    !asset.endsWith('.min.js');
+                return asset === 'installer.min.js' || !asset.endsWith('.min.js');
             },
         },
     },

@@ -3,7 +3,6 @@
 
 const validator = require('validator');
 const _ = require('lodash');
-
 const db = require('./database');
 const batch = require('./batch');
 const user = require('./user');
@@ -94,14 +93,15 @@ events.log = async function (data) {
         ], data.timestamp, eid),
         db.setObject(`event:${eid}`, data),
     ]);
-    plugins.hooks.fire('action:events.log', { data: data });
+    plugins.hooks.fire('action:events.log', { data });
 };
 
 events.getEvents = async function (filter, start, stop, from, to) {
-    // from/to optional
+    // From/to optional
     if (from === undefined) {
         from = 0;
     }
+
     if (to === undefined) {
         to = Date.now();
     }
@@ -111,12 +111,13 @@ events.getEvents = async function (filter, start, stop, from, to) {
     eventsData = eventsData.filter(Boolean);
     await addUserData(eventsData, 'uid', 'user');
     await addUserData(eventsData, 'targetUid', 'targetUser');
-    eventsData.forEach((event) => {
-        Object.keys(event).forEach((key) => {
+    for (const event of eventsData) {
+        for (const key of Object.keys(event)) {
             if (typeof event[key] === 'string') {
                 event[key] = validator.escape(String(event[key] || ''));
             }
-        });
+        }
+
         const e = utils.merge(event);
         e.eid = undefined;
         e.uid = undefined;
@@ -124,15 +125,16 @@ events.getEvents = async function (filter, start, stop, from, to) {
         e.ip = undefined;
         e.user = undefined;
         event.jsonString = JSON.stringify(e, null, 4);
-        event.timestampISO = new Date(parseInt(event.timestamp, 10)).toUTCString();
-    });
+        event.timestampISO = new Date(Number.parseInt(event.timestamp, 10)).toUTCString();
+    }
+
     return eventsData;
 };
 
 async function addUserData(eventsData, field, objectName) {
     const uids = _.uniq(eventsData.map(event => event && event[field]));
 
-    if (!uids.length) {
+    if (uids.length === 0) {
         return eventsData;
     }
 
@@ -142,16 +144,17 @@ async function addUserData(eventsData, field, objectName) {
     ]);
 
     const map = {};
-    userData.forEach((user, index) => {
+    for (const [index, user] of userData.entries()) {
         user.isAdmin = isAdmin[index];
         map[user.uid] = user;
-    });
+    }
 
-    eventsData.forEach((event) => {
+    for (const event of eventsData) {
         if (map[event[field]]) {
             event[objectName] = map[event[field]];
         }
-    });
+    }
+
     return eventsData;
 }
 

@@ -1,7 +1,6 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 const user = require('../../user');
 const groups = require('../../groups');
@@ -12,7 +11,7 @@ const now = Date.now();
 module.exports = {
     name: 'Create verified/unverified user groups',
     timestamp: Date.UTC(2020, 9, 13),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         const maxGroupLength = meta.config.maximumGroupNameLength;
@@ -30,6 +29,7 @@ module.exports = {
                 timestamp: timestamp + 1,
             });
         }
+
         const unverifiedExists = await groups.exists('unverified-users');
         if (!unverifiedExists) {
             await groups.create({
@@ -42,25 +42,26 @@ module.exports = {
                 timestamp: timestamp + 1,
             });
         }
-        // restore setting
+
+        // Restore setting
         meta.config.maximumGroupNameLength = maxGroupLength;
         await batch.processSortedSet('users:joindate', async (uids) => {
             progress.incr(uids.length);
             const userData = await user.getUsersFields(uids, ['uid', 'email:confirmed']);
 
-            const verified = userData.filter(u => parseInt(u['email:confirmed'], 10) === 1);
-            const unverified = userData.filter(u => parseInt(u['email:confirmed'], 10) !== 1);
+            const verified = userData.filter(u => Number.parseInt(u['email:confirmed'], 10) === 1);
+            const unverified = userData.filter(u => Number.parseInt(u['email:confirmed'], 10) !== 1);
 
             await db.sortedSetAdd(
                 'group:verified-users:members',
                 verified.map(() => now),
-                verified.map(u => u.uid)
+                verified.map(u => u.uid),
             );
 
             await db.sortedSetAdd(
                 'group:unverified-users:members',
                 unverified.map(() => now),
-                unverified.map(u => u.uid)
+                unverified.map(u => u.uid),
             );
         }, {
             batch: 500,
@@ -78,7 +79,7 @@ module.exports = {
 };
 
 async function updatePrivilges() {
-    // if email confirmation is required
+    // If email confirmation is required
     //   give chat, posting privs to "verified-users" group
     //   remove chat, posting privs from "registered-users" group
 
@@ -90,6 +91,7 @@ async function updatePrivilges() {
             await privileges.global.give(['groups:chat'], 'verified-users');
             await privileges.global.rescind(['groups:chat'], 'registered-users');
         }
+
         for (const cid of cids) {
             /* eslint-disable no-await-in-loop */
             const data = await privileges.categories.list(cid);

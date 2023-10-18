@@ -8,6 +8,7 @@ module.exports = function (SocketUser) {
         if (!socket.uid) {
             throw new Error('[[error:invalid-uid]]');
         }
+
         const userData = await user.getUserFields(uid, ['lastonline', 'status']);
         return user.getStatus(userData);
     };
@@ -22,17 +23,19 @@ module.exports = function (SocketUser) {
             throw new Error('[[error:invalid-user-status]]');
         }
 
-        const userData = { status: status };
+        const userData = { status };
         if (status !== 'offline') {
             userData.lastonline = Date.now();
         }
+
         await user.setUserFields(socket.uid, userData);
         if (status !== 'offline') {
             await user.updateOnlineUsers(socket.uid);
         }
+
         const eventData = {
             uid: socket.uid,
-            status: status,
+            status,
         };
         websockets.server.emit('event:user_status_change', eventData);
         return eventData;

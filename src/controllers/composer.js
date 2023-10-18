@@ -11,20 +11,21 @@ const user_1 = __importDefault(require("../user"));
 const plugins_1 = __importDefault(require("../plugins"));
 const topics_1 = __importDefault(require("../topics"));
 const posts_1 = __importDefault(require("../posts"));
-const helpers_1 = __importDefault(require("./helpers"));
-async function get(req, res, callback) {
+const helpers_js_1 = __importDefault(require("./helpers.js"));
+async function get(request, res, callback) {
     res.locals.metaTags = Object.assign(Object.assign({}, res.locals.metaTags), { name: 'robots', content: 'noindex' });
     const data = await plugins_1.default.hooks.fire('filter:composer.build', {
-        req: req,
-        res: res,
+        req: request,
+        res,
         next: callback,
         templateData: {},
     });
     if (res.headersSent) {
         return;
     }
-    if (!data || !data.templateData) {
-        return callback(new Error('[[error:invalid-data]]'));
+    if (!(data === null || data === void 0 ? void 0 : data.templateData)) {
+        callback(new Error('[[error:invalid-data]]'));
+        return;
     }
     if (data.templateData.disabled) {
         res.render('', {
@@ -37,30 +38,30 @@ async function get(req, res, callback) {
     }
 }
 exports.get = get;
-async function post(req, res) {
-    const { body } = req;
+async function post(request, res) {
+    const { body } = request;
     const data = {
-        uid: req.uid,
-        req: req,
+        uid: request.uid,
+        req: request,
         timestamp: Date.now(),
         content: body.content,
         fromQueue: false,
     };
-    req.body.noscript = 'true';
+    request.body.noscript = 'true';
     if (!data.content) {
-        return await helpers_1.default.noScriptErrors(req, res, '[[error:invalid-data]]', 400);
+        return await helpers_js_1.default.noScriptErrors(request, res, '[[error:invalid-data]]', 400);
     }
     async function queueOrPost(postFn, data) {
         // The next line calls a function in a module that has not been updated to TS yet
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        const shouldQueue = await posts_1.default.shouldQueue(req.uid, data);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        const shouldQueue = await posts_1.default.shouldQueue(request.uid, data);
         if (shouldQueue) {
             delete data.req;
             // The next line calls a function in a module that has not been updated to TS yet
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             return await posts_1.default.addToQueue(data);
         }
-        return await postFn(data);
+        return postFn(data);
     }
     try {
         let result;
@@ -79,18 +80,19 @@ async function post(req, res) {
             throw new Error('[[error:invalid-data]]');
         }
         if (result.queued) {
-            return res.redirect(`${nconf_1.default.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`);
+            res.redirect(`${nconf_1.default.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`);
+            return;
         }
         const uid = result.uid ? result.uid : result.topicData.uid;
         // The next line calls a function in a module that has not been updated to TS yet
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         user_1.default.updateOnlineUsers(uid);
         const path = result.pid ? `/post/${result.pid}` : `/topic/${result.topicData.slug}`;
         res.redirect(nconf_1.default.get('relative_path') + path);
     }
-    catch (err) {
-        if (err instanceof Error) {
-            await helpers_1.default.noScriptErrors(req, res, err.message, 400);
+    catch (error) {
+        if (error instanceof Error) {
+            await helpers_js_1.default.noScriptErrors(request, res, error.message, 400);
         }
     }
 }

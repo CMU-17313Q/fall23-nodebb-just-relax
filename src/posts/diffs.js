@@ -2,7 +2,6 @@
 
 const validator = require('validator');
 const diff = require('diff');
-
 const db = require('../database');
 const meta = require('../meta');
 const plugins = require('../plugins');
@@ -17,8 +16,8 @@ module.exports = function (Posts) {
             return false;
         }
 
-        const numDiffs = await db.listLength(`post:${pid}:diffs`);
-        return !!numDiffs;
+        const numberDiffs = await db.listLength(`post:${pid}:diffs`);
+        return Boolean(numberDiffs);
     };
 
     Diffs.get = async function (pid, since) {
@@ -28,7 +27,7 @@ module.exports = function (Posts) {
         }
 
         // Pass those made after `since`, and create keys
-        const keys = timestamps.filter(t => (parseInt(t, 10) || 0) > since)
+        const keys = timestamps.filter(t => (Number.parseInt(t, 10) || 0) > since)
             .map(t => `diff:${pid}.${t}`);
         return await db.getObjects(keys);
     };
@@ -41,18 +40,21 @@ module.exports = function (Posts) {
         const { pid, uid, oldContent, newContent, edited, topic } = data;
         const editTimestamp = edited || Date.now();
         const diffData = {
-            uid: uid,
-            pid: pid,
+            uid,
+            pid,
         };
         if (oldContent !== newContent) {
             diffData.patch = diff.createPatch('', newContent, oldContent);
         }
+
         if (topic.renamed) {
             diffData.title = topic.oldTitle;
         }
+
         if (topic.tagsupdated && Array.isArray(topic.oldTags)) {
             diffData.tags = topic.oldTags.map(tag => tag && tag.value).filter(Boolean).join(',');
         }
+
         await Promise.all([
             db.listPrepend(`post:${pid}:diffs`, editTimestamp),
             db.setObject(`diff:${pid}.${editTimestamp}`, diffData),
@@ -69,15 +71,15 @@ module.exports = function (Posts) {
         return result.postData;
     };
 
-    Diffs.restore = async function (pid, since, uid, req) {
+    Diffs.restore = async function (pid, since, uid, request) {
         since = getValidatedTimestamp(since);
         const post = await postDiffLoad(pid, since, uid);
 
         return await Posts.edit({
-            uid: uid,
-            pid: pid,
+            uid,
+            pid,
             content: post.content,
-            req: req,
+            req: request,
             timestamp: since,
             title: post.topic.title,
             tags: post.topic.tags.map(tag => tag.value),
@@ -103,6 +105,7 @@ module.exports = function (Posts) {
                 db.listRemoveAll(`post:${pid}:diffs`, timestamps[lastTimestampIndex]),
             ]);
         }
+
         if (timestampIndex === 0 || timestampIndex === -1) {
             throw new Error('[[error:invalid-data]]');
         }
@@ -141,12 +144,13 @@ module.exports = function (Posts) {
         post[0].content = diffs.reduce(applyPatch, validator.unescape(post[0].content));
 
         const titleDiffs = diffs.filter(d => d.hasOwnProperty('title') && d.title);
-        if (titleDiffs.length && post[0].topic) {
-            post[0].topic.title = validator.unescape(String(titleDiffs[titleDiffs.length - 1].title));
+        if (titleDiffs.length > 0 && post[0].topic) {
+            post[0].topic.title = validator.unescape(String(titleDiffs.at(-1).title));
         }
+
         const tagDiffs = diffs.filter(d => d.hasOwnProperty('tags') && d.tags);
-        if (tagDiffs.length && post[0].topic) {
-            const tags = tagDiffs[tagDiffs.length - 1].tags.split(',').map(tag => ({ value: tag }));
+        if (tagDiffs.length > 0 && post[0].topic) {
+            const tags = tagDiffs.at(-1).tags.split(',').map(tag => ({ value: tag }));
             post[0].topic.tags = await topics.getTagData(tags);
         }
 
@@ -154,10 +158,10 @@ module.exports = function (Posts) {
     }
 
     function getValidatedTimestamp(timestamp) {
-        timestamp = parseInt(timestamp, 10);
+        timestamp = Number.parseInt(timestamp, 10);
 
         if (isNaN(timestamp)) {
-            throw new Error('[[error:invalid-data]]');
+            throw new TypeError('[[error:invalid-data]]');
         }
 
         return timestamp;
@@ -170,6 +174,7 @@ module.exports = function (Posts) {
             });
             return typeof result === 'string' ? result : content;
         }
+
         return content;
     }
 };

@@ -7,14 +7,13 @@
 
 require('../../require-main');
 
-const path = require('path');
+const path = require('node:path');
+const url = require('node:url');
+const util = require('node:util');
 const nconf = require('nconf');
-const url = require('url');
-const util = require('util');
 
 process.env.NODE_ENV = process.env.TEST_ENV || 'production';
 global.env = process.env.NODE_ENV || 'production';
-
 
 const winston = require('winston');
 const packageInfo = require('../../package.json');
@@ -22,18 +21,18 @@ const packageInfo = require('../../package.json');
 winston.add(new winston.transports.Console({
     format: winston.format.combine(
         winston.format.splat(),
-        winston.format.simple()
+        winston.format.simple(),
     ),
 }));
 
 try {
-    const fs = require('fs');
-    const configJSON = fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf-8');
+    const fs = require('node:fs');
+    const configJSON = fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8');
     winston.info('configJSON');
     winston.info(configJSON);
-} catch (err) {
-    console.error(err.stack);
-    throw err;
+} catch (error) {
+    console.error(error.stack);
+    throw error;
 }
 
 nconf.file({ file: path.join(__dirname, '../../config.json') });
@@ -46,7 +45,7 @@ nconf.defaults({
 });
 
 const urlObject = url.parse(nconf.get('url'));
-const relativePath = urlObject.pathname !== '/' ? urlObject.pathname : '';
+const relativePath = urlObject.pathname === '/' ? '' : urlObject.pathname;
 nconf.set('relative_path', relativePath);
 nconf.set('asset_base_url', `${relativePath}/assets`);
 nconf.set('upload_path', path.join(nconf.get('base_dir'), nconf.get('upload_path')));
@@ -54,10 +53,10 @@ nconf.set('upload_url', '/assets/uploads');
 nconf.set('url_parsed', urlObject);
 nconf.set('base_url', `${urlObject.protocol}//${urlObject.host}`);
 nconf.set('secure', urlObject.protocol === 'https:');
-nconf.set('use_port', !!urlObject.port);
+nconf.set('use_port', Boolean(urlObject.port));
 nconf.set('port', urlObject.port || nconf.get('port') || (nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) || 4567);
 
-// cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
+// Cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
 const domain = nconf.get('cookieDomain') || urlObject.hostname;
 const origins = nconf.get('socket.io:origins') || `${urlObject.protocol}//${domain}:*`;
 nconf.set('socket.io:origins', origins);
@@ -107,7 +106,7 @@ if (!testDbConfig) {
         '    "password": "",\n' +
         '    "database": "nodebb_test"\n' +
         '}\n' +
-        '==========================================================='
+        '===========================================================',
     );
     winston.error(errorText);
     throw new Error(errorText);
@@ -145,17 +144,17 @@ before(async function () {
     nconf.set('runJobs', false);
     nconf.set('jobsDisabled', false);
 
-
     await db.init();
     if (db.hasOwnProperty('createIndices')) {
         await db.createIndices();
     }
+
     await setupMockDefaults();
     await db.initSessionStore();
 
     const meta = require('../../src/meta');
     nconf.set('theme_templates_path', meta.config['theme:templates'] ? path.join(nconf.get('themes_path'), meta.config['theme:id'], meta.config['theme:templates']) : nconf.get('base_templates_path'));
-    // nconf defaults, if not set in config
+    // Nconf defaults, if not set in config
     if (!nconf.get('sessionKey')) {
         nconf.set('sessionKey', 'express.sid');
     }
@@ -172,12 +171,12 @@ before(async function () {
     await webserver.listen();
 
     // Iterate over all of the test suites/contexts
-    this.test.parent.suites.forEach((suite) => {
+    for (const suite of this.test.parent.suites) {
         // Attach an afterAll listener that resets the defaults
         suite.afterAll(async () => {
             await setupMockDefaults();
         });
-    });
+    }
 });
 
 async function setupMockDefaults() {
@@ -197,7 +196,7 @@ async function setupMockDefaults() {
     require('../../src/posts/cache').reset();
     require('../../src/cache').reset();
     require('../../src/middleware/uploads').clearCache();
-    // privileges must be given after cache reset
+    // Privileges must be given after cache reset
     await giveDefaultGlobalPrivileges();
     await enableDefaultPlugins();
 
@@ -223,6 +222,7 @@ async function setupMockDefaults() {
         await mkdirp(folder);
     }
 }
+
 db.setupMockDefaults = setupMockDefaults;
 
 async function setupDefaultConfigs(meta) {
@@ -238,9 +238,16 @@ async function giveDefaultGlobalPrivileges() {
     winston.info('Giving default global privileges...\n');
     const privileges = require('../../src/privileges');
     await privileges.global.give([
-        'groups:chat', 'groups:upload:post:image', 'groups:signature', 'groups:search:content',
-        'groups:search:users', 'groups:search:tags', 'groups:local:login', 'groups:view:users',
-        'groups:view:tags', 'groups:view:groups',
+        'groups:chat',
+        'groups:upload:post:image',
+        'groups:signature',
+        'groups:search:content',
+        'groups:search:users',
+        'groups:search:tags',
+        'groups:local:login',
+        'groups:view:users',
+        'groups:view:tags',
+        'groups:view:groups',
     ], 'registered-users');
     await privileges.global.give([
         'groups:view:users', 'groups:view:tags', 'groups:view:groups',

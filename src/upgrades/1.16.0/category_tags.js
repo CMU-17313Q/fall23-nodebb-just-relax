@@ -8,7 +8,7 @@ const topics = require('../../topics');
 module.exports = {
     name: 'Create category tags sorted sets',
     timestamp: Date.UTC(2020, 10, 23),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         async function getTopicsTags(tids) {
@@ -27,12 +27,12 @@ module.exports = {
                 return t;
             }).filter(t => t && t.tags.length);
 
-            await async.eachSeries(topicsWithTags, async (topicObj) => {
-                const { cid, tags } = topicObj;
+            await async.eachSeries(topicsWithTags, async (topicObject) => {
+                const { cid, tags } = topicObject;
                 await db.sortedSetsAdd(
                     tags.map(tag => `cid:${cid}:tag:${tag}:topics`),
-                    topicObj.timestamp,
-                    topicObj.tid
+                    topicObject.timestamp,
+                    topicObject.tid,
                 );
                 const counts = await db.sortedSetsCard(tags.map(tag => `cid:${cid}:tag:${tag}:topics`));
                 await db.sortedSetAdd(`cid:${cid}:tags`, counts, tags);
@@ -40,7 +40,7 @@ module.exports = {
             progress.incr(tids.length);
         }, {
             batch: 500,
-            progress: progress,
+            progress,
         });
     },
 };

@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
-const os = require('os');
+const fs = require('node:fs');
+const os = require('node:os');
 const uglify = require('uglify-es');
 const async = require('async');
 const winston = require('winston');
@@ -9,9 +9,8 @@ const less = require('less');
 const postcss = require('postcss');
 const autoprefixer = require('autoprefixer');
 const clean = require('postcss-clean');
-
 const fork = require('./debugFork');
-require('../file'); // for graceful-fs
+require('../file'); // For graceful-fs
 
 const Minifier = module.exports;
 
@@ -21,11 +20,11 @@ const free = [];
 let maxThreads = 0;
 
 Object.defineProperty(Minifier, 'maxThreads', {
-    get: function () {
+    get() {
         return maxThreads;
     },
-    set: function (val) {
-        maxThreads = val;
+    set(value) {
+        maxThreads = value;
         if (!process.env.minifier_child) {
             winston.verbose(`[minifier] utilizing a maximum of ${maxThreads} additional threads`);
         }
@@ -37,16 +36,16 @@ Object.defineProperty(Minifier, 'maxThreads', {
 Minifier.maxThreads = os.cpus().length - 1;
 
 Minifier.killAll = function () {
-    pool.forEach((child) => {
+    for (const child of pool) {
         child.kill('SIGTERM');
-    });
+    }
 
     pool.length = 0;
     free.length = 0;
 };
 
 function getChild() {
-    if (free.length) {
+    if (free.length > 0) {
         return free.shift();
     }
 
@@ -87,15 +86,15 @@ function forkAction(action) {
                 resolve(message.result);
             }
         });
-        proc.on('error', (err) => {
+        proc.on('error', (error) => {
             proc.kill();
             removeChild(proc);
-            reject(err);
+            reject(error);
         });
 
         proc.send({
             type: 'action',
-            action: action,
+            action,
         });
     });
 }
@@ -113,16 +112,17 @@ if (process.env.minifier_child) {
                 });
                 return;
             }
+
             try {
                 const result = await actions[action.act](action);
                 process.send({
                     type: 'end',
-                    result: result,
+                    result,
                 });
-            } catch (err) {
+            } catch (error) {
                 process.send({
                     type: 'error',
-                    message: err.stack || err.message || 'unknown error',
+                    message: error.stack || error.message || 'unknown error',
                 });
             }
         }
@@ -133,14 +133,16 @@ async function executeAction(action, fork) {
     if (fork && (pool.length - free.length) < Minifier.maxThreads) {
         return await forkAction(action);
     }
+
     if (typeof actions[action.act] !== 'function') {
-        throw new Error('Unknown action');
+        throw new TypeError('Unknown action');
     }
+
     return await actions[action.act](action);
 }
 
 actions.concat = async function concat(data) {
-    if (data.files && data.files.length) {
+    if (data.files && data.files.length > 0) {
         const files = await async.mapLimit(data.files, 1000, async ref => await fs.promises.readFile(ref.srcPath, 'utf8'));
         const output = files.join('\n;');
         await fs.promises.writeFile(data.destPath, output);
@@ -148,31 +150,31 @@ actions.concat = async function concat(data) {
 };
 
 actions.minifyJS_batch = async function minifyJS_batch(data) {
-    await async.eachLimit(data.files, 100, async (fileObj) => {
-        const source = await fs.promises.readFile(fileObj.srcPath, 'utf8');
+    await async.eachLimit(data.files, 100, async (fileObject) => {
+        const source = await fs.promises.readFile(fileObject.srcPath, 'utf8');
         const filesToMinify = [
             {
-                srcPath: fileObj.srcPath,
-                filename: fileObj.filename,
-                source: source,
+                srcPath: fileObject.srcPath,
+                filename: fileObject.filename,
+                source,
             },
         ];
 
         await minifyAndSave({
             files: filesToMinify,
-            destPath: fileObj.destPath,
-            filename: fileObj.filename,
+            destPath: fileObject.destPath,
+            filename: fileObject.filename,
         });
     });
 };
 
 actions.minifyJS = async function minifyJS(data) {
-    const filesToMinify = await async.mapLimit(data.files, 1000, async (fileObj) => {
-        const source = await fs.promises.readFile(fileObj.srcPath, 'utf8');
+    const filesToMinify = await async.mapLimit(data.files, 1000, async (fileObject) => {
+        const source = await fs.promises.readFile(fileObject.srcPath, 'utf8');
         return {
-            srcPath: fileObj.srcPath,
-            filename: fileObj.filename,
-            source: source,
+            srcPath: fileObject.srcPath,
+            filename: fileObject.filename,
+            source,
         };
     });
     await minifyAndSave({
@@ -184,11 +186,11 @@ actions.minifyJS = async function minifyJS(data) {
 
 async function minifyAndSave(data) {
     const scripts = {};
-    data.files.forEach((ref) => {
+    for (const ref of data.files) {
         if (ref && ref.filename && ref.source) {
             scripts[ref.filename] = ref.source;
         }
-    });
+    }
 
     const minified = uglify.minify(scripts, {
         sourceMap: {
@@ -202,6 +204,7 @@ async function minifyAndSave(data) {
     if (minified.error) {
         throw new Error(`Error minifying ${minified.error.filename}\n${minified.error.stack}`);
     }
+
     await Promise.all([
         fs.promises.writeFile(data.destPath, minified.code),
         fs.promises.writeFile(`${data.destPath}.map`, minified.map),
@@ -237,6 +240,7 @@ actions.buildCSS = async function buildCSS(data) {
             processImportFrom: ['local'],
         }));
     }
+
     const result = await postcss(postcssArgs).process(lessOutput.css, {
         from: undefined,
     });
@@ -247,9 +251,9 @@ Minifier.css = {};
 Minifier.css.bundle = async function (source, paths, minify, fork) {
     return await executeAction({
         act: 'buildCSS',
-        source: source,
-        paths: paths,
-        minify: minify,
+        source,
+        paths,
+        minify,
     }, fork);
 };
 

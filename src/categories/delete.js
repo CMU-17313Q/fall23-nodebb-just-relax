@@ -23,7 +23,7 @@ module.exports = function (Categories) {
         });
         const categoryData = await Categories.getCategoryData(cid);
         await purgeCategory(cid, categoryData);
-        plugins.hooks.fire('action:category.delete', { cid: cid, uid: uid, category: categoryData });
+        plugins.hooks.fire('action:category.delete', { cid, uid, category: categoryData });
     };
 
     async function purgeCategory(cid, categoryData) {
@@ -31,6 +31,7 @@ module.exports = function (Categories) {
         if (categoryData && categoryData.name) {
             bulkRemove.push(['categories:name', `${categoryData.name.slice(0, 200).toLowerCase()}:${cid}`]);
         }
+
         await db.sortedSetRemoveBulk(bulkRemove);
 
         await removeFromParent(cid);

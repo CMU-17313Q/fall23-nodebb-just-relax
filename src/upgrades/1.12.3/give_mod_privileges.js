@@ -9,7 +9,7 @@ const db = require('../../database');
 module.exports = {
     name: 'Give mods explicit privileges',
     timestamp: Date.UTC(2019, 4, 28),
-    method: async function () {
+    async method() {
         const defaultPrivileges = [
             'find',
             'read',
@@ -24,10 +24,9 @@ module.exports = {
             'posts:downvote',
             'topics:delete',
         ];
-        const modPrivileges = defaultPrivileges.concat([
+        const modPrivileges = [...defaultPrivileges,
             'posts:view_deleted',
-            'purge',
-        ]);
+            'purge'];
 
         const globalModPrivs = [
             'groups:chat',
@@ -50,6 +49,7 @@ module.exports = {
             await givePrivsToModerators(cid, 'groups:');
             await privileges.categories.give(modPrivileges.map(p => `groups:${p}`), cid, ['Global Moderators']);
         }
+
         await privileges.global.give(globalModPrivs, 'Global Moderators');
 
         async function givePrivsToModerators(cid, groupPrefix) {

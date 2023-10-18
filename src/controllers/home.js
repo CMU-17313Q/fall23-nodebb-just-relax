@@ -1,7 +1,6 @@
 'use strict';
 
-const url = require('url');
-
+const url = require('node:url');
 const plugins = require('../plugins');
 const meta = require('../meta');
 const user = require('../user');
@@ -21,43 +20,45 @@ async function getUserHomeRoute(uid) {
     return route;
 }
 
-async function rewrite(req, res, next) {
-    if (req.path !== '/' && req.path !== '/api/' && req.path !== '/api') {
+async function rewrite(request, res, next) {
+    if (request.path !== '/' && request.path !== '/api/' && request.path !== '/api') {
         return next();
     }
+
     let route = adminHomePageRoute();
     if (meta.config.allowUserHomePage) {
-        route = await getUserHomeRoute(req.uid, next);
+        route = await getUserHomeRoute(request.uid, next);
     }
 
     let parsedUrl;
     try {
         parsedUrl = url.parse(route, true);
-    } catch (err) {
-        return next(err);
+    } catch (error) {
+        return next(error);
     }
 
     const { pathname } = parsedUrl;
     const hook = `action:homepage.get:${pathname}`;
-    if (!plugins.hooks.hasListeners(hook)) {
-        req.url = req.path + (!req.path.endsWith('/') ? '/' : '') + pathname;
-    } else {
+    if (plugins.hooks.hasListeners(hook)) {
         res.locals.homePageRoute = pathname;
+    } else {
+        request.url = request.path + (request.path.endsWith('/') ? '' : '/') + pathname;
     }
-    req.query = Object.assign(parsedUrl.query, req.query);
+
+    request.query = Object.assign(parsedUrl.query, request.query);
 
     next();
 }
 
 exports.rewrite = rewrite;
 
-function pluginHook(req, res, next) {
+function pluginHook(request, res, next) {
     const hook = `action:homepage.get:${res.locals.homePageRoute}`;
 
     plugins.hooks.fire(hook, {
-        req: req,
-        res: res,
-        next: next,
+        req: request,
+        res,
+        next,
     });
 }
 

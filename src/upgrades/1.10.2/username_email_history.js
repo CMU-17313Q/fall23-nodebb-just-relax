@@ -1,14 +1,13 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 const user = require('../../user');
 
 module.exports = {
     name: 'Record first entry in username/email history',
     timestamp: Date.UTC(2018, 7, 28),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('users:joindate', async (uids) => {

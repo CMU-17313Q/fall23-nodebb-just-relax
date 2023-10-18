@@ -1,12 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const plugins = require('../plugins');
-const Meta = require('./index');
 const pubsub = require('../pubsub');
 const cache = require('../cache');
+const Meta = require('./index');
 
 const Settings = module.exports;
 
@@ -15,6 +14,7 @@ Settings.get = async function (hash) {
     if (cached) {
         return _.cloneDeep(cached);
     }
+
     const [data, sortedLists] = await Promise.all([
         db.getObject(`settings:${hash}`),
         db.getSetMembers(`settings:${hash}:sorted-lists`),
@@ -27,19 +27,19 @@ Settings.get = async function (hash) {
         values[list] = [];
 
         const objects = await db.getObjects(keys);
-        objects.forEach((obj) => {
-            values[list].push(obj);
-        });
+        for (const object of objects) {
+            values[list].push(object);
+        }
     }));
 
-    const result = await plugins.hooks.fire('filter:settings.get', { plugin: hash, values: values });
+    const result = await plugins.hooks.fire('filter:settings.get', { plugin: hash, values });
     cache.set(`settings:${hash}`, result.values);
     return _.cloneDeep(result.values);
 };
 
 Settings.getOne = async function (hash, field) {
     const data = await Settings.get(hash);
-    return data[field] !== undefined ? data[field] : null;
+    return data[field] === undefined ? null : data[field];
 };
 
 Settings.set = async function (hash, values, quiet) {
@@ -54,31 +54,33 @@ Settings.set = async function (hash, values, quiet) {
             delete values[key];
         }
     }
+
     const sortedLists = Object.keys(sortedListData);
 
-    if (sortedLists.length) {
+    if (sortedLists.length > 0) {
         // Remove provided (but empty) sorted lists from the hash set
-        await db.setRemove(`settings:${hash}:sorted-lists`, sortedLists.filter(list => !sortedListData[list].length));
+        await db.setRemove(`settings:${hash}:sorted-lists`, sortedLists.filter(list => sortedListData[list].length === 0));
         await db.setAdd(`settings:${hash}:sorted-lists`, sortedLists);
 
         await Promise.all(sortedLists.map(async (list) => {
-            const numItems = await db.sortedSetCard(`settings:${hash}:sorted-list:${list}`);
+            const numberItems = await db.sortedSetCard(`settings:${hash}:sorted-list:${list}`);
             const deleteKeys = [`settings:${hash}:sorted-list:${list}`];
-            for (let x = 0; x < numItems; x++) {
+            for (let x = 0; x < numberItems; x++) {
                 deleteKeys.push(`settings:${hash}:sorted-list:${list}:${x}`);
             }
+
             await db.deleteAll(deleteKeys);
         }));
 
         const sortedSetData = [];
         const objectData = [];
-        sortedLists.forEach((list) => {
-            const arr = sortedListData[list];
-            arr.forEach((data, order) => {
+        for (const list of sortedLists) {
+            const array = sortedListData[list];
+            for (const [order, data] of array.entries()) {
                 sortedSetData.push([`settings:${hash}:sorted-list:${list}`, order, order]);
                 objectData.push([`settings:${hash}:sorted-list:${list}:${order}`, data]);
-            });
-        });
+            }
+        }
 
         await Promise.all([
             db.sortedSetAddBulk(sortedSetData),
@@ -86,7 +88,7 @@ Settings.set = async function (hash, values, quiet) {
         ]);
     }
 
-    if (Object.keys(values).length) {
+    if (Object.keys(values).length > 0) {
         await db.setObject(`settings:${hash}`, values);
     }
 
@@ -114,14 +116,13 @@ Settings.setOnEmpty = async function (hash, values) {
     const settings = await Settings.get(hash) || {};
     const empty = {};
 
-    Object.keys(values).forEach((key) => {
+    for (const key of Object.keys(values)) {
         if (!settings.hasOwnProperty(key)) {
             empty[key] = values[key];
         }
-    });
+    }
 
-
-    if (Object.keys(empty).length) {
+    if (Object.keys(empty).length > 0) {
         await Settings.set(hash, empty);
     }
 };

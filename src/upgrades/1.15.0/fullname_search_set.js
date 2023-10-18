@@ -1,14 +1,13 @@
 'use strict';
 
 const db = require('../../database');
-
 const batch = require('../../batch');
 const user = require('../../user');
 
 module.exports = {
     name: 'Create fullname search set',
     timestamp: Date.UTC(2020, 8, 11),
-    method: async function () {
+    async method() {
         const { progress } = this;
 
         await batch.processSortedSet('users:joindate', async (uids) => {

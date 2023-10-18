@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const privileges = require('../privileges');
 const plugins = require('../plugins');
 const db = require('../database');
@@ -18,9 +17,9 @@ module.exports = function (Categories) {
         let cids = await findCids(query, data.hardCap);
 
         const result = await plugins.hooks.fire('filter:categories.search', {
-            data: data,
-            cids: cids,
-            uid: uid,
+            data,
+            cids,
+            uid,
         });
         cids = await privileges.categories.filterCids('find', result.cids, uid);
 
@@ -42,19 +41,20 @@ module.exports = function (Categories) {
 
         Categories.getTree(categoryData, 0);
         await Categories.getRecentTopicReplies(categoryData, uid, data.qs);
-        categoryData.forEach((category) => {
+        for (const category of categoryData) {
             if (category && Array.isArray(category.children)) {
                 category.children = category.children.slice(0, category.subCategoriesPerPage);
-                category.children.forEach((child) => {
+                for (const child of category.children) {
                     child.children = undefined;
-                });
+                }
             }
-        });
+        }
 
         categoryData.sort((c1, c2) => {
             if (c1.parentCid !== c2.parentCid) {
                 return c1.parentCid - c2.parentCid;
             }
+
             return c1.order - c2.order;
         });
         searchResult.timing = (process.elapsedTimeSince(startTime) / 1000).toFixed(2);
@@ -66,16 +66,17 @@ module.exports = function (Categories) {
         if (!query || String(query).length < 2) {
             return [];
         }
+
         const data = await db.getSortedSetScan({
             key: 'categories:name',
             match: `*${String(query).toLowerCase()}*`,
             limit: hardCap || 500,
         });
-        return data.map(data => parseInt(data.split(':').pop(), 10));
+        return data.map(data => Number.parseInt(data.split(':').pop(), 10));
     }
 
     async function getChildrenCids(cids, uid) {
         const childrenCids = await Promise.all(cids.map(cid => Categories.getChildrenCids(cid)));
-        return await privileges.categories.filterCids('find', _.flatten(childrenCids), uid);
+        return await privileges.categories.filterCids('find', childrenCids.flat(), uid);
     }
 };

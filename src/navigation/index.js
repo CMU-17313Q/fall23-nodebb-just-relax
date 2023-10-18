@@ -2,8 +2,8 @@
 
 const nconf = require('nconf');
 const validator = require('validator');
-const admin = require('./admin');
 const groups = require('../groups');
+const admin = require('./admin');
 
 const navigation = module.exports;
 
@@ -23,9 +23,10 @@ navigation.get = async function (uid) {
     });
 
     const pass = await Promise.all(data.map(async (navItem) => {
-        if (!navItem.groups.length) {
+        if (navItem.groups.length === 0) {
             return true;
         }
+
         return await groups.isMemberOfAny(uid, navItem.groups);
     }));
     return data.filter((navItem, i) => pass[i]);

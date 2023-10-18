@@ -28,6 +28,7 @@ DO UPDATE SET "array" = EXCLUDED.array || "legacy_list"."array"`,
         if (!key) {
             return;
         }
+
         await module.transaction(async (client) => {
             value = Array.isArray(value) ? value : [value];
 
@@ -68,18 +69,20 @@ RETURNING A."array"[array_length(A."array", 1)] v`,
             values: [key],
         });
 
-        return res.rows.length ? res.rows[0].v : null;
+        return res.rows.length > 0 ? res.rows[0].v : null;
     };
 
     module.listRemoveAll = async function (key, value) {
         if (!key) {
             return;
         }
+
         // TODO: remove all values with one query
         if (Array.isArray(value)) {
             await Promise.all(value.map(v => module.listRemoveAll(key, v)));
             return;
         }
+
         await module.pool.query({
             name: 'listRemoveAll',
             text: `
@@ -168,7 +171,7 @@ SELECT ARRAY(SELECT m.m
             values: [key, start, stop],
         });
 
-        return res.rows.length ? res.rows[0].l : [];
+        return res.rows.length > 0 ? res.rows[0].l : [];
     };
 
     module.listLength = async function (key) {
@@ -184,6 +187,6 @@ SELECT array_length(l."array", 1) l
             values: [key],
         });
 
-        return res.rows.length ? res.rows[0].l : 0;
+        return res.rows.length > 0 ? res.rows[0].l : 0;
     };
 };

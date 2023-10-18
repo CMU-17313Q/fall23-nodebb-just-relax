@@ -3,12 +3,11 @@
 const _ = require('lodash');
 const winston = require('winston');
 const { CronJob } = require('cron');
-
 const db = require('../database');
 const posts = require('../posts');
 const socketHelpers = require('../socket.io/helpers');
-const topics = require('./index');
 const user = require('../user');
+const topics = require('./index');
 
 const Scheduled = module.exports;
 
@@ -21,31 +20,31 @@ Scheduled.handleExpired = async function () {
     const now = Date.now();
     const tids = await db.getSortedSetRangeByScore('topics:scheduled', 0, -1, '-inf', now);
 
-    if (!tids.length) {
+    if (tids.length === 0) {
         return;
     }
 
     let topicsData = await topics.getTopicsData(tids);
     // Filter deleted
-    topicsData = topicsData.filter(topicData => Boolean(topicData));
-    const uids = _.uniq(topicsData.map(topicData => topicData.uid)).filter(uid => uid); // Filter guests topics
+    topicsData = topicsData.filter(Boolean);
+    const uids = _.uniq(topicsData.map(topicData => topicData.uid)).filter(Boolean); // Filter guests topics
 
     // Restore first to be not filtered for being deleted
     // Restoring handles "updateRecentTid"
     await Promise.all([].concat(
         topicsData.map(topicData => topics.restore(topicData.tid)),
-        topicsData.map(topicData => topics.updateLastPostTimeFromLastPid(topicData.tid))
+        topicsData.map(topicData => topics.updateLastPostTimeFromLastPid(topicData.tid)),
     ));
 
     await Promise.all([].concat(
         sendNotifications(uids, topicsData),
         updateUserLastposttimes(uids, topicsData),
         ...topicsData.map(topicData => unpin(topicData.tid, topicData)),
-        db.sortedSetsRemoveRangeByScore([`topics:scheduled`], '-inf', now)
+        db.sortedSetsRemoveRangeByScore(['topics:scheduled'], '-inf', now),
     ));
 };
 
-// topics/tools.js#pin/unpin would block non-admins/mods, thus the local versions
+// Topics/tools.js#pin/unpin would block non-admins/mods, thus the local versions
 Scheduled.pin = async function (tid, topicData) {
     return Promise.all([
         topics.setTopicField(tid, 'pinned', 1),
@@ -80,7 +79,7 @@ function unpin(tid, topicData) {
         db.sortedSetAddBulk([
             [`cid:${topicData.cid}:tids`, topicData.lastposttime, tid],
             [`cid:${topicData.cid}:tids:posts`, topicData.postcount, tid],
-            [`cid:${topicData.cid}:tids:votes`, parseInt(topicData.votes, 10) || 0, tid],
+            [`cid:${topicData.cid}:tids:votes`, Number.parseInt(topicData.votes, 10) || 0, tid],
             [`cid:${topicData.cid}:tids:views`, topicData.viewcount, tid],
         ]),
     ];
@@ -91,18 +90,18 @@ async function sendNotifications(uids, topicsData) {
     const uidToUsername = Object.fromEntries(uids.map((uid, idx) => [uid, usernames[idx]]));
 
     const postsData = await posts.getPostsData(topicsData.map(({ mainPid }) => mainPid));
-    postsData.forEach((postData, idx) => {
+    for (const [idx, postData] of postsData.entries()) {
         postData.user = {};
         postData.user.username = uidToUsername[postData.uid];
         postData.topic = topicsData[idx];
-    });
+    }
 
     return Promise.all(topicsData.map(
-        (t, idx) => user.notifications.sendTopicNotificationToFollowers(t.uid, t, postsData[idx])
+        (t, idx) => user.notifications.sendTopicNotificationToFollowers(t.uid, t, postsData[idx]),
     ).concat(
         topicsData.map(
-            (t, idx) => socketHelpers.notifyNew(t.uid, 'newTopic', { posts: [postsData[idx]], topic: t })
-        )
+            (t, idx) => socketHelpers.notifyNew(t.uid, 'newTopic', { posts: [postsData[idx]], topic: t }),
+        ),
     ));
 }
 
@@ -110,11 +109,12 @@ async function updateUserLastposttimes(uids, topicsData) {
     const lastposttimes = (await user.getUsersFields(uids, ['lastposttime'])).map(u => u.lastposttime);
 
     let tstampByUid = {};
-    topicsData.forEach((tD) => {
+    for (const tD of topicsData) {
         tstampByUid[tD.uid] = tstampByUid[tD.uid] ? tstampByUid[tD.uid].concat(tD.lastposttime) : [tD.lastposttime];
-    });
+    }
+
     tstampByUid = Object.fromEntries(
-        Object.entries(tstampByUid).map(uidTimestamp => [uidTimestamp[0], Math.max(...uidTimestamp[1])])
+        Object.entries(tstampByUid).map(uidTimestamp => [uidTimestamp[0], Math.max(...uidTimestamp[1])]),
     );
 
     const uidsToUpdate = uids.filter((uid, idx) => tstampByUid[uid] > lastposttimes[idx]);

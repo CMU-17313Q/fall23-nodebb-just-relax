@@ -17,7 +17,7 @@ module.exports = function (User) {
         const isArray = Array.isArray(uids);
         uids = isArray ? uids : [uids];
         const blocks = await User.blocks.list(uids);
-        const isBlocked = uids.map((uid, index) => blocks[index] && blocks[index].includes(parseInt(targetUid, 10)));
+        const isBlocked = uids.map((uid, index) => blocks[index] && blocks[index].includes(Number.parseInt(targetUid, 10)));
         return isArray ? isBlocked : isBlocked[0];
     };
 
@@ -38,41 +38,43 @@ module.exports = function (User) {
         if (isBlockeeAdminOrMod && type === 'block') {
             throw new Error('[[error:cannot-block-privileged]]');
         }
-        if (parseInt(callerUid, 10) !== parseInt(blockerUid, 10) && !isCallerAdminOrMod) {
+
+        if (Number.parseInt(callerUid, 10) !== Number.parseInt(blockerUid, 10) && !isCallerAdminOrMod) {
             throw new Error('[[error:no-privileges]]');
         }
     };
 
     User.blocks.list = async function (uids) {
         const isArray = Array.isArray(uids);
-        uids = (isArray ? uids : [uids]).map(uid => parseInt(uid, 10));
+        uids = (isArray ? uids : [uids]).map(uid => Number.parseInt(uid, 10));
         const cachedData = {};
         const unCachedUids = User.blocks._cache.getUnCachedKeys(uids, cachedData);
-        if (unCachedUids.length) {
+        if (unCachedUids.length > 0) {
             const unCachedData = await db.getSortedSetsMembers(unCachedUids.map(uid => `uid:${uid}:blocked_uids`));
-            unCachedUids.forEach((uid, index) => {
-                cachedData[uid] = (unCachedData[index] || []).map(uid => parseInt(uid, 10));
+            for (const [index, uid] of unCachedUids.entries()) {
+                cachedData[uid] = (unCachedData[index] || []).map(uid => Number.parseInt(uid, 10));
                 User.blocks._cache.set(uid, cachedData[uid]);
-            });
+            }
         }
+
         const result = uids.map(uid => cachedData[uid] || []);
-        return isArray ? result.slice() : result[0];
+        return isArray ? [...result] : result[0];
     };
 
     User.blocks.add = async function (targetUid, uid) {
         await User.blocks.applyChecks('block', targetUid, uid);
         await db.sortedSetAdd(`uid:${uid}:blocked_uids`, Date.now(), targetUid);
         await User.incrementUserFieldBy(uid, 'blocksCount', 1);
-        User.blocks._cache.del(parseInt(uid, 10));
-        plugins.hooks.fire('action:user.blocks.add', { uid: uid, targetUid: targetUid });
+        User.blocks._cache.del(Number.parseInt(uid, 10));
+        plugins.hooks.fire('action:user.blocks.add', { uid, targetUid });
     };
 
     User.blocks.remove = async function (targetUid, uid) {
         await User.blocks.applyChecks('unblock', targetUid, uid);
         await db.sortedSetRemove(`uid:${uid}:blocked_uids`, targetUid);
         await User.decrementUserFieldBy(uid, 'blocksCount', 1);
-        User.blocks._cache.del(parseInt(uid, 10));
-        plugins.hooks.fire('action:user.blocks.remove', { uid: uid, targetUid: targetUid });
+        User.blocks._cache.del(Number.parseInt(uid, 10));
+        plugins.hooks.fire('action:user.blocks.remove', { uid, targetUid });
     };
 
     User.blocks.applyChecks = async function (type, targetUid, uid) {
@@ -92,12 +94,12 @@ module.exports = function (User) {
     User.blocks.filter = async function (uid, property, set) {
         // Given whatever is passed in, iterates through it, and removes entries made by blocked uids
         // property is optional
-        if (Array.isArray(property) && typeof set === 'undefined') {
+        if (Array.isArray(property) && set === undefined) {
             set = property;
             property = 'uid';
         }
 
-        if (!Array.isArray(set) || !set.length) {
+        if (!Array.isArray(set) || set.length === 0) {
             return set;
         }
 
@@ -105,8 +107,8 @@ module.exports = function (User) {
         const blocked_uids = await User.blocks.list(uid);
         const blockedSet = new Set(blocked_uids);
 
-        set = set.filter(item => !blockedSet.has(parseInt(isPlain ? item : (item && item[property]), 10)));
-        const data = await plugins.hooks.fire('filter:user.blocks.filter', { set: set, property: property, uid: uid, blockedSet: blockedSet });
+        set = set.filter(item => !blockedSet.has(Number.parseInt(isPlain ? item : (item && item[property]), 10)));
+        const data = await plugins.hooks.fire('filter:user.blocks.filter', { set, property, uid, blockedSet });
 
         return data.set;
     };

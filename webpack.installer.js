@@ -1,8 +1,8 @@
-// webpack config for webinstaller
+// Webpack config for webinstaller
 
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
 
 module.exports = {
     mode: 'production',
@@ -12,7 +12,7 @@ module.exports = {
     output: {
         filename: '[name].min.js',
         path: path.resolve(__dirname, 'build/public'),
-        publicPath: `/assets/`,
+        publicPath: '/assets/',
     },
     resolve: {
         symlinks: false,

@@ -1,15 +1,15 @@
 'use strict';
 
-const { fork } = require('child_process');
+const { fork } = require('node:child_process');
 
 let debugArg = process.execArgv.find(arg => /^--(debug|inspect)/.test(arg));
-const debugging = !!debugArg;
+const debugging = Boolean(debugArg);
 
 debugArg = debugArg ? debugArg.replace('-brk', '').split('=') : ['--debug', 5859];
-let lastAddress = parseInt(debugArg[1], 10);
+let lastAddress = Number.parseInt(debugArg[1], 10);
 
 /**
- * child-process.fork, but safe for use in debuggers
+ * Child-process.fork, but safe for use in debuggers
  * @param {string} modulePath
  * @param {string[]} [args]
  * @param {any} [options]
@@ -28,10 +28,11 @@ function debugFork(modulePath, args, options) {
     }
 
     options = options || {};
-    options = { ...options, execArgv: execArgv };
+    options = { ...options, execArgv };
 
     return fork(modulePath, args, options);
 }
+
 debugFork.debugging = debugging;
 
 module.exports = debugFork;

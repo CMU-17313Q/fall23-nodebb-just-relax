@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('./database');
 const posts = require('./posts');
 const topics = require('./topics');
@@ -18,20 +17,41 @@ search.search = async function (data) {
     data.sortBy = data.sortBy || 'relevance';
 
     let result;
-    if (data.searchIn === 'posts' || data.searchIn === 'titles' || data.searchIn === 'titlesposts') {
+    switch (data.searchIn) {
+    case 'posts':
+    case 'titles':
+    case 'titlesposts': {
         result = await searchInContent(data);
-    } else if (data.searchIn === 'users') {
+
+        break;
+    }
+
+    case 'users': {
         result = await user.search(data);
-    } else if (data.searchIn === 'categories') {
+
+        break;
+    }
+
+    case 'categories': {
         result = await categories.search(data);
-    } else if (data.searchIn === 'tags') {
+
+        break;
+    }
+
+    case 'tags': {
         result = await topics.searchAndLoadTags(data);
-    } else if (data.searchIn) {
+
+        break;
+    }
+
+    default: { if (data.searchIn) {
         result = await plugins.hooks.fire('filter:search.searchIn', {
             data,
         });
     } else {
         throw new Error('[[error:unknown-search-filter]]');
+    }
+    }
     }
 
     result.time = (process.elapsedTimeSince(start) / 1000).toFixed(2);
@@ -59,11 +79,13 @@ async function searchInContent(data) {
             });
             return Array.isArray(result) ? result : result.ids;
         }
+
         return [];
     }
+
     let pids = [];
     let tids = [];
-    const inTopic = String(data.query || '').match(/^in:topic-([\d]+) /);
+    const inTopic = String(data.query || '').match(/^in:topic-(\d+) /);
     if (inTopic) {
         const tid = inTopic[1];
         const cleanedTerm = data.query.replace(inTopic[0], '');
@@ -84,7 +106,7 @@ async function searchInContent(data) {
 
     const metadata = await plugins.hooks.fire('filter:search.inContent', {
         pids: allPids,
-        data: data,
+        data,
     });
 
     if (data.returnIds) {
@@ -100,7 +122,7 @@ async function searchInContent(data) {
     const returnData = {
         posts: [],
         matchCount: metadata.pids.length,
-        pageCount: Math.max(1, Math.ceil(parseInt(metadata.pids.length, 10) / itemsPerPage)),
+        pageCount: Math.max(1, Math.ceil(Number.parseInt(metadata.pids.length, 10) / itemsPerPage)),
     };
 
     if (data.page) {
@@ -109,7 +131,7 @@ async function searchInContent(data) {
     }
 
     returnData.posts = await posts.getPostSummaryByPids(metadata.pids, data.uid, {});
-    await plugins.hooks.fire('filter:search.contentGetResult', { result: returnData, data: data });
+    await plugins.hooks.fire('filter:search.contentGetResult', { result: returnData, data });
     delete metadata.pids;
     delete metadata.data;
     return Object.assign(returnData, metadata);
@@ -119,10 +141,12 @@ async function filterAndSort(pids, data) {
     if (data.sortBy === 'relevance' && !data.replies && !data.timeRange && !data.hasTags && !plugins.hooks.hasListeners('filter:search.filterAndSort')) {
         return pids;
     }
+
     let postsData = await getMatchedPosts(pids, data);
-    if (!postsData.length) {
+    if (postsData.length === 0) {
         return pids;
     }
+
     postsData = postsData.filter(Boolean);
 
     postsData = filterByPostcount(postsData, data.replies, data.repliesFilter);
@@ -131,7 +155,7 @@ async function filterAndSort(pids, data) {
 
     sortPosts(postsData, data);
 
-    const result = await plugins.hooks.fire('filter:search.filterAndSort', { pids: pids, posts: postsData, data: data });
+    const result = await plugins.hooks.fire('filter:search.filterAndSort', { pids, posts: postsData, data });
     return result.posts.map(post => post && post.pid);
 }
 
@@ -150,7 +174,7 @@ async function getMatchedPosts(pids, data) {
 
     const tidToTopic = _.zipObject(tids, topics);
     const uidToUser = _.zipObject(uids, users);
-    postsData.forEach((post) => {
+    for (const post of postsData) {
         if (topics && tidToTopic[post.tid]) {
             post.topic = tidToTopic[post.tid];
             if (post.topic && post.topic.category) {
@@ -161,7 +185,7 @@ async function getMatchedPosts(pids, data) {
         if (uidToUser[post.uid]) {
             post.user = uidToUser[post.uid];
         }
-    });
+    }
 
     return postsData.filter(post => post && post.topic && !post.topic.deleted);
 }
@@ -170,6 +194,7 @@ async function getUsers(uids, data) {
     if (data.sortBy.startsWith('user')) {
         return user.getUsersFields(uids, ['username']);
     }
+
     return [];
 }
 
@@ -179,14 +204,15 @@ async function getTopics(tids, data) {
     const categories = await getCategories(cids, data);
 
     const cidToCategory = _.zipObject(cids, categories);
-    topicsData.forEach((topic) => {
+    for (const topic of topicsData) {
         if (topic && categories && cidToCategory[topic.cid]) {
             topic.category = cidToCategory[topic.cid];
         }
+
         if (topic && topic.tags) {
             topic.tags = topic.tags.map(tag => tag.value);
         }
-    });
+    }
 
     return topicsData;
 }
@@ -197,7 +223,8 @@ async function getCategories(cids, data) {
     if (data.sortBy.startsWith('category.')) {
         categoryFields.push(data.sortBy.split('.')[1]);
     }
-    if (!categoryFields.length) {
+
+    if (categoryFields.length === 0) {
         return null;
     }
 
@@ -205,45 +232,41 @@ async function getCategories(cids, data) {
 }
 
 function filterByPostcount(posts, postCount, repliesFilter) {
-    postCount = parseInt(postCount, 10);
+    postCount = Number.parseInt(postCount, 10);
     if (postCount) {
-        if (repliesFilter === 'atleast') {
-            posts = posts.filter(post => post.topic && post.topic.postcount >= postCount);
-        } else {
-            posts = posts.filter(post => post.topic && post.topic.postcount <= postCount);
-        }
+        posts = repliesFilter === 'atleast' ? posts.filter(post => post.topic && post.topic.postcount >= postCount) : posts.filter(post => post.topic && post.topic.postcount <= postCount);
     }
+
     return posts;
 }
 
 function filterByTimerange(posts, timeRange, timeFilter) {
-    timeRange = parseInt(timeRange, 10) * 1000;
+    timeRange = Number.parseInt(timeRange, 10) * 1000;
     if (timeRange) {
         const time = Date.now() - timeRange;
-        if (timeFilter === 'newer') {
-            posts = posts.filter(post => post.timestamp >= time);
-        } else {
-            posts = posts.filter(post => post.timestamp <= time);
-        }
+        posts = timeFilter === 'newer' ? posts.filter(post => post.timestamp >= time) : posts.filter(post => post.timestamp <= time);
     }
+
     return posts;
 }
 
 function filterByTags(posts, hasTags) {
-    if (Array.isArray(hasTags) && hasTags.length) {
+    if (Array.isArray(hasTags) && hasTags.length > 0) {
         posts = posts.filter((post) => {
             let hasAllTags = false;
-            if (post && post.topic && Array.isArray(post.topic.tags) && post.topic.tags.length) {
+            if (post && post.topic && Array.isArray(post.topic.tags) && post.topic.tags.length > 0) {
                 hasAllTags = hasTags.every(tag => post.topic.tags.includes(tag));
             }
+
             return hasAllTags;
         });
     }
+
     return posts;
 }
 
 function sortPosts(posts, data) {
-    if (!posts.length || data.sortBy === 'relevance') {
+    if (posts.length === 0 || data.sortBy === 'relevance') {
         return;
     }
 
@@ -267,16 +290,19 @@ function sortPosts(posts, data) {
         posts.sort((p1, p2) => {
             if (p1[fields[0]][fields[1]] > p2[fields[0]][fields[1]]) {
                 return direction;
-            } else if (p1[fields[0]][fields[1]] < p2[fields[0]][fields[1]]) {
+            }
+
+            if (p1[fields[0]][fields[1]] < p2[fields[0]][fields[1]]) {
                 return -direction;
             }
+
             return 0;
         });
     }
 }
 
 async function getSearchCids(data) {
-    if (!Array.isArray(data.categories) || !data.categories.length) {
+    if (!Array.isArray(data.categories) || data.categories.length === 0) {
         return [];
     }
 
@@ -295,6 +321,7 @@ async function getWatchedCids(data) {
     if (!data.categories.includes('watched')) {
         return [];
     }
+
     return await user.getWatchedCategories(data.uid);
 }
 
@@ -302,14 +329,16 @@ async function getChildrenCids(data) {
     if (!data.searchChildren) {
         return [];
     }
+
     const childrenCids = await Promise.all(data.categories.map(cid => categories.getChildrenCids(cid)));
-    return await privileges.categories.filterCids('find', _.uniq(_.flatten(childrenCids)), data.uid);
+    return await privileges.categories.filterCids('find', _.uniq(childrenCids.flat()), data.uid);
 }
 
 async function getSearchUids(data) {
     if (!data.postedBy) {
         return [];
     }
+
     return await user.getUidsByUsernames(Array.isArray(data.postedBy) ? data.postedBy : [data.postedBy]);
 }
 

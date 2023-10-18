@@ -1,13 +1,12 @@
 
 'use strict';
 
-const path = require('path');
-const util = require('util');
+const path = require('node:path');
+const util = require('node:util');
+const readline = require('node:readline');
 const semver = require('semver');
-const readline = require('readline');
 const winston = require('winston');
 const chalk = require('chalk');
-
 const plugins = require('./plugins');
 const db = require('./database');
 const file = require('./file');
@@ -34,6 +33,7 @@ Upgrade.getAll = async function () {
         if (semverCompare) {
             return semverCompare;
         }
+
         const timestampA = require(a).timestamp;
         const timestampB = require(b).timestamp;
         return timestampA - timestampB;
@@ -41,17 +41,18 @@ Upgrade.getAll = async function () {
 
     await Upgrade.appendPluginScripts(files);
 
-    // check duplicates and error
+    // Check duplicates and error
     const seen = {};
     const dupes = [];
-    files.forEach((file) => {
+    for (const file of files) {
         if (seen[file]) {
             dupes.push(file);
         } else {
             seen[file] = true;
         }
-    });
-    if (dupes.length) {
+    }
+
+    if (dupes.length > 0) {
         winston.error(`Found duplicate upgrade scripts\n${dupes}`);
         throw new Error('[[error:duplicate-upgrade-scripts]]');
     }
@@ -62,21 +63,22 @@ Upgrade.getAll = async function () {
 Upgrade.appendPluginScripts = async function (files) {
     // Find all active plugins
     const activePlugins = await plugins.getActive();
-    activePlugins.forEach((plugin) => {
+    for (const plugin of activePlugins) {
         const configPath = path.join(paths.nodeModules, plugin, 'plugin.json');
         try {
             const pluginConfig = require(configPath);
             if (pluginConfig.hasOwnProperty('upgrades') && Array.isArray(pluginConfig.upgrades)) {
-                pluginConfig.upgrades.forEach((script) => {
+                for (const script of pluginConfig.upgrades) {
                     files.push(path.join(path.dirname(configPath), script));
-                });
+                }
             }
-        } catch (e) {
-            if (e.code !== 'MODULE_NOT_FOUND') {
-                winston.error(e.stack);
+        } catch (error) {
+            if (error.code !== 'MODULE_NOT_FOUND') {
+                winston.error(error.stack);
             }
         }
-    });
+    }
+
     return files;
 };
 
@@ -104,6 +106,7 @@ Upgrade.run = async function () {
         if (upgradeRan) {
             skipped += 1;
         }
+
         return !upgradeRan;
     });
 
@@ -136,7 +139,7 @@ Upgrade.process = async function (files, skipCount) {
             total: 0,
             incr: Upgrade.incrementProgress,
             script: scriptExport,
-            date: date,
+            date,
         };
 
         process.stdout.write(`${chalk.white('  → ') + chalk.gray(`[${[date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()].join('/')}] `) + scriptExport.name}...`);
@@ -146,7 +149,7 @@ Upgrade.process = async function (files, skipCount) {
             process.stdout.write(chalk.grey(' skipped\n'));
 
             await db.sortedSetAdd('schemaLog', Date.now(), path.basename(file, '.js'));
-            // eslint-disable-next-line no-continue
+
             continue;
         }
 
@@ -159,12 +162,13 @@ Upgrade.process = async function (files, skipCount) {
         const upgradeStart = Date.now();
         try {
             await scriptExport.method.bind({
-                progress: progress,
+                progress,
             })();
-        } catch (err) {
+        } catch (error) {
             console.error('Error occurred');
-            throw err;
+            throw error;
         }
+
         const upgradeDuration = ((Date.now() - upgradeStart) / 1000).toFixed(2);
         process.stdout.write(chalk.green(` OK (${upgradeDuration} seconds)\n`));
 

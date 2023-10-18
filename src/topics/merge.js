@@ -21,7 +21,7 @@ module.exports = function (Topics) {
         }
 
         const otherTids = tids.sort((a, b) => a - b)
-            .filter(tid => tid && parseInt(tid, 10) !== parseInt(mergeIntoTid, 10));
+            .filter(tid => tid && Number.parseInt(tid, 10) !== Number.parseInt(mergeIntoTid, 10));
 
         for (const tid of otherTids) {
             /* eslint-disable no-await-in-loop */
@@ -33,7 +33,7 @@ module.exports = function (Topics) {
             await Topics.setTopicField(tid, 'mainPid', 0);
             await Topics.delete(tid, uid);
             await Topics.setTopicFields(tid, {
-                mergeIntoTid: mergeIntoTid,
+                mergeIntoTid,
                 mergerUid: uid,
                 mergedTimestamp: Date.now(),
             });
@@ -45,24 +45,24 @@ module.exports = function (Topics) {
         ]);
 
         plugins.hooks.fire('action:topic.merge', {
-            uid: uid,
-            tids: tids,
-            mergeIntoTid: mergeIntoTid,
-            otherTids: otherTids,
+            uid,
+            tids,
+            mergeIntoTid,
+            otherTids,
         });
         return mergeIntoTid;
     };
 
     async function createNewTopic(title, oldestTid) {
         const topicData = await Topics.getTopicFields(oldestTid, ['uid', 'cid']);
-        const params = {
+        const parameters = {
             uid: topicData.uid,
             cid: topicData.cid,
-            title: title,
+            title,
         };
         const result = await plugins.hooks.fire('filter:topic.mergeCreateNewTopic', {
-            oldestTid: oldestTid,
-            params: params,
+            oldestTid,
+            params: parameters,
         });
         const tid = await Topics.create(result.params);
         return tid;
@@ -71,7 +71,7 @@ module.exports = function (Topics) {
     async function updateViewCount(mergeIntoTid, tids) {
         const topicData = await Topics.getTopicsFields(tids, ['viewcount']);
         const totalViewCount = topicData.reduce(
-            (count, topic) => count + parseInt(topic.viewcount, 10), 0
+            (count, topic) => count + Number.parseInt(topic.viewcount, 10), 0,
         );
         await Topics.setTopicField(mergeIntoTid, 'viewcount', totalViewCount);
     }
