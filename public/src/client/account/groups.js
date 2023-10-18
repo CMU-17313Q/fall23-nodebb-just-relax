@@ -1,19 +1,19 @@
 'use strict';
 
-define('forum/account/groups', ['forum/account/header'], header => {
-	const AccountTopics = {};
+define('forum/account/groups', ['forum/account/header'], (header) => {
+    const AccountTopics = {};
 
-	AccountTopics.init = function () {
-		header.init();
+    AccountTopics.init = function () {
+        header.init();
 
-		const groupsElement = $('#groups-list');
+        const groupsElement = $('#groups-list');
 
-		groupsElement.on('click', '.list-cover', function () {
-			const groupSlug = $(this).parents('[data-slug]').attr('data-slug');
+        groupsElement.on('click', '.list-cover', function () {
+            const groupSlug = $(this).parents('[data-slug]').attr('data-slug');
 
-			ajaxify.go('groups/' + groupSlug);
-		});
-	};
+            ajaxify.go('groups/' + groupSlug);
+        });
+    };
 
-	return AccountTopics;
+    return AccountTopics;
 });

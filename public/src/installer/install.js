@@ -7,147 +7,147 @@ const utils = require('../utils');
 const slugify = require('../modules/slugify');
 
 $('document').ready(() => {
-	setupInputs();
-	$('[name="username"]').focus();
+    setupInputs();
+    $('[name="username"]').focus();
 
-	activate('database', $('[name="database"]'));
+    activate('database', $('[name="database"]'));
 
-	if ($('#database-error').length > 0) {
-		$('[name="database"]').parents('.input-row').addClass('error');
-		$('html, body').animate({
-			scrollTop: ($('#database-error').offset().top + 100) + 'px',
-		}, 400);
-	}
+    if ($('#database-error').length > 0) {
+        $('[name="database"]').parents('.input-row').addClass('error');
+        $('html, body').animate({
+            scrollTop: ($('#database-error').offset().top + 100) + 'px',
+        }, 400);
+    }
 
-	$('#launch').on('click', launchForum);
+    $('#launch').on('click', launchForum);
 
-	if ($('#installing').length > 0) {
-		setTimeout(() => {
-			window.location.reload(true);
-		}, 5000);
-	}
+    if ($('#installing').length > 0) {
+        setTimeout(() => {
+            window.location.reload(true);
+        }, 5000);
+    }
 
-	function setupInputs() {
-		$('form').on('focus', '.form-control', function () {
-			const parent = $(this).parents('.input-row');
+    function setupInputs() {
+        $('form').on('focus', '.form-control', function () {
+            const parent = $(this).parents('.input-row');
 
-			$('.input-row.active').removeClass('active');
-			parent.addClass('active').removeClass('error');
+            $('.input-row.active').removeClass('active');
+            parent.addClass('active').removeClass('error');
 
-			const help = parent.find('.help-text');
-			help.html(help.attr('data-help'));
-		});
+            const help = parent.find('.help-text');
+            help.html(help.attr('data-help'));
+        });
 
-		$('form').on('blur change', '[name]', function () {
-			activate($(this).attr('name'), $(this));
-		});
+        $('form').on('blur change', '[name]', function () {
+            activate($(this).attr('name'), $(this));
+        });
 
-		$('form').submit(validateAll);
-	}
+        $('form').submit(validateAll);
+    }
 
-	function validateAll(ev) {
-		$('form .admin [name]').each(function () {
-			activate($(this).attr('name'), $(this));
-		});
+    function validateAll(ev) {
+        $('form .admin [name]').each(function () {
+            activate($(this).attr('name'), $(this));
+        });
 
-		if ($('form .admin .error').length > 0) {
-			ev.preventDefault();
-			$('html, body').animate({scrollTop: '0px'}, 400);
+        if ($('form .admin .error').length > 0) {
+            ev.preventDefault();
+            $('html, body').animate({ scrollTop: '0px' }, 400);
 
-			return false;
-		}
+            return false;
+        }
 
-		$('#submit .working').removeClass('hide');
-	}
+        $('#submit .working').removeClass('hide');
+    }
 
-	function activate(type, element) {
-		const field = element.val();
-		const parent = element.parents('.input-row');
-		const help = parent.children('.help-text');
+    function activate(type, element) {
+        const field = element.val();
+        const parent = element.parents('.input-row');
+        const help = parent.children('.help-text');
 
-		function validateUsername(field) {
-			if (!utils.isUserNameValid(field) || !slugify(field)) {
-				parent.addClass('error');
-				help.html('Invalid Username.');
-			} else {
-				parent.removeClass('error');
-			}
-		}
+        function validateUsername(field) {
+            if (!utils.isUserNameValid(field) || !slugify(field)) {
+                parent.addClass('error');
+                help.html('Invalid Username.');
+            } else {
+                parent.removeClass('error');
+            }
+        }
 
-		function validatePassword(field) {
-			if (!utils.isPasswordValid(field)) {
-				parent.addClass('error');
-				help.html('Invalid Password.');
-			} else if (field.length < $('[name="admin:password"]').attr('data-minimum-length')) {
-				parent.addClass('error');
-				help.html('Password is too short.');
-			} else if (zxcvbn(field).score < Number.parseInt($('[name="admin:password"]').attr('data-minimum-strength'), 10)) {
-				parent.addClass('error');
-				help.html('Password is too weak.');
-			} else {
-				parent.removeClass('error');
-			}
-		}
+        function validatePassword(field) {
+            if (!utils.isPasswordValid(field)) {
+                parent.addClass('error');
+                help.html('Invalid Password.');
+            } else if (field.length < $('[name="admin:password"]').attr('data-minimum-length')) {
+                parent.addClass('error');
+                help.html('Password is too short.');
+            } else if (zxcvbn(field).score < Number.parseInt($('[name="admin:password"]').attr('data-minimum-strength'), 10)) {
+                parent.addClass('error');
+                help.html('Password is too weak.');
+            } else {
+                parent.removeClass('error');
+            }
+        }
 
-		function validateConfirmPassword() {
-			if ($('[name="admin:password"]').val() === $('[name="admin:passwordConfirm"]').val()) {
-				parent.removeClass('error');
-			} else {
-				parent.addClass('error');
-				help.html('Passwords do not match.');
-			}
-		}
+        function validateConfirmPassword() {
+            if ($('[name="admin:password"]').val() === $('[name="admin:passwordConfirm"]').val()) {
+                parent.removeClass('error');
+            } else {
+                parent.addClass('error');
+                help.html('Passwords do not match.');
+            }
+        }
 
-		function validateEmail(field) {
-			if (utils.isEmailValid(field)) {
-				parent.removeClass('error');
-			} else {
-				parent.addClass('error');
-				help.html('Invalid Email Address.');
-			}
-		}
+        function validateEmail(field) {
+            if (utils.isEmailValid(field)) {
+                parent.removeClass('error');
+            } else {
+                parent.addClass('error');
+                help.html('Invalid Email Address.');
+            }
+        }
 
-		function switchDatabase(field) {
-			$('#database-config').html($('[data-database="' + field + '"]').html());
-		}
+        function switchDatabase(field) {
+            $('#database-config').html($('[data-database="' + field + '"]').html());
+        }
 
-		switch (type) {
-			case 'admin:username': {
-				return validateUsername(field);
-			}
+        switch (type) {
+        case 'admin:username': {
+            return validateUsername(field);
+        }
 
-			case 'admin:password': {
-				return validatePassword(field);
-			}
+        case 'admin:password': {
+            return validatePassword(field);
+        }
 
-			case 'admin:passwordConfirm': {
-				return validateConfirmPassword(field);
-			}
+        case 'admin:passwordConfirm': {
+            return validateConfirmPassword(field);
+        }
 
-			case 'admin:email': {
-				return validateEmail(field);
-			}
+        case 'admin:email': {
+            return validateEmail(field);
+        }
 
-			case 'database': {
-				return switchDatabase(field);
-			}
-		}
-	}
+        case 'database': {
+            return switchDatabase(field);
+        }
+        }
+    }
 
-	function launchForum() {
-		$('#launch .working').removeClass('hide');
-		$.post('/launch', () => {
-			let successCount = 0;
-			const url = $('#launch').attr('data-url');
-			setInterval(() => {
-				$.get(url + '/admin').done(() => {
-					if (successCount >= 5) {
-						window.location = 'admin';
-					} else {
-						successCount += 1;
-					}
-				});
-			}, 750);
-		});
-	}
+    function launchForum() {
+        $('#launch .working').removeClass('hide');
+        $.post('/launch', () => {
+            let successCount = 0;
+            const url = $('#launch').attr('data-url');
+            setInterval(() => {
+                $.get(url + '/admin').done(() => {
+                    if (successCount >= 5) {
+                        window.location = 'admin';
+                    } else {
+                        successCount += 1;
+                    }
+                });
+            }, 750);
+        });
+    }
 });

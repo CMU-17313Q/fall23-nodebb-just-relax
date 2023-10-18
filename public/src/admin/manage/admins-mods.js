@@ -1,137 +1,137 @@
 'use strict';
 
 define('admin/manage/admins-mods', [
-	'autocomplete', 'api', 'bootbox', 'alerts', 'categorySelector',
+    'autocomplete', 'api', 'bootbox', 'alerts', 'categorySelector',
 ], (autocomplete, api, bootbox, alerts, categorySelector) => {
-	const AdminsMods = {};
+    const AdminsMods = {};
 
-	AdminsMods.init = function () {
-		autocomplete.user($('#admin-search'), (ev, ui) => {
-			socket.emit('admin.user.makeAdmins', [ui.item.user.uid], error => {
-				if (error) {
-					return alerts.error(error);
-				}
+    AdminsMods.init = function () {
+        autocomplete.user($('#admin-search'), (ev, ui) => {
+            socket.emit('admin.user.makeAdmins', [ui.item.user.uid], (error) => {
+                if (error) {
+                    return alerts.error(error);
+                }
 
-				alerts.success('[[admin/manage/users:alerts.make-admin-success]]');
-				$('#admin-search').val('');
+                alerts.success('[[admin/manage/users:alerts.make-admin-success]]');
+                $('#admin-search').val('');
 
-				if ($('.administrator-area [data-uid="' + ui.item.user.uid + '"]').length > 0) {
-					return;
-				}
+                if ($('.administrator-area [data-uid="' + ui.item.user.uid + '"]').length > 0) {
+                    return;
+                }
 
-				app.parseAndTranslate('admin/manage/admins-mods', 'admins.members', {admins: {members: [ui.item.user]}}, html => {
-					$('.administrator-area').prepend(html);
-				});
-			});
-		});
+                app.parseAndTranslate('admin/manage/admins-mods', 'admins.members', { admins: { members: [ui.item.user] } }, (html) => {
+                    $('.administrator-area').prepend(html);
+                });
+            });
+        });
 
-		$('.administrator-area').on('click', '.remove-user-icon', function () {
-			const userCard = $(this).parents('[data-uid]');
-			const uid = userCard.attr('data-uid');
-			if (Number.parseInt(uid, 10) === Number.parseInt(app.user.uid, 10)) {
-				return alerts.error('[[admin/manage/users:alerts.no-remove-yourself-admin]]');
-			}
+        $('.administrator-area').on('click', '.remove-user-icon', function () {
+            const userCard = $(this).parents('[data-uid]');
+            const uid = userCard.attr('data-uid');
+            if (Number.parseInt(uid, 10) === Number.parseInt(app.user.uid, 10)) {
+                return alerts.error('[[admin/manage/users:alerts.no-remove-yourself-admin]]');
+            }
 
-			bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-admin]]', confirm => {
-				if (confirm) {
-					socket.emit('admin.user.removeAdmins', [uid], error => {
-						if (error) {
-							return alerts.error(error.message);
-						}
+            bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-admin]]', (confirm) => {
+                if (confirm) {
+                    socket.emit('admin.user.removeAdmins', [uid], (error) => {
+                        if (error) {
+                            return alerts.error(error.message);
+                        }
 
-						alerts.success('[[admin/manage/users:alerts.remove-admin-success]]');
-						userCard.remove();
-					});
-				}
-			});
-		});
+                        alerts.success('[[admin/manage/users:alerts.remove-admin-success]]');
+                        userCard.remove();
+                    });
+                }
+            });
+        });
 
-		autocomplete.user($('#global-mod-search'), (ev, ui) => {
-			api.put('/groups/global-moderators/membership/' + ui.item.user.uid).then(() => {
-				alerts.success('[[admin/manage/users:alerts.make-global-mod-success]]');
-				$('#global-mod-search').val('');
+        autocomplete.user($('#global-mod-search'), (ev, ui) => {
+            api.put('/groups/global-moderators/membership/' + ui.item.user.uid).then(() => {
+                alerts.success('[[admin/manage/users:alerts.make-global-mod-success]]');
+                $('#global-mod-search').val('');
 
-				if ($('.global-moderator-area [data-uid="' + ui.item.user.uid + '"]').length > 0) {
-					return;
-				}
+                if ($('.global-moderator-area [data-uid="' + ui.item.user.uid + '"]').length > 0) {
+                    return;
+                }
 
-				app.parseAndTranslate('admin/manage/admins-mods', 'globalMods.members', {globalMods: {members: [ui.item.user]}}, html => {
-					$('.global-moderator-area').prepend(html);
-					$('#no-global-mods-warning').addClass('hidden');
-				});
-			}).catch(alerts.error);
-		});
+                app.parseAndTranslate('admin/manage/admins-mods', 'globalMods.members', { globalMods: { members: [ui.item.user] } }, (html) => {
+                    $('.global-moderator-area').prepend(html);
+                    $('#no-global-mods-warning').addClass('hidden');
+                });
+            }).catch(alerts.error);
+        });
 
-		$('.global-moderator-area').on('click', '.remove-user-icon', function () {
-			const userCard = $(this).parents('[data-uid]');
-			const uid = userCard.attr('data-uid');
+        $('.global-moderator-area').on('click', '.remove-user-icon', function () {
+            const userCard = $(this).parents('[data-uid]');
+            const uid = userCard.attr('data-uid');
 
-			bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-global-mod]]', confirm => {
-				if (confirm) {
-					api.del('/groups/global-moderators/membership/' + uid).then(() => {
-						alerts.success('[[admin/manage/users:alerts.remove-global-mod-success]]');
-						userCard.remove();
-						if ($('.global-moderator-area').children().length === 0) {
-							$('#no-global-mods-warning').removeClass('hidden');
-						}
-					}).catch(alerts.error);
-				}
-			});
-		});
+            bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-global-mod]]', (confirm) => {
+                if (confirm) {
+                    api.del('/groups/global-moderators/membership/' + uid).then(() => {
+                        alerts.success('[[admin/manage/users:alerts.remove-global-mod-success]]');
+                        userCard.remove();
+                        if ($('.global-moderator-area').children().length === 0) {
+                            $('#no-global-mods-warning').removeClass('hidden');
+                        }
+                    }).catch(alerts.error);
+                }
+            });
+        });
 
-		categorySelector.init($('[component="category-selector"]'), {
-			parentCid: ajaxify.data.selectedCategory ? ajaxify.data.selectedCategory.cid : 0,
-			onSelect(selectedCategory) {
-				ajaxify.go('admin/manage/admins-mods' + (selectedCategory.cid ? '?cid=' + selectedCategory.cid : ''));
-			},
-			localCategories: [],
-		});
+        categorySelector.init($('[component="category-selector"]'), {
+            parentCid: ajaxify.data.selectedCategory ? ajaxify.data.selectedCategory.cid : 0,
+            onSelect(selectedCategory) {
+                ajaxify.go('admin/manage/admins-mods' + (selectedCategory.cid ? '?cid=' + selectedCategory.cid : ''));
+            },
+            localCategories: [],
+        });
 
-		autocomplete.user($('.moderator-search'), (ev, ui) => {
-			const input = $(ev.target);
-			const cid = $(ev.target).attr('data-cid');
-			api.put(`/categories/${cid}/moderator/${ui.item.user.uid}`, {}, error => {
-				if (error) {
-					return alerts.error(error);
-				}
+        autocomplete.user($('.moderator-search'), (ev, ui) => {
+            const input = $(ev.target);
+            const cid = $(ev.target).attr('data-cid');
+            api.put(`/categories/${cid}/moderator/${ui.item.user.uid}`, {}, (error) => {
+                if (error) {
+                    return alerts.error(error);
+                }
 
-				alerts.success('[[admin/manage/users:alerts.make-moderator-success]]');
-				input.val('');
+                alerts.success('[[admin/manage/users:alerts.make-moderator-success]]');
+                input.val('');
 
-				if ($('.moderator-area[data-cid="' + cid + '"] [data-uid="' + ui.item.user.uid + '"]').length > 0) {
-					return;
-				}
+                if ($('.moderator-area[data-cid="' + cid + '"] [data-uid="' + ui.item.user.uid + '"]').length > 0) {
+                    return;
+                }
 
-				app.parseAndTranslate('admin/manage/admins-mods', 'globalMods.members', {globalMods: {members: [ui.item.user]}}, html => {
-					$('.moderator-area[data-cid="' + cid + '"]').prepend(html);
-					$('.no-moderator-warning[data-cid="' + cid + '"]').addClass('hidden');
-				});
-			});
-		});
+                app.parseAndTranslate('admin/manage/admins-mods', 'globalMods.members', { globalMods: { members: [ui.item.user] } }, (html) => {
+                    $('.moderator-area[data-cid="' + cid + '"]').prepend(html);
+                    $('.no-moderator-warning[data-cid="' + cid + '"]').addClass('hidden');
+                });
+            });
+        });
 
-		$('.moderator-area').on('click', '.remove-user-icon', function () {
-			const moderatorArea = $(this).parents('[data-cid]');
-			const cid = moderatorArea.attr('data-cid');
-			const userCard = $(this).parents('[data-uid]');
-			const uid = userCard.attr('data-uid');
+        $('.moderator-area').on('click', '.remove-user-icon', function () {
+            const moderatorArea = $(this).parents('[data-cid]');
+            const cid = moderatorArea.attr('data-cid');
+            const userCard = $(this).parents('[data-uid]');
+            const uid = userCard.attr('data-uid');
 
-			bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-moderator]]', confirm => {
-				if (confirm) {
-					api.delete(`/categories/${cid}/moderator/${uid}`, {}, error => {
-						if (error) {
-							return alerts.error(error);
-						}
+            bootbox.confirm('[[admin/manage/users:alerts.confirm-remove-moderator]]', (confirm) => {
+                if (confirm) {
+                    api.delete(`/categories/${cid}/moderator/${uid}`, {}, (error) => {
+                        if (error) {
+                            return alerts.error(error);
+                        }
 
-						alerts.success('[[admin/manage/users:alerts.remove-moderator-success]]');
-						userCard.remove();
-						if (moderatorArea.children().length === 0) {
-							$('.no-moderator-warning[data-cid="' + cid + '"]').removeClass('hidden');
-						}
-					});
-				}
-			});
-		});
-	};
+                        alerts.success('[[admin/manage/users:alerts.remove-moderator-success]]');
+                        userCard.remove();
+                        if (moderatorArea.children().length === 0) {
+                            $('.no-moderator-warning[data-cid="' + cid + '"]').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+        });
+    };
 
-	return AdminsMods;
+    return AdminsMods;
 });

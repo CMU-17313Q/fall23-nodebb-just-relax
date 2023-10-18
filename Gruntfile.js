@@ -4,12 +4,12 @@ const path = require('node:path');
 const nconf = require('nconf');
 
 nconf.argv().env({
-	separator: '__',
+    separator: '__',
 });
 const winston = require('winston');
-const {fork} = require('node:child_process');
+const { fork } = require('node:child_process');
 
-const {env} = process;
+const { env } = process;
 let worker;
 
 env.NODE_ENV = env.NODE_ENV || 'development';
@@ -23,214 +23,214 @@ const db = require('./src/database');
 const plugins = require('./src/plugins');
 
 module.exports = function (grunt) {
-	const args = [];
+    const args = [];
 
-	if (!grunt.option('verbose')) {
-		args.push('--log-level=info');
-		nconf.set('log-level', 'info');
-	}
+    if (!grunt.option('verbose')) {
+        args.push('--log-level=info');
+        nconf.set('log-level', 'info');
+    }
 
-	prestart.setupWinston();
+    prestart.setupWinston();
 
-	grunt.initConfig({
-		watch: {},
-	});
+    grunt.initConfig({
+        watch: {},
+    });
 
-	grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('default', ['watch']);
+    grunt.registerTask('default', ['watch']);
 
-	grunt.registerTask('init', async function () {
-		const done = this.async();
-		let pluginList = [];
-		if (!process.argv.includes('--core')) {
-			await db.init();
-			pluginList = await plugins.getActive();
-			if (!pluginList.includes('nodebb-plugin-composer-default')) {
-				pluginList.push('nodebb-plugin-composer-default');
-			}
-		}
+    grunt.registerTask('init', async function () {
+        const done = this.async();
+        let pluginList = [];
+        if (!process.argv.includes('--core')) {
+            await db.init();
+            pluginList = await plugins.getActive();
+            if (!pluginList.includes('nodebb-plugin-composer-default')) {
+                pluginList.push('nodebb-plugin-composer-default');
+            }
+        }
 
-		const styleUpdated_Client = pluginList.map(p => `node_modules/${p}/*.less`)
-			.concat(pluginList.map(p => `node_modules/${p}/*.css`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static|less)/**/*.less`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.css`));
+        const styleUpdated_Client = pluginList.map(p => `node_modules/${p}/*.less`)
+            .concat(pluginList.map(p => `node_modules/${p}/*.css`))
+            .concat(pluginList.map(p => `node_modules/${p}/+(public|static|less)/**/*.less`))
+            .concat(pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.css`));
 
-		const styleUpdated_Admin = pluginList.map(p => `node_modules/${p}/*.less`)
-			.concat(pluginList.map(p => `node_modules/${p}/*.css`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static|less)/**/*.less`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.css`));
+        const styleUpdated_Admin = pluginList.map(p => `node_modules/${p}/*.less`)
+            .concat(pluginList.map(p => `node_modules/${p}/*.css`))
+            .concat(pluginList.map(p => `node_modules/${p}/+(public|static|less)/**/*.less`))
+            .concat(pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.css`));
 
-		const clientUpdated = pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.js`);
-		const serverUpdated = pluginList.map(p => `node_modules/${p}/*.js`)
-			.concat(pluginList.map(p => `node_modules/${p}/+(lib|src)/**/*.js`));
+        const clientUpdated = pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.js`);
+        const serverUpdated = pluginList.map(p => `node_modules/${p}/*.js`)
+            .concat(pluginList.map(p => `node_modules/${p}/+(lib|src)/**/*.js`));
 
-		const templatesUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|templates)/**/*.tpl`);
-		const langUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|languages)/**/*.json`);
+        const templatesUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|templates)/**/*.tpl`);
+        const langUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|languages)/**/*.json`);
 
-		grunt.config(['watch'], {
-			styleUpdated_Client: {
-				files: [
-					'public/less/**/*.less',
-					'themes/**/*.less',
-					...styleUpdated_Client,
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			styleUpdated_Admin: {
-				files: [
-					'public/less/**/*.less',
-					'themes/**/*.less',
-					...styleUpdated_Admin,
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			clientUpdated: {
-				files: [
-					'public/src/**/*.js',
-					'public/vendor/**/*.js',
-					...clientUpdated,
-					'node_modules/benchpressjs/build/benchpress.js',
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			serverUpdated: {
-				files: [
-					'app.js',
-					'install/*.js',
-					'src/**/*.js',
-					'public/src/modules/translator.common.js',
-					'public/src/modules/helpers.common.js',
-					'public/src/utils.common.js',
-					serverUpdated,
-					'!src/upgrades/**',
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			typescriptUpdated: {
-				files: [
-					'install/*.ts',
-					'src/**/*.ts',
-					'public/src/**/*.ts',
-					'public/vendor/**/*.ts',
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			templatesUpdated: {
-				files: [
-					'src/views/**/*.tpl',
-					'themes/**/*.tpl',
-					...templatesUpdated,
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-			langUpdated: {
-				files: [
-					'public/language/en-GB/*.json',
-					'public/language/en-GB/**/*.json',
-					...langUpdated,
-				],
-				options: {
-					interval: 1000,
-				},
-			},
-		});
-		const build = require('./src/meta/build');
-		if (!grunt.option('skip')) {
-			await build.build(true, {watch: true});
-		}
+        grunt.config(['watch'], {
+            styleUpdated_Client: {
+                files: [
+                    'public/less/**/*.less',
+                    'themes/**/*.less',
+                    ...styleUpdated_Client,
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            styleUpdated_Admin: {
+                files: [
+                    'public/less/**/*.less',
+                    'themes/**/*.less',
+                    ...styleUpdated_Admin,
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            clientUpdated: {
+                files: [
+                    'public/src/**/*.js',
+                    'public/vendor/**/*.js',
+                    ...clientUpdated,
+                    'node_modules/benchpressjs/build/benchpress.js',
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            serverUpdated: {
+                files: [
+                    'app.js',
+                    'install/*.js',
+                    'src/**/*.js',
+                    'public/src/modules/translator.common.js',
+                    'public/src/modules/helpers.common.js',
+                    'public/src/utils.common.js',
+                    serverUpdated,
+                    '!src/upgrades/**',
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            typescriptUpdated: {
+                files: [
+                    'install/*.ts',
+                    'src/**/*.ts',
+                    'public/src/**/*.ts',
+                    'public/vendor/**/*.ts',
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            templatesUpdated: {
+                files: [
+                    'src/views/**/*.tpl',
+                    'themes/**/*.tpl',
+                    ...templatesUpdated,
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+            langUpdated: {
+                files: [
+                    'public/language/en-GB/*.json',
+                    'public/language/en-GB/**/*.json',
+                    ...langUpdated,
+                ],
+                options: {
+                    interval: 1000,
+                },
+            },
+        });
+        const build = require('./src/meta/build');
+        if (!grunt.option('skip')) {
+            await build.build(true, { watch: true });
+        }
 
-		run();
-		done();
-	});
+        run();
+        done();
+    });
 
-	function run() {
-		if (worker) {
-			worker.kill();
-		}
+    function run() {
+        if (worker) {
+            worker.kill();
+        }
 
-		const execArgv = [];
-		const inspect = process.argv.find(a => a.startsWith('--inspect'));
+        const execArgv = [];
+        const inspect = process.argv.find(a => a.startsWith('--inspect'));
 
-		if (inspect) {
-			execArgv.push(inspect);
-		}
+        if (inspect) {
+            execArgv.push(inspect);
+        }
 
-		worker = fork('app.js', args, {
-			env,
-			execArgv,
-		});
-	}
+        worker = fork('app.js', args, {
+            env,
+            execArgv,
+        });
+    }
 
-	grunt.task.run('init');
+    grunt.task.run('init');
 
-	grunt.event.removeAllListeners('watch');
-	grunt.event.on('watch', (action, filepath, target) => {
-		let compiling;
-		switch (target) {
-			case 'styleUpdated_Client': {
-				compiling = 'clientCSS';
+    grunt.event.removeAllListeners('watch');
+    grunt.event.on('watch', (action, filepath, target) => {
+        let compiling;
+        switch (target) {
+        case 'styleUpdated_Client': {
+            compiling = 'clientCSS';
 
-				break;
-			}
+            break;
+        }
 
-			case 'styleUpdated_Admin': {
-				compiling = 'acpCSS';
+        case 'styleUpdated_Admin': {
+            compiling = 'acpCSS';
 
-				break;
-			}
+            break;
+        }
 
-			case 'clientUpdated':
-			case 'typescriptUpdated': {
-				compiling = 'js';
+        case 'clientUpdated':
+        case 'typescriptUpdated': {
+            compiling = 'js';
 
-				break;
-			}
+            break;
+        }
 
-			case 'templatesUpdated': {
-				compiling = 'tpl';
+        case 'templatesUpdated': {
+            compiling = 'tpl';
 
-				break;
-			}
+            break;
+        }
 
-			case 'langUpdated': {
-				compiling = 'lang';
+        case 'langUpdated': {
+            compiling = 'lang';
 
-				break;
-			}
+            break;
+        }
 
-			case 'serverUpdated': {
-			// Empty require cache
-				const paths = ['./src/meta/build.js', './src/meta/index.js'];
-				for (const p of paths) {
-					delete require.cache[require.resolve(p)];
-				}
+        case 'serverUpdated': {
+            // Empty require cache
+            const paths = ['./src/meta/build.js', './src/meta/index.js'];
+            for (const p of paths) {
+                delete require.cache[require.resolve(p)];
+            }
 
-				return run();
-			}
+            return run();
+        }
 		// No default
-		}
+        }
 
-		require('./src/meta/build').build([compiling], {webpack: false}, error => {
-			if (error) {
-				winston.error(error.stack);
-			}
+        require('./src/meta/build').build([compiling], { webpack: false }, (error) => {
+            if (error) {
+                winston.error(error.stack);
+            }
 
-			if (worker) {
-				worker.send({compiling});
-			}
-		});
-	});
+            if (worker) {
+                worker.send({ compiling });
+            }
+        });
+    });
 };

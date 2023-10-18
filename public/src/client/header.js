@@ -1,80 +1,80 @@
 'use strict';
 
 define('forum/header', [
-	'forum/header/unread',
-	'forum/header/notifications',
-	'forum/header/chat',
-	'alerts',
+    'forum/header/unread',
+    'forum/header/notifications',
+    'forum/header/chat',
+    'alerts',
 ], (unread, notifications, chat, alerts) => {
-	const module = {};
+    const module = {};
 
-	module.prepareDOM = function () {
-		if (app.user.uid > 0) {
-			unread.initUnreadTopics();
-		}
+    module.prepareDOM = function () {
+        if (app.user.uid > 0) {
+            unread.initUnreadTopics();
+        }
 
-		notifications.prepareDOM();
-		chat.prepareDOM();
-		handleStatusChange();
-		createHeaderTooltips();
-		handleLogout();
-	};
+        notifications.prepareDOM();
+        chat.prepareDOM();
+        handleStatusChange();
+        createHeaderTooltips();
+        handleLogout();
+    };
 
-	function handleStatusChange() {
-		$('[component="header/usercontrol"] [data-status]').off('click').on('click', function (e) {
-			const status = $(this).attr('data-status');
-			socket.emit('user.setStatus', status, error => {
-				if (error) {
-					return alerts.error(error);
-				}
+    function handleStatusChange() {
+        $('[component="header/usercontrol"] [data-status]').off('click').on('click', function (e) {
+            const status = $(this).attr('data-status');
+            socket.emit('user.setStatus', status, (error) => {
+                if (error) {
+                    return alerts.error(error);
+                }
 
-				$('[data-uid="' + app.user.uid + '"] [component="user/status"], [component="header/profilelink"] [component="user/status"]')
-					.removeClass('away online dnd offline')
-					.addClass(status);
-				$('[component="header/usercontrol"] [data-status]').each(function () {
-					$(this).find('span').toggleClass('bold', $(this).attr('data-status') === status);
-				});
-				app.user.status = status;
-			});
-			e.preventDefault();
-		});
-	}
+                $('[data-uid="' + app.user.uid + '"] [component="user/status"], [component="header/profilelink"] [component="user/status"]')
+                    .removeClass('away online dnd offline')
+                    .addClass(status);
+                $('[component="header/usercontrol"] [data-status]').each(function () {
+                    $(this).find('span').toggleClass('bold', $(this).attr('data-status') === status);
+                });
+                app.user.status = status;
+            });
+            e.preventDefault();
+        });
+    }
 
-	function createHeaderTooltips() {
-		const env = utils.findBootstrapEnvironment();
-		if (env === 'xs' || env === 'sm' || utils.isTouchDevice()) {
-			return;
-		}
+    function createHeaderTooltips() {
+        const env = utils.findBootstrapEnvironment();
+        if (env === 'xs' || env === 'sm' || utils.isTouchDevice()) {
+            return;
+        }
 
-		$('#header-menu li a[title]').each(function () {
-			$(this).tooltip({
-				placement: 'bottom',
-				trigger: 'hover',
-				title: $(this).attr('title'),
-			});
-		});
+        $('#header-menu li a[title]').each(function () {
+            $(this).tooltip({
+                placement: 'bottom',
+                trigger: 'hover',
+                title: $(this).attr('title'),
+            });
+        });
 
-		$('#search-form').tooltip({
-			placement: 'bottom',
-			trigger: 'hover',
-			title: $('#search-button i').attr('title'),
-		});
+        $('#search-form').tooltip({
+            placement: 'bottom',
+            trigger: 'hover',
+            title: $('#search-button i').attr('title'),
+        });
 
-		$('#user_dropdown').tooltip({
-			placement: 'bottom',
-			trigger: 'hover',
-			title: $('#user_dropdown').attr('title'),
-		});
-	}
+        $('#user_dropdown').tooltip({
+            placement: 'bottom',
+            trigger: 'hover',
+            title: $('#user_dropdown').attr('title'),
+        });
+    }
 
-	function handleLogout() {
-		$('#header-menu .container').on('click', '[component="user/logout"]', () => {
-			require(['logout'], logout => {
-				logout();
-			});
-			return false;
-		});
-	}
+    function handleLogout() {
+        $('#header-menu .container').on('click', '[component="user/logout"]', () => {
+            require(['logout'], (logout) => {
+                logout();
+            });
+            return false;
+        });
+    }
 
-	return module;
+    return module;
 });

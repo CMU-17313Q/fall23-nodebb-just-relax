@@ -1,20 +1,20 @@
 'use strict';
 
-define('admin/settings/cookies', ['alerts'], alerts => {
-	const Module = {};
+define('admin/settings/cookies', ['alerts'], (alerts) => {
+    const Module = {};
 
-	Module.init = function () {
-		$('#delete-all-sessions').on('click', () => {
-			socket.emit('admin.deleteAllSessions', error => {
-				if (error) {
-					return alerts.error(error);
-				}
+    Module.init = function () {
+        $('#delete-all-sessions').on('click', () => {
+            socket.emit('admin.deleteAllSessions', (error) => {
+                if (error) {
+                    return alerts.error(error);
+                }
 
-				window.location.href = config.relative_path + '/login';
-			});
-			return false;
-		});
-	};
+                window.location.href = config.relative_path + '/login';
+            });
+            return false;
+        });
+    };
 
-	return Module;
+    return Module;
 });

@@ -1,37 +1,37 @@
 'use strict';
 
 define('forum/account/profile', [
-	'forum/account/header',
-	'bootbox',
+    'forum/account/header',
+    'bootbox',
 ], (header, bootbox) => {
-	const Account = {};
+    const Account = {};
 
-	Account.init = function () {
-		header.init();
+    Account.init = function () {
+        header.init();
 
-		app.enterRoom('user/' + ajaxify.data.theirid);
+        app.enterRoom('user/' + ajaxify.data.theirid);
 
-		processPage();
+        processPage();
 
-		if (Number.parseInt(ajaxify.data.emailChanged, 10) === 1) {
-			bootbox.alert('[[user:emailUpdate.change-instructions]]');
-		}
+        if (Number.parseInt(ajaxify.data.emailChanged, 10) === 1) {
+            bootbox.alert('[[user:emailUpdate.change-instructions]]');
+        }
 
-		socket.removeListener('event:user_status_change', onUserStatusChange);
-		socket.on('event:user_status_change', onUserStatusChange);
-	};
+        socket.removeListener('event:user_status_change', onUserStatusChange);
+        socket.on('event:user_status_change', onUserStatusChange);
+    };
 
-	function processPage() {
-		$('[component="posts"] [component="post/content"] img:not(.not-responsive), [component="aboutme"] img:not(.not-responsive)').addClass('img-responsive');
-	}
+    function processPage() {
+        $('[component="posts"] [component="post/content"] img:not(.not-responsive), [component="aboutme"] img:not(.not-responsive)').addClass('img-responsive');
+    }
 
-	function onUserStatusChange(data) {
-		if (Number.parseInt(ajaxify.data.theirid, 10) !== Number.parseInt(data.uid, 10)) {
-			return;
-		}
+    function onUserStatusChange(data) {
+        if (Number.parseInt(ajaxify.data.theirid, 10) !== Number.parseInt(data.uid, 10)) {
+            return;
+        }
 
-		app.updateUserStatus($('.account [data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
-	}
+        app.updateUserStatus($('.account [data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
+    }
 
-	return Account;
+    return Account;
 });
