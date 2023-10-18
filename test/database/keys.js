@@ -5,11 +5,11 @@ const async = require('async');
 const db = require('../mocks/databasemock');
 
 describe('Key methods', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
         db.set('testKey', 'testValue', done);
     });
 
-    it('should set a key without error', done => {
+    it('should set a key without error', (done) => {
         db.set('testKey', 'testValue', function (error) {
             assert.ifError(error);
             assert(arguments.length < 2);
@@ -17,7 +17,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should get a key without error', done => {
+    it('should get a key without error', (done) => {
         db.get('testKey', function (error, value) {
             assert.ifError(error);
             assert.equal(arguments.length, 2);
@@ -26,7 +26,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should return null if key does not exist', done => {
+    it('should return null if key does not exist', (done) => {
         db.get('doesnotexist', (error, value) => {
             assert.ifError(error);
             assert.equal(value, null);
@@ -34,7 +34,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should return true if key exist', done => {
+    it('should return true if key exist', (done) => {
         db.exists('testKey', function (error, exists) {
             assert.ifError(error);
             assert.equal(arguments.length, 2);
@@ -43,7 +43,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should return false if key does not exist', done => {
+    it('should return false if key does not exist', (done) => {
         db.exists('doesnotexist', function (error, exists) {
             assert.ifError(error);
             assert.equal(arguments.length, 2);
@@ -52,7 +52,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should work for an array of keys', done => {
+    it('should work for an array of keys', (done) => {
         db.exists(['testKey', 'doesnotexist'], (error, exists) => {
             assert.ifError(error);
             assert.deepStrictEqual(exists, [true, false]);
@@ -67,7 +67,7 @@ describe('Key methods', () => {
             await db.sortedSetAdd('ip:124:uid', 2, 'b');
             await db.sortedSetAdd('ip:1:uid', 1, 'a');
             await db.sortedSetAdd('ip:23:uid', 1, 'a');
-            const data = await db.scan({match: 'ip:1*'});
+            const data = await db.scan({ match: 'ip:1*' });
             assert.equal(data.length, 3);
             assert(data.includes('ip:123:uid'));
             assert(data.includes('ip:124:uid'));
@@ -75,7 +75,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should delete a key without error', done => {
+    it('should delete a key without error', (done) => {
         db.delete('testKey', function (error) {
             assert.ifError(error);
             assert(arguments.length < 2);
@@ -88,7 +88,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should return false if key was deleted', done => {
+    it('should return false if key was deleted', (done) => {
         db.delete('testKey', function (error) {
             assert.ifError(error);
             assert(arguments.length < 2);
@@ -100,7 +100,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should delete all keys passed in', done => {
+    it('should delete all keys passed in', (done) => {
         async.parallel([
             function (next) {
                 db.set('key1', 'value1', next);
@@ -108,7 +108,7 @@ describe('Key methods', () => {
             function (next) {
                 db.set('key2', 'value2', next);
             },
-        ], error => {
+        ], (error) => {
             if (error) {
                 return done(error);
             }
@@ -133,7 +133,7 @@ describe('Key methods', () => {
         });
     });
 
-    it('should delete all sorted set elements', done => {
+    it('should delete all sorted set elements', (done) => {
         async.parallel([
             function (next) {
                 db.sortedSetAdd('deletezset', 1, 'value1', next);
@@ -141,12 +141,12 @@ describe('Key methods', () => {
             function (next) {
                 db.sortedSetAdd('deletezset', 2, 'value2', next);
             },
-        ], error => {
+        ], (error) => {
             if (error) {
                 return done(error);
             }
 
-            db.delete('deletezset', error => {
+            db.delete('deletezset', (error) => {
                 assert.ifError(error);
                 async.parallel({
                     key1exists(next) {
@@ -166,7 +166,7 @@ describe('Key methods', () => {
     });
 
     describe('increment', () => {
-        it('should initialize key to 1', done => {
+        it('should initialize key to 1', (done) => {
             db.increment('keyToIncrement', (error, value) => {
                 assert.ifError(error);
                 assert.strictEqual(Number.parseInt(value, 10), 1);
@@ -174,7 +174,7 @@ describe('Key methods', () => {
             });
         });
 
-        it('should increment key to 2', done => {
+        it('should increment key to 2', (done) => {
             db.increment('keyToIncrement', (error, value) => {
                 assert.ifError(error);
                 assert.strictEqual(Number.parseInt(value, 10), 2);
@@ -182,8 +182,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should set then increment a key', done => {
-            db.set('myIncrement', 1, error => {
+        it('should set then increment a key', (done) => {
+            db.set('myIncrement', 1, (error) => {
                 assert.ifError(error);
                 db.increment('myIncrement', (error, value) => {
                     assert.ifError(error);
@@ -197,13 +197,13 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return the correct value', done => {
-            db.increment('testingCache', error => {
+        it('should return the correct value', (done) => {
+            db.increment('testingCache', (error) => {
                 assert.ifError(error);
                 db.get('testingCache', (error, value) => {
                     assert.ifError(error);
                     assert.equal(value, 1);
-                    db.increment('testingCache', error_ => {
+                    db.increment('testingCache', (error_) => {
                         assert.ifError(error_);
                         db.get('testingCache', (error, value) => {
                             assert.ifError(error);
@@ -217,8 +217,8 @@ describe('Key methods', () => {
     });
 
     describe('rename', () => {
-        it('should rename key to new name', done => {
-            db.set('keyOldName', 'renamedKeyValue', error => {
+        it('should rename key to new name', (done) => {
+            db.set('keyOldName', 'renamedKeyValue', (error) => {
                 if (error) {
                     return done(error);
                 }
@@ -236,10 +236,10 @@ describe('Key methods', () => {
             });
         });
 
-        it('should rename multiple keys', done => {
-            db.sortedSetAdd('zsettorename', [1, 2, 3], ['value1', 'value2', 'value3'], error => {
+        it('should rename multiple keys', (done) => {
+            db.sortedSetAdd('zsettorename', [1, 2, 3], ['value1', 'value2', 'value3'], (error) => {
                 assert.ifError(error);
-                db.rename('zsettorename', 'newzsetname', error => {
+                db.rename('zsettorename', 'newzsetname', (error) => {
                     assert.ifError(error);
                     db.exists('zsettorename', (error, exists) => {
                         assert.ifError(error);
@@ -254,8 +254,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should not error if old key does not exist', done => {
-            db.rename('doesnotexist', 'anotherdoesnotexist', error => {
+        it('should not error if old key does not exist', (done) => {
+            db.rename('doesnotexist', 'anotherdoesnotexist', (error) => {
                 assert.ifError(error);
                 db.exists('anotherdoesnotexist', (error, exists) => {
                     assert.ifError(error);
@@ -267,7 +267,7 @@ describe('Key methods', () => {
     });
 
     describe('type', () => {
-        it('should return null if key does not exist', done => {
+        it('should return null if key does not exist', (done) => {
             db.type('doesnotexist', (error, type) => {
                 assert.ifError(error);
                 assert.strictEqual(type, null);
@@ -275,8 +275,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return hash as type', done => {
-            db.setObject('typeHash', {foo: 1}, error => {
+        it('should return hash as type', (done) => {
+            db.setObject('typeHash', { foo: 1 }, (error) => {
                 assert.ifError(error);
                 db.type('typeHash', (error, type) => {
                     assert.ifError(error);
@@ -286,8 +286,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return zset as type', done => {
-            db.sortedSetAdd('typeZset', 123, 'value1', error => {
+        it('should return zset as type', (done) => {
+            db.sortedSetAdd('typeZset', 123, 'value1', (error) => {
                 assert.ifError(error);
                 db.type('typeZset', (error, type) => {
                     assert.ifError(error);
@@ -297,8 +297,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return set as type', done => {
-            db.setAdd('typeSet', 'value1', error => {
+        it('should return set as type', (done) => {
+            db.setAdd('typeSet', 'value1', (error) => {
                 assert.ifError(error);
                 db.type('typeSet', (error, type) => {
                     assert.ifError(error);
@@ -308,8 +308,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return list as type', done => {
-            db.listAppend('typeList', 'value1', error => {
+        it('should return list as type', (done) => {
+            db.listAppend('typeList', 'value1', (error) => {
                 assert.ifError(error);
                 db.type('typeList', (error, type) => {
                     assert.ifError(error);
@@ -319,8 +319,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should return string as type', done => {
-            db.set('typeString', 'value1', error => {
+        it('should return string as type', (done) => {
+            db.set('typeString', 'value1', (error) => {
                 assert.ifError(error);
                 db.type('typeString', (error, type) => {
                     assert.ifError(error);
@@ -330,8 +330,8 @@ describe('Key methods', () => {
             });
         });
 
-        it('should expire a key using seconds', done => {
-            db.expire('testKey', 86400, error => {
+        it('should expire a key using seconds', (done) => {
+            db.expire('testKey', 86400, (error) => {
                 assert.ifError(error);
                 db.ttl('testKey', (error, ttl) => {
                     assert.ifError(error);
@@ -341,12 +341,12 @@ describe('Key methods', () => {
             });
         });
 
-        it('should expire a key using milliseconds', done => {
-            db.pexpire('testKey', 86400000, error => {
+        it('should expire a key using milliseconds', (done) => {
+            db.pexpire('testKey', 86400000, (error) => {
                 assert.ifError(error);
                 db.pttl('testKey', (error, pttl) => {
                     assert.ifError(error);
-                    assert.equal(Math.round(86_400_000 / 1_000_000), Math.round(pttl / 1_000_000));
+                    assert.equal(Math.round(86400000 / 1000000), Math.round(pttl / 1000000));
                     done();
                 });
             });

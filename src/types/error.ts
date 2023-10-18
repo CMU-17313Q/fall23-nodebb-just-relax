@@ -1,4 +1,4 @@
-import { type StatusObject } from './status.js';
+import { type StatusObject } from './status';
 
 export type ErrorObject = {
 	status: StatusObject;

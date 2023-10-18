@@ -31,9 +31,9 @@ describe('Flags', () => {
     let category;
     before(async () => {
         // Create some stuff to flag
-        uid1 = await User.create({username: 'testUser', password: 'abcdef', email: 'b@c.com'});
+        uid1 = await User.create({ username: 'testUser', password: 'abcdef', email: 'b@c.com' });
 
-        adminUid = await User.create({username: 'testUser2', password: 'abcdef', email: 'c@d.com'});
+        adminUid = await User.create({ username: 'testUser2', password: 'abcdef', email: 'c@d.com' });
         await Groups.join('administrators', adminUid);
 
         category = await Categories.create({
@@ -61,7 +61,7 @@ describe('Flags', () => {
     });
 
     describe('.create()', () => {
-        it('should create a flag and return its data', done => {
+        it('should create a flag and return its data', (done) => {
             Flags.create('post', 1, 1, 'Test flag', (error, flagData) => {
                 assert.ifError(error);
                 const compare = {
@@ -81,7 +81,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should add the flag to the byCid zset for category 1 if it is of type post', done => {
+        it('should add the flag to the byCid zset for category 1 if it is of type post', (done) => {
             db.isSortedSetMember(`flags:byCid:${1}`, 1, (error, isMember) => {
                 assert.ifError(error);
                 assert.ok(isMember);
@@ -89,7 +89,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should add the flag to the byPid zset for pid 1 if it is of type post', done => {
+        it('should add the flag to the byPid zset for pid 1 if it is of type post', (done) => {
             db.isSortedSetMember(`flags:byPid:${1}`, 1, (error, isMember) => {
                 assert.ifError(error);
                 assert.ok(isMember);
@@ -99,7 +99,7 @@ describe('Flags', () => {
     });
 
     describe('.exists()', () => {
-        it('should return Boolean True if a flag matching the flag hash already exists', done => {
+        it('should return Boolean True if a flag matching the flag hash already exists', (done) => {
             Flags.exists('post', 1, 1, (error, exists) => {
                 assert.ifError(error);
                 assert.strictEqual(true, exists);
@@ -107,7 +107,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should return Boolean False if a flag matching the flag hash does not already exists', done => {
+        it('should return Boolean False if a flag matching the flag hash does not already exists', (done) => {
             Flags.exists('post', 1, 2, (error, exists) => {
                 assert.ifError(error);
                 assert.strictEqual(false, exists);
@@ -117,7 +117,7 @@ describe('Flags', () => {
     });
 
     describe('.targetExists()', () => {
-        it('should return Boolean True if the targeted element exists', done => {
+        it('should return Boolean True if the targeted element exists', (done) => {
             Flags.targetExists('post', 1, (error, exists) => {
                 assert.ifError(error);
                 assert.strictEqual(true, exists);
@@ -125,7 +125,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should return Boolean False if the targeted element does not exist', done => {
+        it('should return Boolean False if the targeted element does not exist', (done) => {
             Flags.targetExists('post', 15, (error, exists) => {
                 assert.ifError(error);
                 assert.strictEqual(false, exists);
@@ -135,7 +135,7 @@ describe('Flags', () => {
     });
 
     describe('.get()', () => {
-        it('should retrieve and display a flag\'s data', done => {
+        it('should retrieve and display a flag\'s data', (done) => {
             Flags.get(1, (error, flagData) => {
                 assert.ifError(error);
                 const compare = {
@@ -205,7 +205,7 @@ describe('Flags', () => {
     });
 
     describe('.list()', () => {
-        it('should show a list of flags (with one item)', done => {
+        it('should show a list of flags (with one item)', (done) => {
             Flags.list({
                 filters: {},
                 uid: 1,
@@ -227,7 +227,7 @@ describe('Flags', () => {
         });
 
         describe('(with filters)', () => {
-            it('should return a filtered list of flags if said filters are passed in', done => {
+            it('should return a filtered list of flags if said filters are passed in', (done) => {
                 Flags.list({
                     filters: {
                         state: 'open',
@@ -244,7 +244,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('should return no flags if a filter with no matching flags is used', done => {
+            it('should return no flags if a filter with no matching flags is used', (done) => {
                 Flags.list({
                     filters: {
                         state: 'rejected',
@@ -261,7 +261,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('should return a flag when filtered by cid 1', done => {
+            it('should return a flag when filtered by cid 1', (done) => {
                 Flags.list({
                     filters: {
                         cid: 1,
@@ -278,7 +278,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('shouldn\'t return a flag when filtered by cid 2', done => {
+            it('shouldn\'t return a flag when filtered by cid 2', (done) => {
                 Flags.list({
                     filters: {
                         cid: 2,
@@ -295,7 +295,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('should return a flag when filtered by both cid 1 and 2', done => {
+            it('should return a flag when filtered by both cid 1 and 2', (done) => {
                 Flags.list({
                     filters: {
                         cid: [1, 2],
@@ -312,7 +312,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('should return one flag if filtered by both cid 1 and 2 and open state', done => {
+            it('should return one flag if filtered by both cid 1 and 2 and open state', (done) => {
                 Flags.list({
                     filters: {
                         cid: [1, 2],
@@ -330,7 +330,7 @@ describe('Flags', () => {
                 });
             });
 
-            it('should return no flag if filtered by both cid 1 and 2 and non-open state', done => {
+            it('should return no flag if filtered by both cid 1 and 2 and non-open state', (done) => {
                 Flags.list({
                     filters: {
                         cid: [1, 2],
@@ -411,11 +411,11 @@ describe('Flags', () => {
     });
 
     describe('.update()', () => {
-        it('should alter a flag\'s various attributes and persist them to the database', done => {
+        it('should alter a flag\'s various attributes and persist them to the database', (done) => {
             Flags.update(1, adminUid, {
                 state: 'wip',
                 assignee: adminUid,
-            }, error => {
+            }, (error) => {
                 assert.ifError(error);
                 db.getObjectFields('flag:1', ['state', 'assignee'], (error, data) => {
                     if (error) {
@@ -430,7 +430,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should persist to the flag\'s history', done => {
+        it('should persist to the flag\'s history', (done) => {
             Flags.getHistory(1, (error, history) => {
                 if (error) {
                     throw error;
@@ -438,15 +438,15 @@ describe('Flags', () => {
 
                 for (const change of history) {
                     switch (change.attribute) {
-                        case 'state': {
-                            assert.strictEqual('[[flags:state-wip]]', change.value);
-                            break;
-                        }
+                    case 'state': {
+                        assert.strictEqual('[[flags:state-wip]]', change.value);
+                        break;
+                    }
 
-                        case 'assignee': {
-                            assert.strictEqual(1, change.value);
-                            break;
-                        }
+                    case 'assignee': {
+                        assert.strictEqual(1, change.value);
+                        break;
+                    }
                     }
                 }
 
@@ -523,7 +523,7 @@ describe('Flags', () => {
                     title: 'Topic to flag',
                     content: 'This is flaggable content',
                 });
-                flagObject = await api.flags.create({uid: uid1}, {type: 'post', id: result.postData.pid, reason: 'spam'});
+                flagObject = await api.flags.create({ uid: uid1 }, { type: 'post', id: result.postData.pid, reason: 'spam' });
                 await sleep(2000);
             });
 
@@ -586,7 +586,7 @@ describe('Flags', () => {
     });
 
     describe('.getTarget()', () => {
-        it('should return a post\'s data if queried with type "post"', done => {
+        it('should return a post\'s data if queried with type "post"', (done) => {
             Flags.getTarget('post', 1, 1, (error, data) => {
                 assert.ifError(error);
                 const compare = {
@@ -604,7 +604,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should return a user\'s data if queried with type "user"', done => {
+        it('should return a user\'s data if queried with type "user"', (done) => {
             Flags.getTarget('user', 1, 1, (error, data) => {
                 assert.ifError(error);
                 const compare = {
@@ -622,7 +622,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should return a plain object with no properties if the target no longer exists', done => {
+        it('should return a plain object with no properties if the target no longer exists', (done) => {
             Flags.getTarget('user', 15, 1, (error, data) => {
                 assert.ifError(error);
                 assert.strictEqual(0, Object.keys(data).length);
@@ -632,8 +632,8 @@ describe('Flags', () => {
     });
 
     describe('.validate()', () => {
-        it('should error out if type is post and post is deleted', done => {
-            Posts.delete(1, 1, error => {
+        it('should error out if type is post and post is deleted', (done) => {
+            Posts.delete(1, 1, (error) => {
                 if (error) {
                     throw error;
                 }
@@ -642,7 +642,7 @@ describe('Flags', () => {
                     type: 'post',
                     id: 1,
                     uid: 1,
-                }, error => {
+                }, (error) => {
                     assert.ok(error);
                     assert.strictEqual('[[error:post-deleted]]', error.message);
                     Posts.restore(1, 1, done);
@@ -650,15 +650,15 @@ describe('Flags', () => {
             });
         });
 
-        it('should not pass validation if flag threshold is set and user rep does not meet it', done => {
-            Meta.configs.set('min:rep:flag', '50', error => {
+        it('should not pass validation if flag threshold is set and user rep does not meet it', (done) => {
+            Meta.configs.set('min:rep:flag', '50', (error) => {
                 assert.ifError(error);
 
                 Flags.validate({
                     type: 'post',
                     id: 1,
                     uid: 3,
-                }, error => {
+                }, (error) => {
                     assert.ok(error);
                     assert.strictEqual('[[error:not-enough-reputation-to-flag, 50]]', error.message);
                     Meta.configs.set('min:rep:flag', 0, done);
@@ -668,8 +668,8 @@ describe('Flags', () => {
 
         it('should not error if user blocked target', async () => {
             const apiFlags = require('../src/api/flags');
-            const reporterUid = await User.create({username: 'reporter'});
-            const reporteeUid = await User.create({username: 'reportee'});
+            const reporterUid = await User.create({ username: 'reporter' });
+            const reporteeUid = await User.create({ username: 'reportee' });
             await User.blocks.add(reporteeUid, reporterUid);
             const data = await Topics.post({
                 cid: 1,
@@ -677,15 +677,15 @@ describe('Flags', () => {
                 title: 'Another topic',
                 content: 'This is flaggable content',
             });
-            await apiFlags.create({uid: reporterUid}, {
+            await apiFlags.create({ uid: reporterUid }, {
                 type: 'post',
                 id: data.postData.pid,
                 reason: 'spam',
             });
         });
 
-        it('should send back error if reporter does not exist', done => {
-            Flags.validate({uid: 123123123, id: 1, type: 'post'}, error => {
+        it('should send back error if reporter does not exist', (done) => {
+            Flags.validate({ uid: 123123123, id: 1, type: 'post' }, (error) => {
                 assert.equal(error.message, '[[error:no-user]]');
                 done();
             });
@@ -693,8 +693,8 @@ describe('Flags', () => {
     });
 
     describe('.appendNote()', () => {
-        it('should add a note to a flag', done => {
-            Flags.appendNote(1, 1, 'this is my note', error => {
+        it('should add a note to a flag', (done) => {
+            Flags.appendNote(1, 1, 'this is my note', (error) => {
                 assert.ifError(error);
 
                 db.getSortedSetRange('flag:1:notes', 0, -1, (error, notes) => {
@@ -708,7 +708,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should be a JSON string', done => {
+        it('should be a JSON string', (done) => {
             db.getSortedSetRange('flag:1:notes', 0, -1, (error, notes) => {
                 if (error) {
                     throw error;
@@ -732,12 +732,12 @@ describe('Flags', () => {
     });
 
     describe('.getNotes()', () => {
-        before(done => {
+        before((done) => {
             // Add a second note
             Flags.appendNote(1, 1, 'this is the second note', done);
         });
 
-        it('return should match a predefined spec', done => {
+        it('return should match a predefined spec', (done) => {
             Flags.getNotes(1, (error, notes) => {
                 assert.ifError(error);
                 const compare = {
@@ -755,7 +755,7 @@ describe('Flags', () => {
             });
         });
 
-        it('should retrieve a list of notes, from newest to oldest', done => {
+        it('should retrieve a list of notes, from newest to oldest', (done) => {
             Flags.getNotes(1, (error, notes) => {
                 assert.ifError(error);
                 assert(notes[0].datetime > notes[1].datetime, `${notes[0].datetime}-${notes[1].datetime}`);
@@ -767,17 +767,17 @@ describe('Flags', () => {
 
     describe('.appendHistory()', () => {
         let entries;
-        before(done => {
+        before((done) => {
             db.sortedSetCard('flag:1:history', (error, count) => {
                 entries = count;
                 done(error);
             });
         });
 
-        it('should add a new entry into a flag\'s history', done => {
+        it('should add a new entry into a flag\'s history', (done) => {
             Flags.appendHistory(1, 1, {
                 state: 'rejected',
-            }, error => {
+            }, (error) => {
                 assert.ifError(error);
 
                 Flags.getHistory(1, (error, history) => {
@@ -794,7 +794,7 @@ describe('Flags', () => {
     });
 
     describe('.getHistory()', () => {
-        it('should retrieve a flag\'s history', done => {
+        it('should retrieve a flag\'s history', (done) => {
             Flags.getHistory(1, (error, history) => {
                 assert.ifError(error);
                 assert.strictEqual(history[0].fields.state, '[[flags:state-rejected]]');
@@ -851,7 +851,7 @@ describe('Flags', () => {
                     content: 'This is flaggable content',
                 });
 
-                const {response} = await request({
+                const { response } = await request({
                     method: 'post',
                     uri: `${nconf.get('url')}/api/v3/flags`,
                     jar,
@@ -871,7 +871,7 @@ describe('Flags', () => {
             });
 
             it('should not allow flagging post in private category', async () => {
-                const category = await Categories.create({name: 'private category'});
+                const category = await Categories.create({ name: 'private category' });
 
                 await Privileges.categories.rescind(['groups:topics:read'], category.cid, 'registered-users');
                 await Groups.join('private category', uid3);
@@ -889,7 +889,7 @@ describe('Flags', () => {
                     jar: jar3,
                 });
                 const csrfToken = config.csrf_token;
-                const {statusCode, body} = await request({
+                const { statusCode, body } = await request({
                     method: 'post',
                     uri: `${nconf.get('url')}/api/v3/flags`,
                     jar: jar3,
@@ -922,7 +922,7 @@ describe('Flags', () => {
 
         describe('.update()', () => {
             it('should update a flag\'s properties', async () => {
-                const {response} = await request({
+                const { response } = await request({
                     method: 'put',
                     uri: `${nconf.get('url')}/api/v3/flags/2`,
                     jar,
@@ -935,7 +935,7 @@ describe('Flags', () => {
                     json: true,
                 });
 
-                const {history} = response;
+                const { history } = response;
                 assert(Array.isArray(history));
                 assert(history[0].fields.hasOwnProperty('state'));
                 assert.strictEqual('[[flags:state-wip]]', history[0].fields.state);
@@ -944,7 +944,7 @@ describe('Flags', () => {
 
         describe('.appendNote()', () => {
             it('should append a note to the flag', async () => {
-                const {response} = await request({
+                const { response } = await request({
                     method: 'post',
                     uri: `${nconf.get('url')}/api/v3/flags/2/notes`,
                     jar,
@@ -953,7 +953,7 @@ describe('Flags', () => {
                     },
                     body: {
                         note: 'lorem ipsum dolor sit amet',
-                        datetime: 1_626_446_956_652,
+                        datetime: 1626446956652,
                     },
                     json: true,
                 });
@@ -972,7 +972,7 @@ describe('Flags', () => {
 
         describe('.deleteNote()', () => {
             it('should delete a note from a flag', async () => {
-                const {response} = await request({
+                const { response } = await request({
                     method: 'delete',
                     uri: `${nconf.get('url')}/api/v3/flags/2/notes/1626446956652`,
                     jar,
@@ -1000,10 +1000,10 @@ describe('Flags', () => {
             const noteTime = Date.now();
 
             before(async () => {
-                uid = await User.create({username: 'flags-access-control', password: 'abcdef'});
-                ({jar, csrf_token} = await helpers.loginUser('flags-access-control', 'abcdef'));
+                uid = await User.create({ username: 'flags-access-control', password: 'abcdef' });
+                ({ jar, csrf_token } = await helpers.loginUser('flags-access-control', 'abcdef'));
 
-                flaggerUid = await User.create({username: 'flags-access-control-flagger', password: 'abcdef'});
+                flaggerUid = await User.create({ username: 'flags-access-control-flagger', password: 'abcdef' });
             });
 
             beforeEach(async () => {
@@ -1012,14 +1012,14 @@ describe('Flags', () => {
                 await Groups.leave('Global Moderators', uid);
                 await Privileges.categories.rescind(['moderate'], 1, [uid]);
 
-                const {postData} = await Topics.post({
+                const { postData } = await Topics.post({
                     uid,
                     cid: 1,
                     title: utils.generateUUID(),
                     content: utils.generateUUID(),
                 });
 
-                ({flagId} = await Flags.create('post', postData.pid, flaggerUid, 'spam'));
+                ({ flagId } = await Flags.create('post', postData.pid, flaggerUid, 'spam'));
                 requests = new Set([
                     {
                         method: 'get',
@@ -1088,12 +1088,12 @@ describe('Flags', () => {
 
             it('should not allow access to privileged flag endpoints to guests', async () => {
                 for (let options of requests) {
-                    options = {...options};
+                    options = { ...options };
                     delete options.jar;
                     delete options.headers;
 
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert(statusCode.toString().startsWith(4), `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });
@@ -1101,7 +1101,7 @@ describe('Flags', () => {
             it('should not allow access to privileged flag endpoints to regular users', async () => {
                 for (const options of requests) {
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert(statusCode.toString().startsWith(4), `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });
@@ -1111,7 +1111,7 @@ describe('Flags', () => {
 
                 for (const options of requests) {
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert.strictEqual(statusCode, 200, `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });
@@ -1121,7 +1121,7 @@ describe('Flags', () => {
 
                 for (const options of requests) {
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert.strictEqual(statusCode, 200, `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });
@@ -1131,21 +1131,21 @@ describe('Flags', () => {
 
                 for (const options of requests) {
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert.strictEqual(statusCode, 200, `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });
 
             it('should NOT allow access to privileged endpoints to moderators if the flag target is a post in a cid they DO NOT moderate', async () => {
                 // This is a new category the user will moderate, but the flagged post is in a different category
-                const {cid} = await Categories.create({
+                const { cid } = await Categories.create({
                     name: utils.generateUUID(),
                 });
                 await Privileges.categories.give(['moderate'], cid, [uid]);
 
                 for (const options of requests) {
                     // eslint-disable-next-line no-await-in-loop
-                    const {statusCode} = await request(options);
+                    const { statusCode } = await request(options);
                     assert(statusCode.toString().startsWith(4), `${options.method.toUpperCase()} ${options.uri} => ${statusCode}`);
                 }
             });

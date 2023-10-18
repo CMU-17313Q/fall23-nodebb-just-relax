@@ -98,6 +98,7 @@ Interstitials.email = async (data) => {
                         throw new Error('[[error:invalid-email]]');
                     }
 
+                    /* eslint-disable-next-line max-len */
                     if (current.length > 0 && (!hasPassword || (hasPassword && isPasswordCorrect) || isAdminOrGlobalMod)) {
                         // User explicitly clearing their email
                         await user.email.remove(userData.uid, data.req.session.id);

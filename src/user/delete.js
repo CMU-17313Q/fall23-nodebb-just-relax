@@ -64,6 +64,7 @@ module.exports = function (User) {
         let deleteIds = [];
         await batch.processSortedSet('post:queue', async (ids) => {
             const data = await db.getObjects(ids.map(id => `post:queue:${id}`));
+            /* eslint-disable-next-line max-len */
             const userQueuedIds = data.filter(d => Number.parseInt(d.uid, 10) === Number.parseInt(uid, 10)).map(d => d.id);
             deleteIds = deleteIds.concat(userQueuedIds);
         }, { batch: 500 });

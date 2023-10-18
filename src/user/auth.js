@@ -3,7 +3,6 @@
 const util = require('node:util');
 const winston = require('winston');
 const validator = require('validator');
-const _ = require('lodash');
 const db = require('../database');
 const meta = require('../meta');
 const events = require('../events');

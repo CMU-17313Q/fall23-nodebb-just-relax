@@ -434,8 +434,7 @@ module.exports = function (Topics) {
             return [];
         }
 
-        let result;
-        result = await (plugins.hooks.hasListeners('filter:topics.autocompleteTags') ? plugins.hooks.fire('filter:topics.autocompleteTags', { data }) : findMatches(data));
+        const result = await (plugins.hooks.hasListeners('filter:topics.autocompleteTags') ? plugins.hooks.fire('filter:topics.autocompleteTags', { data }) : findMatches(data));
 
         return result.matches;
     };

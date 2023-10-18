@@ -352,16 +352,16 @@ describe('Sorted Set methods', () => {
 
             data = await db.getSortedSetRevRangeWithScores(keys, 0, 3);
             assert.deepStrictEqual(data, [
-                {value: '39999', score: 1_039_999},
-                {value: '39998', score: 1_039_998},
-                {value: '39997', score: 1_039_997},
-                {value: '39996', score: 1_039_996},
+                {value: '39999', score: 1039999},
+                {value: '39998', score: 1039998},
+                {value: '39997', score: 1039997},
+                {value: '39996', score: 1039996},
             ]);
 
             data = await db.getSortedSetRevRange(keys, 0, -1);
-            assert.equal(data.length, 40_000);
+            assert.equal(data.length, 40000);
 
-            data = await db.getSortedSetRange(keys, 9998, 10_002);
+            data = await db.getSortedSetRange(keys, 9998, 10002);
             assert.deepStrictEqual(data, ['9998', '9999', '10000', '10001', '10002']);
         });
     });

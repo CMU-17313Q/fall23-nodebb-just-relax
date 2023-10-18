@@ -21,6 +21,7 @@ module.exports = {
                 const oldValue = config[key];
 
                 if (!oldValue || typeof oldValue !== 'string') {
+                    /* eslint-disable no-continue */
                     continue;
                 }
 

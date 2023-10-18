@@ -17,6 +17,7 @@ module.exports = function (User) {
         const isArray = Array.isArray(uids);
         uids = isArray ? uids : [uids];
         const blocks = await User.blocks.list(uids);
+        /* eslint-disable-next-line max-len */
         const isBlocked = uids.map((uid, index) => blocks[index] && blocks[index].includes(Number.parseInt(targetUid, 10)));
         return isArray ? isBlocked : isBlocked[0];
     };

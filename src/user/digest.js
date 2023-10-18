@@ -104,6 +104,7 @@ Digest.send = async function (data) {
             ]);
             const unreadNotifs = notifications.filter(Boolean);
             // If there are no notifications and no new topics, don't bother sending a digest
+            /* eslint-disable-next-line max-len */
             if (unreadNotifs.length === 0 && topics.top.length === 0 && topics.popular.length === 0 && topics.recent.length === 0) {
                 return;
             }

@@ -1,4 +1,4 @@
-import { type UserObjectSlim } from './user.js';
+import { type UserObjectSlim } from './user';
 
 export type FlagHistoryObject = {
 	history: History[];
@@ -7,6 +7,7 @@ export type FlagHistoryObject = {
 type History = {
 	uid: number;
 
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 	fields: any;
 	meta: Meta[];
 	datetime: number;

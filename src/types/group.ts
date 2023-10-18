@@ -1,4 +1,4 @@
-import { type UserObjectSlim } from './user.js';
+import { type UserObjectSlim } from './user';
 
 export type GroupDataObject = {
 	name: string;
@@ -34,8 +34,10 @@ export type GroupFullObjectProperties = {
 	members: UserObjectSlim[];
 	membersNextStart: number;
 
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 	pending: any[];
 
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 	invited: any[];
 	isMember: boolean;
 	isPending: boolean;
