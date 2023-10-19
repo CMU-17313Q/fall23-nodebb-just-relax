@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 
 const databaseController = module.exports;

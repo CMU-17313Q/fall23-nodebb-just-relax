@@ -54,15 +54,15 @@ define('forum/account/settings', [
             }
 
             switch (input.attr('type')) {
-            case 'checkbox': {
-                settings[setting] = input.is(':checked') ? 1 : 0;
-                break;
-            }
+                case 'checkbox': {
+                    settings[setting] = input.is(':checked') ? 1 : 0;
+                    break;
+                }
 
-            default: {
-                settings[setting] = input.val();
-                break;
-            }
+                default: {
+                    settings[setting] = input.val();
+                    break;
+                }
             }
         });
 

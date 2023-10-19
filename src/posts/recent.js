@@ -1,14 +1,13 @@
 
-
 const _ = require('lodash');
 const db = require('../database');
 const privileges = require('../privileges');
 
 module.exports = function (Posts) {
     const terms = {
-        day: 86400000,
-        week: 604800000,
-        month: 2592000000,
+        day: 86_400_000,
+        week: 604_800_000,
+        month: 2_592_000_000,
     };
 
     Posts.getRecentPosts = async function (uid, start, stop, term) {

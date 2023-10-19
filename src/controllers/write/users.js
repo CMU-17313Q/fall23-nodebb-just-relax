@@ -1,5 +1,4 @@
 
-
 const util = require('node:util');
 const nconf = require('nconf');
 const path = require('node:path');
@@ -315,7 +314,7 @@ const prepareExport = async (request, res) => {
         res.set('ETag', `"${crypto.createHash('md5').update(String(stat.mtimeMs)).digest('hex')}"`);
         res.status(204);
         return true;
-    } catch (error) {
+    } catch {
         res.status(404);
         return false;
     }

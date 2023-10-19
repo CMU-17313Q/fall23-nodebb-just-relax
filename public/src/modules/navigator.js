@@ -409,8 +409,8 @@ define('navigator', ['forum/pagination', 'components', 'hooks', 'alerts'], (pagi
             const $this = $(this);
             const elementIndex = Number.parseInt($this.attr('data-index'), 10);
             if (elementIndex >= 0) {
-                const distanceToMiddle =
-                    Math.abs(middleOfViewport - ($this.offset().top + ($this.outerHeight(true) / 2)));
+                const distanceToMiddle
+                    = Math.abs(middleOfViewport - ($this.offset().top + ($this.outerHeight(true) / 2)));
 
                 if (distanceToMiddle > previousDistance) {
                     return false;
@@ -631,7 +631,7 @@ define('navigator', ['forum/pagination', 'components', 'hooks', 'alerts'], (pagi
             }
 
             let scrollTop = 0;
-            /* eslint-disable-next-line max-len */
+
             scrollTop = postHeight < viewportHeight - navbarHeight - topicHeaderHeight ? scrollTo.offset().top - (viewportHeight / 2) + (postHeight / 2) : scrollTo.offset().top - navbarHeight - topicHeaderHeight;
 
             if (duration === 0) {
@@ -652,7 +652,7 @@ define('navigator', ['forum/pagination', 'components', 'hooks', 'alerts'], (pagi
                 scrollTo.addClass('highlight');
                 setTimeout(() => {
                     scrollTo.removeClass('highlight');
-                }, 10000);
+                }, 10_000);
             }
         }
 

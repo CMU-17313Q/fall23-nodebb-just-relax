@@ -1,5 +1,4 @@
 
-
 const appearanceController = module.exports;
 
 appearanceController.get = function (request, res) {

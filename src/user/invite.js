@@ -1,6 +1,4 @@
 
-
-
 const async = require('async');
 const nconf = require('nconf');
 const validator = require('validator');
@@ -85,7 +83,7 @@ module.exports = function (User) {
 
         try {
             groupsToJoin = JSON.parse(groupsToJoin);
-        } catch (error) {
+        } catch {
             return;
         }
 
@@ -155,7 +153,7 @@ module.exports = function (User) {
         const registerLink = `${nconf.get('url')}/register?token=${token}`;
 
         const expireDays = meta.config.inviteExpiration;
-        const expireIn = expireDays * 86400000;
+        const expireIn = expireDays * 86_400_000;
 
         await db.setAdd(`invitation:uid:${uid}`, email);
         await db.setAdd('invitation:uids', uid);

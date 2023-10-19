@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const user = require('../user');
 const groups = require('../groups');

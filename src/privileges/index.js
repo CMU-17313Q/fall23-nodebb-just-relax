@@ -1,5 +1,4 @@
 
-
 const privileges = module.exports;
 privileges.global = require('./global');
 privileges.admin = require('./admin');

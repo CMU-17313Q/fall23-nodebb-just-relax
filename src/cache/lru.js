@@ -1,5 +1,4 @@
 
-
 module.exports = function (options) {
     const LRU = require('lru-cache');
     const pubsub = require('../pubsub');

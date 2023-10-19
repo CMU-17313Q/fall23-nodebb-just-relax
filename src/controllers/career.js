@@ -1,5 +1,4 @@
 
-
 const careerController = module.exports;
 
 careerController.get = async function (request, res) {

@@ -1,5 +1,4 @@
 
-
 const os = require('node:os');
 const path = require('node:path');
 const { exec } = require('node:child_process');
@@ -176,9 +175,9 @@ exports.build = async function (targets, options) {
 
     // Map multitargets to their sets
     targets = _.uniq(_.flatMap(targets, target => (
-        Array.isArray(targetHandlers[target]) ?
-            targetHandlers[target] :
-            target
+        Array.isArray(targetHandlers[target])
+            ? targetHandlers[target]
+            : target
     )));
 
     winston.verbose(`[build] building the following targets: ${targets.join(', ')}`);

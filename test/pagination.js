@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const pagination = require('../src/pagination');
 

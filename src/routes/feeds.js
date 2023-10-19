@@ -1,5 +1,4 @@
 
-
 const rss = require('rss');
 const nconf = require('nconf');
 const validator = require('validator');
@@ -101,7 +100,7 @@ async function generateForTopic(request, res, next) {
         for (const postData of replies) {
             if (!postData.deleted) {
                 const dateStamp = new Date(
-                    /* eslint-disable-next-line max-len */
+
                     Number.parseInt(Number.parseInt(postData.edited, 10) === 0 ? postData.timestamp : postData.edited, 10),
                 ).toUTCString();
 

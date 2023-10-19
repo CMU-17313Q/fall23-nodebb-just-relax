@@ -28,7 +28,7 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], (categorySearch, ap
 
         element.on('hidden.bs.dropdown', () => {
             let changed = initialCids.length !== selectedCids.length;
-            /* eslint-disable no-restricted-syntax */
+
             for (const [index, cid] of initialCids.entries()) {
                 if (cid !== selectedCids[index]) {
                     changed = true;

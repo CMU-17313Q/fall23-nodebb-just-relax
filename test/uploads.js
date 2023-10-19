@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const assert = require('node:assert');
 const nconf = require('nconf');

@@ -1,5 +1,4 @@
 
-
 const { Command, Option } = require('commander');
 
 module.exports = () => {
@@ -250,23 +249,23 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
         const adminUid = await getAdminUidOrFail();
 
         switch (type) {
-        case 'purge': {
-            await Promise.all(uids.map(uid => user.delete(adminUid, uid)));
-            winston.info('[userCmd/delete] User(s) with their content has been deleted.');
-            break;
-        }
+            case 'purge': {
+                await Promise.all(uids.map(uid => user.delete(adminUid, uid)));
+                winston.info('[userCmd/delete] User(s) with their content has been deleted.');
+                break;
+            }
 
-        case 'account': {
-            await Promise.all(uids.map(uid => user.deleteAccount(uid)));
-            winston.info('[userCmd/delete] User(s) has been deleted, their content left intact.');
-            break;
-        }
+            case 'account': {
+                await Promise.all(uids.map(uid => user.deleteAccount(uid)));
+                winston.info('[userCmd/delete] User(s) has been deleted, their content left intact.');
+                break;
+            }
 
-        case 'content': {
-            await Promise.all(uids.map(uid => user.deleteContent(adminUid, uid)));
-            winston.info('[userCmd/delete] User(s)\' content has been deleted.');
-            break;
-        }
+            case 'content': {
+                await Promise.all(uids.map(uid => user.deleteContent(adminUid, uid)));
+                winston.info('[userCmd/delete] User(s)\' content has been deleted.');
+                break;
+            }
         }
     }
 

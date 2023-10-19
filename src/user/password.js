@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const db = require('../database');
 const Password = require('../password');
@@ -26,7 +25,7 @@ module.exports = function (User) {
 
         try {
             User.isPasswordValid(password, 0);
-        } catch (error) {
+        } catch {
             return false;
         }
 

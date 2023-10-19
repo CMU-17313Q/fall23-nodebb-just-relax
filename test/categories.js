@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const nconf = require('nconf');
@@ -66,7 +65,7 @@ describe('Categories', () => {
 
     it('should return null if category does not exist', (done) => {
         Categories.getCategoryById({
-            cid: 123123123,
+            cid: 123_123_123,
             start: 0,
             stop: -1,
         }, (error, categoryData) => {

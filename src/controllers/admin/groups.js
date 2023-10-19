@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const validator = require('validator');
 const db = require('../../database');
@@ -62,11 +61,11 @@ groupsController.get = async function (request, res, next) {
 async function getGroupNames() {
     const groupNames = await db.getSortedSetRange('groups:createtime', 0, -1);
     return groupNames.filter(name => (
-        name !== 'registered-users' &&
-        name !== 'verified-users' &&
-        name !== 'unverified-users' &&
-        name !== groups.BANNED_USERS &&
-        !groups.isPrivilegeGroup(name)
+        name !== 'registered-users'
+        && name !== 'verified-users'
+        && name !== 'unverified-users'
+        && name !== groups.BANNED_USERS
+        && !groups.isPrivilegeGroup(name)
     ));
 }
 

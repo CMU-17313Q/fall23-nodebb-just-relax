@@ -7,11 +7,9 @@ module.exports.render = function (template) {
 
     const locations = Object.keys(ajaxify.data.widgets);
 
-    /* eslint-disable no-restricted-syntax */
     for (const location of locations) {
         let area = $('#content [widget-area="' + location + '"],#content [data-widget-area="' + location + '"]').eq(0);
         if (area.length > 0) {
-            /* eslint-disable no-continue */
             continue;
         }
 

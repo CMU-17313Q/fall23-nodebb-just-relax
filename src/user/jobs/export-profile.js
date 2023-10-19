@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 
 nconf.argv().env({
@@ -113,23 +112,23 @@ async function getSetData(set, keyPrefix, uid) {
 
         let objectData = await db.getObjects(ids.map(id => keyPrefix + id));
         switch (keyPrefix) {
-        case 'post:': {
-            objectData = objectData.map(o => _.pick(o, ['pid', 'content', 'timestamp']));
+            case 'post:': {
+                objectData = objectData.map(o => _.pick(o, ['pid', 'content', 'timestamp']));
 
-            break;
-        }
+                break;
+            }
 
-        case 'topic:': {
-            objectData = objectData.map(o => _.pick(o, ['tid', 'title', 'timestamp']));
+            case 'topic:': {
+                objectData = objectData.map(o => _.pick(o, ['tid', 'title', 'timestamp']));
 
-            break;
-        }
+                break;
+            }
 
-        case 'user:': {
-            objectData = objectData.map(o => _.pick(o, ['uid', 'username']));
+            case 'user:': {
+                objectData = objectData.map(o => _.pick(o, ['uid', 'username']));
 
-            break;
-        }
+                break;
+            }
 		// No default
         }
 

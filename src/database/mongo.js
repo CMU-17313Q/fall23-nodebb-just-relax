@@ -1,6 +1,4 @@
 
-
-
 const winston = require('winston');
 const nconf = require('nconf');
 const semver = require('semver');
@@ -33,7 +31,7 @@ mongoModule.questions = [
     {
         name: 'mongo:port',
         description: 'Host port of your MongoDB instance',
-        default: nconf.get('mongo:port') || 27017,
+        default: nconf.get('mongo:port') || 27_017,
         ask: isUriNotSpecified,
     },
     {

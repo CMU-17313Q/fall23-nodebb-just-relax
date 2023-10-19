@@ -8,22 +8,21 @@ import user from '../user';
 import plugins from '../plugins';
 import topics from '../topics';
 import posts from '../posts';
-import helpers from './helpers';
+import helpers from './helpers.js';
 
 type ComposerBuildData = {
-	templateData: TemplateData;
+    templateData: TemplateData;
 };
 
 type TemplateData = {
-	title: string;
-	disabled: boolean;
+    title: string;
+    disabled: boolean;
 };
 
 type Locals = {
-	metaTags: Record<string, string>;
+    metaTags: Record<string, string>;
 };
 
-/* eslint-disable-next-line max-len */
 export async function get(request: Request, res: Response<Record<string, unknown>, Locals>, callback: NextFunction): Promise<void> {
     res.locals.metaTags = {
         ...res.locals.metaTags,
@@ -57,29 +56,28 @@ export async function get(request: Request, res: Response<Record<string, unknown
 }
 
 type ComposerData = {
-	uid: number;
-	req?: Request<Record<string, unknown>, Record<string, unknown>, ComposerData>; // Make req optional
-	timestamp: number;
-	content: string;
-	fromQueue: boolean;
-	tid?: number;
-	cid?: number;
-	title?: string;
-	tags?: string[];
-	thumb?: string;
-	noscript?: string;
-  };
+    uid: number;
+    req?: Request<Record<string, unknown>, Record<string, unknown>, ComposerData>; // Make req optional
+    timestamp: number;
+    content: string;
+    fromQueue: boolean;
+    tid?: number;
+    cid?: number;
+    title?: string;
+    tags?: string[];
+    thumb?: string;
+    noscript?: string;
+};
 
 type QueueResult = {
-	uid: number;
-	queued: boolean;
-	topicData: TopicObject;
-	pid: number;
+    uid: number;
+    queued: boolean;
+    topicData: TopicObject;
+    pid: number;
 };
 
 type PostFnType = (data: ComposerData) => Promise<QueueResult>;
 
-/* eslint-disable-next-line max-len */
 export async function post(request: Request<Record<string, unknown>, Record<string, unknown>, ComposerData> & {uid: number}, res: Response): Promise<void> {
     const { body } = request;
     const data: ComposerData = {

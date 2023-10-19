@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const _ = require('lodash');
 const Benchpress = require('benchpressjs');
@@ -122,7 +121,7 @@ widgets.getWidgetDataForTemplates = async function (templates) {
             if (templateWidgetData && templateWidgetData[location]) {
                 try {
                     returnData[template][location] = parseWidgetData(templateWidgetData[location]);
-                } catch (error) {
+                } catch {
                     winston.error(`can not parse widget data. template:  ${template} location: ${location}`);
                     returnData[template][location] = [];
                 }

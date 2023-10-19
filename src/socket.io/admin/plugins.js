@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const plugins = require('../../plugins');
 const events = require('../../events');

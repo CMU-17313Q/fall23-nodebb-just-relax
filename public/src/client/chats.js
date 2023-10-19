@@ -18,7 +18,7 @@ define('forum/chats', [
     components, translator, mousetrap,
     recentChats, search, messages,
     autocomplete, hooks, bootbox, alerts, chatModule,
-    api, uploadHelpers
+    api, uploadHelpers,
 ) => {
     const Chats = {
         initialised: false,
@@ -90,7 +90,7 @@ define('forum/chats', [
             callback(uploads) {
                 const { inputEl } = options;
                 let text = inputEl.val();
-                /* eslint-disable no-restricted-syntax */
+
                 for (const upload of uploads) {
                     text = text + (text ? '\n' : '') + (upload.isImage ? '!' : '') + `[${upload.filename}](${upload.url})`;
                 }
@@ -198,21 +198,21 @@ define('forum/chats', [
             const { action } = this.dataset;
 
             switch (action) {
-            case 'edit': {
-                const inputElement = $('[data-roomid="' + roomId + '"] [component="chat/input"]');
-                messages.prepEdit(inputElement, messageId, roomId);
-                break;
-            }
+                case 'edit': {
+                    const inputElement = $('[data-roomid="' + roomId + '"] [component="chat/input"]');
+                    messages.prepEdit(inputElement, messageId, roomId);
+                    break;
+                }
 
-            case 'delete': {
-                messages.delete(messageId, roomId);
-                break;
-            }
+                case 'delete': {
+                    messages.delete(messageId, roomId);
+                    break;
+                }
 
-            case 'restore': {
-                messages.restore(messageId, roomId);
-                break;
-            }
+                case 'restore': {
+                    messages.restore(messageId, roomId);
+                    break;
+                }
             }
         });
     };
@@ -390,7 +390,7 @@ define('forum/chats', [
             strategies: [],
             options: {
                 style: {
-                    'z-index': 20000,
+                    'z-index': 20_000,
                     flex: 0,
                     top: 'inherit',
                 },

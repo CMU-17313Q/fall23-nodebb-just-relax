@@ -1,5 +1,4 @@
 
-
 const os = require('node:os');
 const nconf = require('nconf');
 const topics = require('../../topics');

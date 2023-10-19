@@ -1,5 +1,4 @@
 
-
 const fs = require('node:fs');
 const path = require('node:path');
 const winston = require('winston');
@@ -74,7 +73,7 @@ function parseLicense(packageData) {
             name: licenseData.name,
             text: licenseData.licenseText,
         };
-    } catch (error) {
+    } catch {
         // No license matched
         return null;
     }
@@ -250,7 +249,6 @@ Data.getLanguageData = async function getLanguageData(pluginData) {
         const namespace = rel.join('/').replace(/\.json$/, '');
 
         if (!language || !namespace) {
-            /* eslint-disable no-continue */
             continue;
         }
 

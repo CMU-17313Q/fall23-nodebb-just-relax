@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     const utils = require('../../utils');
     const helpers = require('./helpers');

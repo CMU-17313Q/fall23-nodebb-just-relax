@@ -1,6 +1,4 @@
 
-
-
 const topics = require('../topics');
 const user = require('../user');
 const utils = require('../utils');

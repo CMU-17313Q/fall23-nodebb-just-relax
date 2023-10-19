@@ -1,6 +1,4 @@
 
-
-
 const db = require('../database');
 const posts = require('../posts');
 const categories = require('../categories');

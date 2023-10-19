@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const winston = require('winston');
 
@@ -51,22 +50,22 @@ start.start = async function () {
         }
     } catch (error) {
         switch (error.message) {
-        case 'dependencies-out-of-date': {
-            winston.error('One or more of NodeBB\'s dependent packages are out-of-date. Please run the following command to update them:');
-            winston.error('    ./nodebb upgrade');
-            break;
-        }
+            case 'dependencies-out-of-date': {
+                winston.error('One or more of NodeBB\'s dependent packages are out-of-date. Please run the following command to update them:');
+                winston.error('    ./nodebb upgrade');
+                break;
+            }
 
-        case 'dependencies-missing': {
-            winston.error('One or more of NodeBB\'s dependent packages are missing. Please run the following command to update them:');
-            winston.error('    ./nodebb upgrade');
-            break;
-        }
+            case 'dependencies-missing': {
+                winston.error('One or more of NodeBB\'s dependent packages are missing. Please run the following command to update them:');
+                winston.error('    ./nodebb upgrade');
+                break;
+            }
 
-        default: {
-            winston.error(error.stack);
-            break;
-        }
+            default: {
+                winston.error(error.stack);
+                break;
+            }
         }
 
         // Either way, bad stuff happened. Abort start.

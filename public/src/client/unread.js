@@ -105,7 +105,6 @@ define('forum/unread', [
     }
 
     function removeTids(tids) {
-        /* eslint-disable no-restricted-syntax */
         for (const tid of tids) {
             components.get('category/topic', 'tid', tid).remove();
         }

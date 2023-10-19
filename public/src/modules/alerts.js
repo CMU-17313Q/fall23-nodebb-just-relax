@@ -41,7 +41,7 @@ define('alerts', ['translator', 'components', 'hooks'], (translator, components,
             title: '[[global:alert.error]]',
             message,
             type: 'danger',
-            timeout: timeout || 10000,
+            timeout: timeout || 10_000,
         });
     };
 

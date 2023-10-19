@@ -1,5 +1,4 @@
 
-
 module.exports = {
     name: 'Navigation item visibility groups',
     timestamp: Date.UTC(2018, 10, 10),

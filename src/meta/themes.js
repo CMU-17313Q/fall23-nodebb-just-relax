@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const fs = require('node:fs');
 const nconf = require('nconf');
@@ -80,50 +79,50 @@ async function getThemes(themePath) {
 
 Themes.set = async (data) => {
     switch (data.type) {
-    case 'local': {
-        const current = await Meta.configs.get('theme:id');
+        case 'local': {
+            const current = await Meta.configs.get('theme:id');
 
-        if (current !== data.id) {
-            const pathToThemeJson = path.join(nconf.get('themes_path'), data.id, 'theme.json');
-            if (!pathToThemeJson.startsWith(nconf.get('themes_path'))) {
-                throw new Error('[[error:invalid-theme-id]]');
+            if (current !== data.id) {
+                const pathToThemeJson = path.join(nconf.get('themes_path'), data.id, 'theme.json');
+                if (!pathToThemeJson.startsWith(nconf.get('themes_path'))) {
+                    throw new Error('[[error:invalid-theme-id]]');
+                }
+
+                let config = await fs.promises.readFile(pathToThemeJson, 'utf8');
+                config = JSON.parse(config);
+
+                // Re-set the themes path (for when NodeBB is reloaded)
+                Themes.setPath(config);
+
+                await Meta.configs.setMultiple({
+                    'theme:type': data.type,
+                    'theme:id': data.id,
+                    'theme:staticDir': config.staticDir ? config.staticDir : '',
+                    'theme:templates': config.templates ? config.templates : '',
+                    'theme:src': '',
+                    bootswatchSkin: '',
+                });
+
+                await events.log({
+                    type: 'theme-set',
+                    uid: Number.parseInt(data.uid, 10) || 0,
+                    ip: data.ip || '127.0.0.1',
+                    text: data.id,
+                });
+
+                Meta.reloadRequired = true;
             }
 
-            let config = await fs.promises.readFile(pathToThemeJson, 'utf8');
-            config = JSON.parse(config);
-
-            // Re-set the themes path (for when NodeBB is reloaded)
-            Themes.setPath(config);
-
-            await Meta.configs.setMultiple({
-                'theme:type': data.type,
-                'theme:id': data.id,
-                'theme:staticDir': config.staticDir ? config.staticDir : '',
-                'theme:templates': config.templates ? config.templates : '',
-                'theme:src': '',
-                bootswatchSkin: '',
-            });
-
-            await events.log({
-                type: 'theme-set',
-                uid: Number.parseInt(data.uid, 10) || 0,
-                ip: data.ip || '127.0.0.1',
-                text: data.id,
-            });
-
-            Meta.reloadRequired = true;
+            break;
         }
 
-        break;
-    }
-
-    case 'bootswatch': {
-        await Meta.configs.setMultiple({
-            'theme:src': data.src,
-            bootswatchSkin: data.id.toLowerCase(),
-        });
-        break;
-    }
+        case 'bootswatch': {
+            await Meta.configs.setMultiple({
+                'theme:src': data.src,
+                bootswatchSkin: data.id.toLowerCase(),
+            });
+            break;
+        }
     }
 };
 

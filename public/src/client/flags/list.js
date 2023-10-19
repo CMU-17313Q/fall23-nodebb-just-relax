@@ -14,8 +14,8 @@ define('forum/flags/list', [
 
         selectedCids = [];
         if (ajaxify.data.filters.hasOwnProperty('cid')) {
-            selectedCids = Array.isArray(ajaxify.data.filters.cid) ?
-                ajaxify.data.filters.cid : [ajaxify.data.filters.cid];
+            selectedCids = Array.isArray(ajaxify.data.filters.cid)
+                ? ajaxify.data.filters.cid : [ajaxify.data.filters.cid];
         }
 
         categoryFilter.init($('[component="category/dropdown"]'), {
@@ -62,7 +62,7 @@ define('forum/flags/list', [
         document.querySelector('#apply-filters').addEventListener('click', () => {
             const payload = $filtersElement.serializeArray();
             // Cid is special comes from categoryFilter module
-            /* eslint-disable no-restricted-syntax */
+
             for (const cid of selectedCids) {
                 payload.push({ name: 'cid', value: cid });
             }
@@ -90,7 +90,6 @@ define('forum/flags/list', [
         document.querySelector('[data-action="toggle-all"]').addEventListener('click', function () {
             const state = this.checked;
 
-            /* eslint-disable no-restricted-syntax */
             for (const element of checkboxes) {
                 element.checked = state;
             }
@@ -109,7 +108,6 @@ define('forum/flags/list', [
                     const state = subselector.checked;
                     let started = false;
 
-                    /* eslint-disable no-restricted-syntax */
                     for (const element of checkboxes) {
                         if ([subselector, lastClicked].includes(element)) {
                             started = !started;
@@ -159,7 +157,6 @@ define('forum/flags/list', [
                         ajaxify.refresh();
                     }
 
-                    /* eslint-disable no-restricted-syntax */
                     for (const res of errors) {
                         alerts.error(res.reason);
                     }
@@ -171,7 +168,7 @@ define('forum/flags/list', [
     Flags.getSelected = function () {
         const checkboxes = document.querySelectorAll('[component="flags/list"] [data-flag-id] input[type="checkbox"]');
         const payload = [];
-        /* eslint-disable no-restricted-syntax */
+
         for (const element of checkboxes) {
             if (element.checked) {
                 payload.push(element.closest('[data-flag-id]').dataset.flagId);

@@ -189,8 +189,8 @@ define('admin/manage/users', [
                                     return data;
                                 }, {});
                                 const until = formData.length > 0 ? (
-                                    Date.now() +
-                                    (formData.length * 1000 * 60 * 60 * (Number.parseInt(formData.unit, 10) ? 24 : 1))
+                                    Date.now()
+                                    + (formData.length * 1000 * 60 * 60 * (Number.parseInt(formData.unit, 10) ? 24 : 1))
                                 ) : 0;
 
                                 Promise.all(uids.map(uid => api.put('/users/' + uid + '/ban', {
@@ -332,8 +332,8 @@ define('admin/manage/users', [
                                 if (path !== '/content') {
                                     removeRow(uid);
                                 }
-                            })
-                        )
+                            }),
+                        ),
                     ).then(() => {
                         if (path === '/content') {
                             alerts.success('[[admin/manage/users:alerts.delete-content-success]]');
@@ -475,7 +475,7 @@ define('admin/manage/users', [
                 $('#user-found-notify').addClass('hidden');
             } else {
                 $('#user-found-notify').translateHtml(
-                    translator.compile('admin/manage/users:alerts.x-users-found', data.matchCount, data.timing)
+                    translator.compile('admin/manage/users:alerts.x-users-found', data.matchCount, data.timing),
                 ).removeClass('hidden');
                 $('#user-notfound-notify').addClass('hidden');
             }
@@ -537,7 +537,6 @@ define('admin/manage/users', [
             const filters = getFilters();
             let changed = filters.length !== currentFilters.length;
             if (filters.length === currentFilters.length) {
-                /* eslint-disable no-restricted-syntax */
                 for (const [i, filter] of filters.entries()) {
                     if (filter !== currentFilters[i]) {
                         changed = true;

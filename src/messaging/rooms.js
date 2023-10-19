@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const db = require('../database');
 const user = require('../user');
@@ -247,8 +246,8 @@ module.exports = function (Messaging) {
 
         room.messages = messages;
         room.isOwner = await Messaging.isRoomOwner(uid, room.roomId);
-        room.users = users.filter(user => user && Number.parseInt(user.uid, 10) &&
-            Number.parseInt(user.uid, 10) !== Number.parseInt(uid, 10));
+        room.users = users.filter(user => user && Number.parseInt(user.uid, 10)
+            && Number.parseInt(user.uid, 10) !== Number.parseInt(uid, 10));
         room.canReply = canReply;
         room.groupChat = room.hasOwnProperty('groupChat') ? room.groupChat : users.length > 2;
         room.usernames = Messaging.generateUsernames(users, uid);

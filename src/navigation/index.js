@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const validator = require('validator');
 const groups = require('../groups');

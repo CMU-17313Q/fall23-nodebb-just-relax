@@ -1,5 +1,4 @@
 
-
 const meta = require('../../meta');
 const widgets = require('../../widgets');
 

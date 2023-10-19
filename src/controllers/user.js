@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const winston = require('winston');
 const user = require('../user');
@@ -42,30 +41,30 @@ async function byType(type, request, res, next) {
 userController.getUserDataByField = async function (callerUid, field, fieldValue) {
     let uid = null;
     switch (field) {
-    case 'uid': {
-        uid = fieldValue;
+        case 'uid': {
+            uid = fieldValue;
 
-        break;
-    }
-
-    case 'username': {
-        uid = await user.getUidByUsername(fieldValue);
-
-        break;
-    }
-
-    case 'email': {
-        uid = await user.getUidByEmail(fieldValue);
-        if (uid) {
-            const isPrivileged = await user.isAdminOrGlobalMod(callerUid);
-            const settings = await user.getSettings(uid);
-            if (!isPrivileged && (settings && !settings.showemail)) {
-                uid = 0;
-            }
+            break;
         }
 
-        break;
-    }
+        case 'username': {
+            uid = await user.getUidByUsername(fieldValue);
+
+            break;
+        }
+
+        case 'email': {
+            uid = await user.getUidByEmail(fieldValue);
+            if (uid) {
+                const isPrivileged = await user.isAdminOrGlobalMod(callerUid);
+                const settings = await user.getSettings(uid);
+                if (!isPrivileged && (settings && !settings.showemail)) {
+                    uid = 0;
+                }
+            }
+
+            break;
+        }
 	// No default
     }
 

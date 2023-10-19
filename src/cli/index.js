@@ -1,9 +1,7 @@
 /* eslint-disable import/order */
 
-
-
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 require('../../require-main');
 
@@ -11,17 +9,18 @@ const packageInstall = require('./package-install');
 const { paths } = require('../constants');
 
 try {
-    fs.accessSync(paths.currentPackage, fs.constants.R_OK); // throw on missing package.json
-    try { // handle missing node_modules/ directory
+    fs.accessSync(paths.currentPackage, fs.constants.R_OK); // Throw on missing package.json
+    try { // Handle missing node_modules/ directory
         fs.accessSync(paths.nodeModules, fs.constants.R_OK);
-    } catch (e) {
-        if (e.code === 'ENOENT') {
-            // run package installation just to sync up node_modules/ with existing package.json
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            // Run package installation just to sync up node_modules/ with existing package.json
             packageInstall.installAll();
         } else {
-            throw e;
+            throw error;
         }
     }
+
     fs.accessSync(path.join(paths.nodeModules, 'semver/package.json'), fs.constants.R_OK);
 
     const semver = require('semver');
@@ -42,8 +41,8 @@ try {
     checkVersion('chalk');
     checkVersion('lodash');
     checkVersion('lru-cache');
-} catch (e) {
-    if (['ENOENT', 'DEP_WRONG_VERSION', 'MODULE_NOT_FOUND'].includes(e.code)) {
+} catch (error) {
+    if (['ENOENT', 'DEP_WRONG_VERSION', 'MODULE_NOT_FOUND'].includes(error.code)) {
         console.warn('Dependencies outdated or not yet installed.');
         console.log('Installing them now...\n');
 
@@ -54,7 +53,7 @@ try {
         const chalk = require('chalk');
         console.log(`${chalk.green('OK')}\n`);
     } else {
-        throw e;
+        throw error;
     }
 }
 
@@ -79,11 +78,11 @@ program
     .option('-d, --dev', 'Development mode, including verbose logging', false)
     .option('-l, --log', 'Log subprocess output to console', false);
 
-// provide a yargs object ourselves
+// Provide a yargs object ourselves
 // otherwise yargs will consume `--help` or `help`
 // and `nconf` will exit with useless usage info
-const opts = yargs(process.argv.slice(2)).help(false).exitProcess(false);
-nconf.argv(opts).env({
+const options = yargs(process.argv.slice(2)).help(false).exitProcess(false);
+nconf.argv(options).env({
     separator: '__',
 });
 
@@ -105,7 +104,7 @@ if (!configExists && process.argv[2] !== 'setup') {
 
 process.env.CONFIG = configFile;
 
-// running commands
+// Running commands
 program
     .command('start')
     .description('Start the NodeBB server')
@@ -155,7 +154,7 @@ program
         require('./running').log(program.opts());
     });
 
-// management commands
+// Management commands
 program
     .command('setup [config]')
     .description('Run the NodeBB setup script, or setup with an initial config')
@@ -164,13 +163,14 @@ program
         if (initConfig) {
             try {
                 initConfig = JSON.parse(initConfig);
-            } catch (e) {
+            } catch (error) {
                 console.warn(chalk.red('Invalid JSON passed as initial config value.'));
                 console.log('If you meant to pass in an initial config value, please try again.\n');
 
-                throw e;
+                throw error;
             }
         }
+
         require('./setup').setup(initConfig);
     });
 
@@ -196,7 +196,8 @@ program
             process.env.NODE_ENV = 'development';
             global.env = 'development';
         }
-        require('./manage').build(targets.length ? targets : true, options);
+
+        require('./manage').build(targets.length > 0 ? targets : true, options);
     })
     .on('--help', () => {
         require('../meta/aliases').buildTargets();
@@ -226,7 +227,7 @@ program
         require('./manage').info();
     });
 
-// reset
+// Reset
 const resetCommand = program.command('reset');
 
 resetCommand
@@ -243,8 +244,8 @@ resetCommand
             resetCommand.help();
         }
 
-        require('./reset').reset(options, (err) => {
-            if (err) {
+        require('./reset').reset(options, (error) => {
+            if (error) {
                 return process.exit(1);
             }
 
@@ -252,11 +253,11 @@ resetCommand
         });
     });
 
-// user
+// User
 program
     .addCommand(require('./user')());
 
-// upgrades
+// Upgrades
 program
     .command('upgrade [scripts...]')
     .description('Run NodeBB upgrade scripts and ensure packages are up-to-date, or run a particular upgrade script')
@@ -279,7 +280,8 @@ program
             process.env.NODE_ENV = 'development';
             global.env = 'development';
         }
-        require('./upgrade').upgrade(scripts.length ? scripts : true, options);
+
+        require('./upgrade').upgrade(scripts.length > 0 ? scripts : true, options);
     });
 
 program
@@ -289,10 +291,11 @@ program
     .alias('upgradePlugins')
     .description('Upgrade plugins')
     .action(() => {
-        require('./upgrade-plugins').upgradePlugins((err) => {
-            if (err) {
-                throw err;
+        require('./upgrade-plugins').upgradePlugins((error) => {
+            if (error) {
+                throw error;
             }
+
             console.log(chalk.green('OK'));
             process.exit();
         });

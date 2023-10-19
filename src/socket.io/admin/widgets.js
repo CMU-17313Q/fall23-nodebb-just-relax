@@ -1,5 +1,4 @@
 
-
 const widgets = require('../../widgets');
 
 const Widgets = module.exports;

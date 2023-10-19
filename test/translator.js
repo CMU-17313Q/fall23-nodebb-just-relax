@@ -1,5 +1,4 @@
 
-
 // For tests relating to Transifex configuration, check i18n.js
 
 const assert = require('node:assert');

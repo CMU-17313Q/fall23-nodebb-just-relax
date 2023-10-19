@@ -1,5 +1,4 @@
 
-
 const categories = require('../categories');
 const privileges = require('../privileges');
 const user = require('../user');
@@ -124,7 +123,7 @@ SocketCategories.ignore = async function (socket, data) {
 
 async function ignoreOrWatch(fn, socket, data) {
     let targetUid = socket.uid;
-    /* eslint-disable-next-line max-len */
+
     const cids = Array.isArray(data.cid) ? data.cid.map(cid => Number.parseInt(cid, 10)) : [Number.parseInt(data.cid, 10)];
     if (data.hasOwnProperty('uid')) {
         targetUid = data.uid;

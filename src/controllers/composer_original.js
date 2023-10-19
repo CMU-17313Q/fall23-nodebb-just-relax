@@ -4,8 +4,6 @@
 // HW1 translation. It is *not* meant to be run.
 // You do not have to keep your original JavaScript file for this assignment
 
-
-
 const nconf = require('nconf');
 const user = require('../user');
 const plugins = require('../plugins');

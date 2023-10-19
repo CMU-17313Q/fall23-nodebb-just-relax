@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const privileges = require('../privileges');
 const plugins = require('../plugins');

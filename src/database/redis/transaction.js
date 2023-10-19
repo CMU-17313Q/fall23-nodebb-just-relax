@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     // TODO
     module.transaction = function (perform, callback) {

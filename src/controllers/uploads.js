@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const nconf = require('nconf');
 const validator = require('validator');
@@ -17,7 +16,7 @@ uploadsController.upload = async function (request, res, filesIterator) {
     let files;
     try {
         files = request.files.files;
-    } catch (error) {
+    } catch {
         return helpers.formatApiResponse(400, res);
     }
 
@@ -104,8 +103,8 @@ async function uploadAsFile(request, uploadedFile) {
 async function resizeImage(fileObject) {
     const imageData = await image.size(fileObject.path);
     if (
-        imageData.width < meta.config.resizeImageWidthThreshold ||
-        meta.config.resizeImageWidth > meta.config.resizeImageWidthThreshold
+        imageData.width < meta.config.resizeImageWidthThreshold
+        || meta.config.resizeImageWidth > meta.config.resizeImageWidthThreshold
     ) {
         return fileObject;
     }

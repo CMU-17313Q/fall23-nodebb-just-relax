@@ -1,6 +1,4 @@
 
-
-
 const nconf = require('nconf');
 const user = require('../user');
 const categories = require('../categories');

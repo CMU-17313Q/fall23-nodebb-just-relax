@@ -1,5 +1,4 @@
 
-
 const util = require('node:util');
 const winston = require('winston');
 const passport = require('passport');
@@ -87,9 +86,9 @@ authenticationController.register = async function (request, res) {
         }
 
         if (
-            !userData.username ||
-            userData.username.length < meta.config.minimumUsernameLength ||
-            slugify(userData.username).length < meta.config.minimumUsernameLength
+            !userData.username
+            || userData.username.length < meta.config.minimumUsernameLength
+            || slugify(userData.username).length < meta.config.minimumUsernameLength
         ) {
             throw new Error('[[error:username-too-short]]');
         }
@@ -106,8 +105,8 @@ authenticationController.register = async function (request, res) {
             throw new Error('[[error:password-too-long]]');
         }
 
-        if (!userData['account-type'] ||
-            (userData['account-type'] !== 'student' && userData['account-type'] !== 'instructor')) {
+        if (!userData['account-type']
+            || (userData['account-type'] !== 'student' && userData['account-type'] !== 'instructor')) {
             throw new Error('Invalid account type');
         }
 
@@ -160,8 +159,8 @@ authenticationController.registerComplete = async function (request, res) {
             if (cur.hasOwnProperty('callback') && typeof cur.callback === 'function') {
                 request.body.files = request.files;
                 if (
-                    (cur.callback.constructor && cur.callback.constructor.name === 'AsyncFunction') ||
-                    cur.callback.length === 2 // Non-async function w/o callback
+                    (cur.callback.constructor && cur.callback.constructor.name === 'AsyncFunction')
+                    || cur.callback.length === 2 // Non-async function w/o callback
                 ) {
                     memo.push(cur.callback);
                 } else {
@@ -324,9 +323,9 @@ function continueLogin(strategy, request, res, next) {
             await authenticationController.doLogin(request, userData.uid);
             let destination;
             if (request.session.returnTo) {
-                destination = request.session.returnTo.startsWith('http') ?
-                    request.session.returnTo :
-                    nconf.get('relative_path') + request.session.returnTo;
+                destination = request.session.returnTo.startsWith('http')
+                    ? request.session.returnTo
+                    : nconf.get('relative_path') + request.session.returnTo;
                 delete request.session.returnTo;
             } else {
                 destination = `${nconf.get('relative_path')}/`;
@@ -479,8 +478,8 @@ authenticationController.logout = async function (request, res, next) {
         await destroyAsync(request);
         res.clearCookie(nconf.get('sessionKey'), meta.configs.cookie.get());
 
-        await user.setUserField(uid, 'lastonline', Date.now() - (meta.config.onlineCutoff * 60000));
-        await db.sortedSetAdd('users:online', Date.now() - (meta.config.onlineCutoff * 60000), uid);
+        await user.setUserField(uid, 'lastonline', Date.now() - (meta.config.onlineCutoff * 60_000));
+        await db.sortedSetAdd('users:online', Date.now() - (meta.config.onlineCutoff * 60_000), uid);
         await plugins.hooks.fire('static:user.loggedOut', { req: request, res, uid, sessionID });
 
         // Force session check for all connected socket.io clients with the same session id

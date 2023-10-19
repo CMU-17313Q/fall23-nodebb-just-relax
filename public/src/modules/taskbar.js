@@ -149,10 +149,10 @@ define('taskbar', ['benchpress', 'translator', 'hooks'], (Benchpress, translator
 
             const taskbarElement = $('<li></li>')
                 .addClass(data.options.className)
-                .html('<a href="#"' + (data.options.image ? ' style="background-image: url(\'' + data.options.image.replaceAll('&#x2F;', '/') + '\'); background-size: cover;"' : '') + '>' +
-                    (data.options.icon ? '<i class="fa ' + data.options.icon + '"></i> ' : '') +
-                    '<span aria-label="' + title + '" component="taskbar/title">' + title + '</span>' +
-                    '</a>')
+                .html('<a href="#"' + (data.options.image ? ' style="background-image: url(\'' + data.options.image.replaceAll('&#x2F;', '/') + '\'); background-size: cover;"' : '') + '>'
+                    + (data.options.icon ? '<i class="fa ' + data.options.icon + '"></i> ' : '')
+                    + '<span aria-label="' + title + '" component="taskbar/title">' + title + '</span>'
+                    + '</a>')
                 .attr({
                     title,
                     'data-module': data.module,
@@ -177,25 +177,25 @@ define('taskbar', ['benchpress', 'translator', 'hooks'], (Benchpress, translator
 
     const processUpdate = function (element, key, value) {
         switch (key) {
-        case 'title': {
-            element.find('[component="taskbar/title"]').text(value);
-            break;
-        }
+            case 'title': {
+                element.find('[component="taskbar/title"]').text(value);
+                break;
+            }
 
-        case 'icon': {
-            element.find('i').attr('class', 'fa fa-' + value);
-            break;
-        }
+            case 'icon': {
+                element.find('i').attr('class', 'fa fa-' + value);
+                break;
+            }
 
-        case 'image': {
-            element.find('a').css('background-image', value ? 'url("' + value.replaceAll('&#x2F;', '/') + '")' : '');
-            break;
-        }
+            case 'image': {
+                element.find('a').css('background-image', value ? 'url("' + value.replaceAll('&#x2F;', '/') + '")' : '');
+                break;
+            }
 
-        case 'background-color': {
-            element.find('a').css('background-color', value);
-            break;
-        }
+            case 'background-color': {
+                element.find('a').css('background-color', value);
+                break;
+            }
         }
     };
 
@@ -207,7 +207,6 @@ define('taskbar', ['benchpress', 'translator', 'hooks'], (Benchpress, translator
 
         const data = element.data();
 
-        /* eslint-disable no-restricted-syntax */
         for (const key of Object.keys(options)) {
             data[key] = options[key];
             processUpdate(element, key, options[key]);

@@ -1,5 +1,4 @@
 
-
 const accountsController = {
     profile: require('./accounts/profile'),
     edit: require('./accounts/edit'),

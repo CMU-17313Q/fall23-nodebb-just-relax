@@ -1,5 +1,4 @@
 
-
 const user = require('../user');
 const topics = require('../topics');
 

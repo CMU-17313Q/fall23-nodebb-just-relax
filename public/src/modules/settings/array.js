@@ -109,7 +109,7 @@ define('settings/array', () => {
                 } catch {
                     return $(document.createTextNode(separator));
                 }
-            }());
+            })();
             if (typeof attributes !== 'object') {
                 attributes = {};
             }
@@ -119,7 +119,6 @@ define('settings/array', () => {
                 value = [];
             }
 
-            /* eslint-disable no-restricted-syntax */
             for (const element_ of value) {
                 addArrayChildElement(element, key, attributes, element_, separator.clone(), (element__) => {
                     element.append(element__);

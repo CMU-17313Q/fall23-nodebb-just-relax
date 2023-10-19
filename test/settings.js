@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const nconf = require('nconf');
 const settings = require('../src/settings');

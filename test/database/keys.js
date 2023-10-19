@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const db = require('../mocks/databasemock');
@@ -331,22 +330,22 @@ describe('Key methods', () => {
         });
 
         it('should expire a key using seconds', (done) => {
-            db.expire('testKey', 86400, (error) => {
+            db.expire('testKey', 86_400, (error) => {
                 assert.ifError(error);
                 db.ttl('testKey', (error, ttl) => {
                     assert.ifError(error);
-                    assert.equal(Math.round(86400 / 1000), Math.round(ttl / 1000));
+                    assert.equal(Math.round(86_400 / 1000), Math.round(ttl / 1000));
                     done();
                 });
             });
         });
 
         it('should expire a key using milliseconds', (done) => {
-            db.pexpire('testKey', 86400000, (error) => {
+            db.pexpire('testKey', 86_400_000, (error) => {
                 assert.ifError(error);
                 db.pttl('testKey', (error, pttl) => {
                     assert.ifError(error);
-                    assert.equal(Math.round(86400000 / 1000000), Math.round(pttl / 1000000));
+                    assert.equal(Math.round(86_400_000 / 1_000_000), Math.round(pttl / 1_000_000));
                     done();
                 });
             });

@@ -1,6 +1,4 @@
 
-
-
 const path = require('node:path');
 const util = require('node:util');
 const readline = require('node:readline');
@@ -150,7 +148,6 @@ Upgrade.process = async function (files, skipCount) {
 
             await db.sortedSetAdd('schemaLog', Date.now(), path.basename(file, '.js'));
 
-            /* eslint-disable no-continue */
             continue;
         }
 

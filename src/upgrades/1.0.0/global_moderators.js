@@ -1,5 +1,4 @@
 
-
 module.exports = {
     name: 'Creating Global moderators group',
     timestamp: Date.UTC(2016, 0, 23),

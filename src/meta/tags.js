@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const winston = require('winston');
 const plugins = require('../plugins');
@@ -230,37 +229,37 @@ async function addSiteOGImage(meta) {
         for (const property of properties) {
             if (image.hasOwnProperty(property)) {
                 switch (property) {
-                case 'url': {
-                    meta.push({
-                        property: 'og:image',
-                        content: image.url,
-                        noEscape: true,
-                    }, {
-                        property: 'og:image:url',
-                        content: image.url,
-                        noEscape: true,
-                    });
-                    break;
-                }
+                    case 'url': {
+                        meta.push({
+                            property: 'og:image',
+                            content: image.url,
+                            noEscape: true,
+                        }, {
+                            property: 'og:image:url',
+                            content: image.url,
+                            noEscape: true,
+                        });
+                        break;
+                    }
 
-                case 'secure_url': {
-                    meta.push({
-                        property: `og:${property}`,
-                        content: image[property],
-                        noEscape: true,
-                    });
-                    break;
-                }
+                    case 'secure_url': {
+                        meta.push({
+                            property: `og:${property}`,
+                            content: image[property],
+                            noEscape: true,
+                        });
+                        break;
+                    }
 
-                case 'type':
-                case 'alt':
-                case 'width':
-                case 'height': {
-                    meta.push({
-                        property: `og:image:${property}`,
-                        content: String(image[property]),
-                    });
-                }
+                    case 'type':
+                    case 'alt':
+                    case 'width':
+                    case 'height': {
+                        meta.push({
+                            property: `og:image:${property}`,
+                            content: String(image[property]),
+                        });
+                    }
                 }
             }
         }

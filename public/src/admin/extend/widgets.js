@@ -210,7 +210,6 @@ define('admin/extend/widgets', [
         $.get(config.relative_path + '/api/admin/extend/widgets', (data) => {
             const { areas } = data;
 
-            /* eslint-disable no-restricted-syntax */
             for (const area of areas) {
                 const widgetArea = $('#widgets .area[data-template="' + area.template + '"][data-location="' + area.location + '"]').find('.widget-area');
 

@@ -28,11 +28,10 @@ export async function getPostSharing(): Promise<Network[]> {
         },
     ];
 
-
     networks = await plugins.hooks.fire('filter:social.posts', networks) as Network[];
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const activated: string[] = await db.getSetMembers('social:posts.activated') as string[];
 
     for (const network of networks) {
@@ -52,7 +51,7 @@ export async function setActivePostSharingNetworks(networkIDs: string[]): Promis
     postSharing = undefined; // Initialize as undefined
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await db.delete('social:posts.activated');
 
     if (networkIDs.length === 0) {
@@ -60,7 +59,7 @@ export async function setActivePostSharingNetworks(networkIDs: string[]): Promis
     }
 
     // The next line calls a function in a module that has not been updated to TS yet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await db.setAdd('social:posts.activated', networkIDs);
 }
 

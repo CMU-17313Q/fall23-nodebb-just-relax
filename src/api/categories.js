@@ -1,5 +1,4 @@
 
-
 const categories = require('../categories');
 const events = require('../events');
 const user = require('../user');

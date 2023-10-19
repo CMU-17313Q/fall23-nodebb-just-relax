@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const _ = require('lodash');
 const db = require('../database');
@@ -216,7 +215,7 @@ module.exports = function (Categories) {
             toCid,
             group,
         });
-        /* eslint-disable-next-line max-len */
+
         await (group ? copyPrivilegesByGroup(data.privileges, data.fromCid, data.toCid, group) : copyPrivileges(data.privileges, data.fromCid, data.toCid));
     };
 

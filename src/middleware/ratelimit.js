@@ -1,11 +1,10 @@
 
-
 const winston = require('winston');
 
 const ratelimit = module.exports;
 
 const allowedCalls = 100;
-const timeframe = 10000;
+const timeframe = 10_000;
 
 ratelimit.isFlooding = function (socket) {
     socket.callsPerSecond = socket.callsPerSecond || 0;

@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 
 const databaseName = nconf.get('database');

@@ -1,5 +1,4 @@
 
-
 const util = require('node:util');
 
 module.exports = function (theModule, ignoreKeys) {
@@ -25,7 +24,6 @@ module.exports = function (theModule, ignoreKeys) {
         const keys = Object.keys(module);
         for (const key of keys) {
             if (ignoreKeys.includes(key)) {
-                /* eslint-disable no-continue */
                 continue;
             }
 

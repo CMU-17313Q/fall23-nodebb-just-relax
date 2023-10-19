@@ -1,6 +1,4 @@
 
-
-
 const db = require('../../database');
 const batch = require('../../batch');
 const posts = require('../../posts');

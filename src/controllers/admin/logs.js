@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const winston = require('winston');
 const meta = require('../../meta');

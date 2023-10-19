@@ -53,9 +53,9 @@ ajaxify.widgets = { render };
             apiXHR.abort();
         }
 
-        app.previousUrl = ['reset'].includes(ajaxify.currentPage) ?
-            app.previousUrl :
-            window.location.pathname.slice(config.relative_path.length) + window.location.search;
+        app.previousUrl = ['reset'].includes(ajaxify.currentPage)
+            ? app.previousUrl
+            : window.location.pathname.slice(config.relative_path.length) + window.location.search;
 
         url = ajaxify.start(url);
 
@@ -70,9 +70,9 @@ ajaxify.widgets = { render };
 
         ajaxify.loadData(url, (error, data) => {
             if (!error || (
-                error &&
-                error.data &&
-                (Number.parseInt(error.data.status, 10) !== 302 && Number.parseInt(error.data.status, 10) !== 308)
+                error
+                && error.data
+                && (Number.parseInt(error.data.status, 10) !== 302 && Number.parseInt(error.data.status, 10) !== 308)
             )) {
                 ajaxify.updateHistory(url, quiet);
             }
@@ -240,7 +240,7 @@ ajaxify.widgets = { render };
         const linkInclude = new Set(['canonical', 'alternate', 'up']);
 
         // Delete the old meta tags
-        /* eslint-disable no-restricted-syntax */
+
         for (const element of Array.prototype.slice
             .call(document.querySelectorAll('head meta'))
             .filter((element_) => {
@@ -262,7 +262,7 @@ ajaxify.widgets = { render };
                     }
 
                     const metaElement = document.createElement('meta');
-                    /* eslint-disable no-restricted-syntax */
+
                     for (const prop of Object.keys(tagObject)) {
                         metaElement.setAttribute(prop, tagObject[prop]);
                     }
@@ -272,7 +272,7 @@ ajaxify.widgets = { render };
         });
 
         // Delete the old link tags
-        /* eslint-disable no-restricted-syntax */
+
         for (const element of Array.prototype.slice
             .call(document.querySelectorAll('head link'))
             .filter((element_) => {
@@ -283,11 +283,11 @@ ajaxify.widgets = { render };
         }
 
         // Add new link tags
-        /* eslint-disable no-restricted-syntax */
+
         for (const tagObject of ajaxify.data._header.tags.link
             .filter(tagObject_ => linkInclude.has(tagObject_.rel))) {
             const linkElement = document.createElement('link');
-            /* eslint-disable no-restricted-syntax */
+
             for (const prop of Object.keys(tagObject)) {
                 linkElement.setAttribute(prop, tagObject[prop]);
             }
@@ -384,9 +384,7 @@ ajaxify.widgets = { render };
             }).filter(Boolean);
 
             if (scripts.length > 0) {
-                /* eslint-disable no-restricted-syntax */
                 for (const fn of scripts) {
-                    /* eslint-disable-next-line no-loop-func */
                     fn(() => {
                         outstanding -= 1;
                         if (outstanding === 0) {
@@ -480,7 +478,7 @@ ajaxify.widgets = { render };
         Benchpress.setGlobal('config', config);
         Benchpress.render('500', {}); // Loads and caches the 500.tpl
     });
-}());
+})();
 
 $(document).ready(() => {
     $(window).on('popstate', (ev) => {
@@ -541,8 +539,8 @@ $(document).ready(() => {
                         } else if (config.useOutgoingLinksPage) {
                             const safeUrls = config.outgoingLinksWhitelist.trim().split(/[\s,]+/g).filter(Boolean);
                             const { href } = this;
-                            if (safeUrls.length === 0 ||
-                                !safeUrls.some(url => href.includes(url))) {
+                            if (safeUrls.length === 0
+                                || !safeUrls.some(url => href.includes(url))) {
                                 ajaxify.go('outgoing?url=' + encodeURIComponent(href));
                                 e.preventDefault();
                             }

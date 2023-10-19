@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const diff = require('diff');
 const db = require('../database');

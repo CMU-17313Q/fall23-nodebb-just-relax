@@ -1,5 +1,4 @@
 
-
 const db = require('../database');
 const topics = require('../topics');
 const plugins = require('../plugins');
@@ -120,23 +119,23 @@ module.exports = function (Categories) {
         const sort = data.sort || (data.settings && data.settings.categoryTopicSort) || meta.config.categoryTopicSort || 'newest_to_oldest';
 
         switch (sort) {
-        case 'most_posts': {
-            set = `cid:${cid}:tids:posts`;
+            case 'most_posts': {
+                set = `cid:${cid}:tids:posts`;
 
-            break;
-        }
+                break;
+            }
 
-        case 'most_votes': {
-            set = `cid:${cid}:tids:votes`;
+            case 'most_votes': {
+                set = `cid:${cid}:tids:votes`;
 
-            break;
-        }
+                break;
+            }
 
-        case 'most_views': {
-            set = `cid:${cid}:tids:views`;
+            case 'most_views': {
+                set = `cid:${cid}:tids:views`;
 
-            break;
-        }
+                break;
+            }
 		// No default
         }
 

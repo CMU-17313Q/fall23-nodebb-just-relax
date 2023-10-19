@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const db = require('../../database');
 const batch = require('../../batch');
@@ -11,7 +10,7 @@ module.exports = {
         let configJSON;
         try {
             configJSON = require('../../../config.json') || { [process.env.database]: true };
-        } catch (error) {
+        } catch {
             configJSON = { [process.env.database]: true };
         }
 

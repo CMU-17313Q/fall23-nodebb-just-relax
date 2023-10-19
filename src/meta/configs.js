@@ -1,6 +1,4 @@
 
-
-
 const path = require('node:path');
 const nconf = require('nconf');
 const winston = require('winston');
@@ -30,37 +28,37 @@ function deserialize(config) {
             deserialized[key] = !isNaN(number) && isFinite(config[key]) ? number : defaults[key];
         } else {
             switch (config[key]) {
-            case 'true': {
-                deserialized[key] = true;
+                case 'true': {
+                    deserialized[key] = true;
 
-                break;
-            }
-
-            case 'false': {
-                deserialized[key] = false;
-
-                break;
-            }
-
-            case null: {
-                deserialized[key] = defaults[key];
-
-                break;
-            }
-
-            default: { if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
-                deserialized[key] = number;
-            } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
-                try {
-                    deserialized[key] = JSON.parse(config[key] || '[]');
-                } catch (error) {
-                    winston.error(error.stack);
-                    deserialized[key] = defaults[key];
+                    break;
                 }
-            } else {
-                deserialized[key] = config[key];
-            }
-            }
+
+                case 'false': {
+                    deserialized[key] = false;
+
+                    break;
+                }
+
+                case null: {
+                    deserialized[key] = defaults[key];
+
+                    break;
+                }
+
+                default: { if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
+                    deserialized[key] = number;
+                } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
+                    try {
+                        deserialized[key] = JSON.parse(config[key] || '[]');
+                    } catch (error) {
+                        winston.error(error.stack);
+                        deserialized[key] = defaults[key];
+                    }
+                } else {
+                    deserialized[key] = config[key];
+                }
+                }
             }
         }
     }

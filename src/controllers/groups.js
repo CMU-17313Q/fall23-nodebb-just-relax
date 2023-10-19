@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const nconf = require('nconf');
 const meta = require('../meta');

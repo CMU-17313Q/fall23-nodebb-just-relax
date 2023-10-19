@@ -1,5 +1,4 @@
 
-
 const semver = require('semver');
 const async = require('async');
 const winston = require('winston');
@@ -84,20 +83,20 @@ module.exports = function (Plugins) {
         // Clear old data before build
         for (const field of fields) {
             switch (field) {
-            case 'clientScripts':
-            case 'acpScripts':
-            case 'cssFiles':
-            case 'lessFiles':
-            case 'acpLessFiles': {
-                Plugins[field].length = 0;
-                break;
-            }
+                case 'clientScripts':
+                case 'acpScripts':
+                case 'cssFiles':
+                case 'lessFiles':
+                case 'acpLessFiles': {
+                    Plugins[field].length = 0;
+                    break;
+                }
 
-            case 'languageData': {
-                Plugins.languageData.languages = [];
-                Plugins.languageData.namespaces = [];
-                break;
-            }
+                case 'languageData': {
+                    Plugins.languageData.languages = [];
+                    Plugins.languageData.namespaces = [];
+                    break;
+                }
             // Do nothing for modules and staticDirs
             }
         }

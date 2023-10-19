@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const categories = require('../categories');
 const user = require('../user');

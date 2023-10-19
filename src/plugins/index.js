@@ -1,5 +1,4 @@
 
-
 const fs = require('node:fs');
 const path = require('node:path');
 const winston = require('winston');
@@ -129,7 +128,6 @@ Plugins.reload = async function () {
     // Deprecation notices
     for (const [hook, deprecation] of Plugins.hooks._deprecated.entries()) {
         if (!deprecation.affected || deprecation.affected.size === 0) {
-            /* eslint-disable no-continue */
             continue;
         }
 
@@ -212,7 +210,7 @@ Plugins.normalise = async function (apiReturn) {
             pluginMap[plugin.id] = pluginMap[plugin.id] || {};
             pluginMap[plugin.id].installed = true;
             pluginMap[plugin.id].error = true;
-            /* eslint-disable no-continue */
+
             continue;
         }
 
@@ -230,7 +228,7 @@ Plugins.normalise = async function (apiReturn) {
         pluginMap[plugin.id].license = plugin.license;
 
         // If package.json defines a version to use, stick to that
-        /* eslint-disable-next-line max-len */
+
         pluginMap[plugin.id].latest = dependencies.hasOwnProperty(plugin.id) && semver.valid(dependencies[plugin.id]) ? dependencies[plugin.id] : pluginMap[plugin.id].latest || plugin.version;
 
         pluginMap[plugin.id].outdated = semver.gt(pluginMap[plugin.id].latest, pluginMap[plugin.id].version);

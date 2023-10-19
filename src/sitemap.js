@@ -1,5 +1,4 @@
 
-
 const { SitemapStream, streamToPromise } = require('sitemap');
 const nconf = require('nconf');
 const db = require('./database');

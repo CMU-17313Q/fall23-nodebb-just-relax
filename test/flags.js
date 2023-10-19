@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const util = require('node:util');
 const request = require('request-promise-native');
@@ -438,15 +437,15 @@ describe('Flags', () => {
 
                 for (const change of history) {
                     switch (change.attribute) {
-                    case 'state': {
-                        assert.strictEqual('[[flags:state-wip]]', change.value);
-                        break;
-                    }
+                        case 'state': {
+                            assert.strictEqual('[[flags:state-wip]]', change.value);
+                            break;
+                        }
 
-                    case 'assignee': {
-                        assert.strictEqual(1, change.value);
-                        break;
-                    }
+                        case 'assignee': {
+                            assert.strictEqual(1, change.value);
+                            break;
+                        }
                     }
                 }
 
@@ -685,7 +684,7 @@ describe('Flags', () => {
         });
 
         it('should send back error if reporter does not exist', (done) => {
-            Flags.validate({ uid: 123123123, id: 1, type: 'post' }, (error) => {
+            Flags.validate({ uid: 123_123_123, id: 1, type: 'post' }, (error) => {
                 assert.equal(error.message, '[[error:no-user]]');
                 done();
             });
@@ -725,7 +724,7 @@ describe('Flags', () => {
         });
 
         it('should insert a note in the past if a datetime is passed in', async () => {
-            await Flags.appendNote(1, 1, 'this is the first note', 1626446956652);
+            await Flags.appendNote(1, 1, 'this is the first note', 1_626_446_956_652);
             const note = (await db.getSortedSetRange('flag:1:notes', 0, 0)).pop();
             assert.strictEqual('[1,"this is the first note"]', note);
         });
@@ -953,7 +952,7 @@ describe('Flags', () => {
                     },
                     body: {
                         note: 'lorem ipsum dolor sit amet',
-                        datetime: 1626446956652,
+                        datetime: 1_626_446_956_652,
                     },
                     json: true,
                 });

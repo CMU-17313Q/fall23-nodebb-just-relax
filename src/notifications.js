@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const winston = require('winston');
 const cron = require('cron').CronJob;
@@ -37,7 +36,7 @@ Notifications.privilegedTypes = [
     'notificationType_new-user-flag',
 ];
 
-const notificationPruneCutoff = 2592000000; // One month
+const notificationPruneCutoff = 2_592_000_000; // One month
 
 Notifications.getAllNotificationTypes = async function () {
     const results = await plugins.hooks.fire('filter:user.notificationTypes', {
@@ -124,9 +123,9 @@ Notifications.create = async function (data) {
     data.importance = data.importance || 5;
     const oldNotif = await db.getObject(`notifications:${data.nid}`);
     if (
-        oldNotif &&
-        Number.parseInt(oldNotif.pid, 10) === Number.parseInt(data.pid, 10) &&
-        Number.parseInt(oldNotif.importance, 10) > Number.parseInt(data.importance, 10)
+        oldNotif
+        && Number.parseInt(oldNotif.pid, 10) === Number.parseInt(data.pid, 10)
+        && Number.parseInt(oldNotif.importance, 10) > Number.parseInt(data.importance, 10)
     ) {
         return null;
     }
@@ -407,40 +406,39 @@ Notifications.merge = async function (notifications) {
 
             const modifyIndex = notifications.indexOf(set[0]);
             if (modifyIndex === -1 || set.length === 1) {
-                /* eslint-disable no-continue, no-unused-expressions */
+                /* eslint-disable no-unused-expressions */
                 notifications; continue;
             }
 
             switch (mergeId) {
-            case 'notifications:upvoted_your_post_in':
-            case 'notifications:user_started_following_you':
-            case 'notifications:user_posted_to':
-            case 'notifications:user_flagged_post_in':
-            case 'notifications:user_flagged_user': { {
-                /* eslint-disable-next-line max-len */
-                const usernames = _.uniq(set.map(notifObject => notifObject && notifObject.user && notifObject.user.username));
-                const numberUsers = usernames.length;
+                case 'notifications:upvoted_your_post_in':
+                case 'notifications:user_started_following_you':
+                case 'notifications:user_posted_to':
+                case 'notifications:user_flagged_post_in':
+                case 'notifications:user_flagged_user': { {
+                    const usernames = _.uniq(set.map(notifObject => notifObject && notifObject.user && notifObject.user.username));
+                    const numberUsers = usernames.length;
 
-                const title = utils.decodeHTMLEntities(notifications[modifyIndex].topicTitle || '');
-                let titleEscaped = title.replaceAll('%', '&#37;').replaceAll(',', '&#44;');
-                titleEscaped = titleEscaped ? (`, ${titleEscaped}`) : '';
+                    const title = utils.decodeHTMLEntities(notifications[modifyIndex].topicTitle || '');
+                    let titleEscaped = title.replaceAll('%', '&#37;').replaceAll(',', '&#44;');
+                    titleEscaped = titleEscaped ? (`, ${titleEscaped}`) : '';
 
-                if (numberUsers === 2) {
-                    notifications[modifyIndex].bodyShort = `[[${mergeId}_dual, ${usernames.join(', ')}${titleEscaped}]]`;
-                } else if (numberUsers > 2) {
-                    notifications[modifyIndex].bodyShort = `[[${mergeId}_multiple, ${usernames[0]}, ${numberUsers - 1}${titleEscaped}]]`;
+                    if (numberUsers === 2) {
+                        notifications[modifyIndex].bodyShort = `[[${mergeId}_dual, ${usernames.join(', ')}${titleEscaped}]]`;
+                    } else if (numberUsers > 2) {
+                        notifications[modifyIndex].bodyShort = `[[${mergeId}_multiple, ${usernames[0]}, ${numberUsers - 1}${titleEscaped}]]`;
+                    }
+
+                    notifications[modifyIndex].path = set.at(-1).path;
                 }
 
-                notifications[modifyIndex].path = set.at(-1).path;
-            }
-
-            break;
-            }
-
-            case 'new_register': {
-                notifications[modifyIndex].bodyShort = `[[notifications:${mergeId}_multiple, ${set.length}]]`;
                 break;
-            }
+                }
+
+                case 'new_register': {
+                    notifications[modifyIndex].bodyShort = `[[notifications:${mergeId}_multiple, ${set.length}]]`;
+                    break;
+                }
             }
 
             // Filter out duplicates

@@ -357,11 +357,11 @@ const utils = {
         const result = {};
         let object;
         let keys;
-        /* eslint-disable no-restricted-syntax */
+
         for (const argument of arguments) {
             object = argument || {};
             keys = Object.keys(object);
-            /* eslint-disable no-restricted-syntax */
+
             for (const key of keys) {
                 result[key] = object[key];
             }
@@ -416,10 +416,10 @@ const utils = {
     promiseParallel(object) {
         const keys = Object.keys(object);
         return Promise.all(
-            keys.map(k => object[k])
+            keys.map(k => object[k]),
         ).then((results) => {
             const data = {};
-            /* eslint-disable no-restricted-syntax */
+
             for (const [i, k] of keys.entries()) {
                 data[k] = results[i];
             }
@@ -449,8 +449,8 @@ const utils = {
             return number_;
         }
 
-        if (n > 999999) {
-            return (n / 1000000).toFixed(1) + 'm';
+        if (n > 999_999) {
+            return (n / 1_000_000).toFixed(1) + 'm';
         }
 
         if (n > 999) {
@@ -471,7 +471,7 @@ const utils = {
         }
 
         // Prevent too-high values to be passed to Date object
-        timestamp = Math.min(timestamp, 8640000000000000);
+        timestamp = Math.min(timestamp, 8_640_000_000_000_000);
 
         try {
             return new Date(Number.parseInt(timestamp, 10)).toISOString();
@@ -800,10 +800,10 @@ const utils = {
         const rect = element.getBoundingClientRect();
 
         return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* Or $(window).height() */
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* Or $(window).width() */
+            rect.top >= 0
+            && rect.left >= 0
+            && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) /* Or $(window).height() */
+            && rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* Or $(window).width() */
         );
     },
 
@@ -827,10 +827,9 @@ const utils = {
 
         // Handle arrays passed in query string (Object.fromEntries does not)
         const arrays = {};
-        /* eslint-disable no-restricted-syntax */
+
         for (let [key, value] of parameters.entries()) {
             if (!key.endsWith('[]')) {
-                /* eslint-disable no-continue */
                 continue;
             }
 
@@ -839,14 +838,13 @@ const utils = {
             arrays[key].push(utils.toType(value));
         }
 
-        /* eslint-disable no-restricted-syntax */
         for (const key of Object.keys(arrays)) {
             parameters.delete(`${key}[]`);
         }
 
         // Backwards compatibility with v1.x -- all values passed through utils.toType()
         parameters = Object.fromEntries(parameters);
-        /* eslint-disable no-restricted-syntax */
+
         for (const key of Object.keys(parameters)) {
             parameters[key] = utils.toType(parameters[key]);
         }
@@ -926,13 +924,13 @@ const utils = {
     },
 
     isInternalURI(targetLocation, referenceLocation, relative_path) {
-        return targetLocation.host === '' || // Relative paths are always internal links
-            (
-                targetLocation.host === referenceLocation.host &&
+        return targetLocation.host === '' // Relative paths are always internal links
+            || (
+                targetLocation.host === referenceLocation.host
                 // Otherwise need to check if protocol and host match
-                targetLocation.protocol === referenceLocation.protocol &&
+                && targetLocation.protocol === referenceLocation.protocol
                 // Subfolder installs need this additional check
-                (relative_path.length > 0 ? targetLocation.pathname.indexOf(relative_path) === 0 : true)
+                && (relative_path.length > 0 ? targetLocation.pathname.indexOf(relative_path) === 0 : true)
             );
     },
 

@@ -1,7 +1,5 @@
 /* eslint-disable no-await-in-loop */
 
-
-
 const winston = require('winston');
 const db = require('../../database');
 

@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const db = require('../mocks/databasemock');
 const plugins = require('../../src/plugins');

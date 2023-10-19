@@ -67,7 +67,7 @@ define('uploadHelpers', ['alerts'], (alerts) => {
                 let formData;
                 if (window.FormData) {
                     formData = new FormData();
-                    /* eslint-disable no-restricted-syntax */
+
                     for (const file of files) {
                         formData.append('files[]', file, file.name);
                     }
@@ -139,7 +139,6 @@ define('uploadHelpers', ['alerts'], (alerts) => {
     uploadHelpers.ajaxSubmit = function (options) {
         const files = [...options.upload.files];
 
-        /* eslint-disable no-restricted-syntax */
         for (const file of files) {
             const isImage = file.type.match(/image./);
             if ((isImage && !app.user.privileges['upload:post:image']) || (!isImage && !app.user.privileges['upload:post:file'])) {
@@ -162,9 +161,9 @@ define('uploadHelpers', ['alerts'], (alerts) => {
                 clearForm: true,
                 formData: options.upload.formData,
                 error(xhr) {
-                    let errorMessage = (xhr.responseJSON &&
-                        (xhr.responseJSON.error || (xhr.responseJSON.status && xhr.responseJSON.status.message))) ||
-                        '[[error:parse-error]]';
+                    let errorMessage = (xhr.responseJSON
+                        && (xhr.responseJSON.error || (xhr.responseJSON.status && xhr.responseJSON.status.message)))
+                        || '[[error:parse-error]]';
 
                     if (xhr && xhr.status === 413) {
                         errorMessage = xhr.statusText || 'Request Entity Too Large';
@@ -184,7 +183,6 @@ define('uploadHelpers', ['alerts'], (alerts) => {
                 success(res) {
                     const uploads = res.response.images;
                     if (uploads && uploads.length > 0) {
-                        /* eslint-disable no-restricted-syntax */
                         for (const [i, upload] of uploads.entries()) {
                             upload.filename = files[i].name;
                             upload.isImage = /image./.test(files[i].type);

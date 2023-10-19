@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const meta = require('../../meta');
 const emailer = require('../../emailer');

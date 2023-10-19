@@ -1,5 +1,4 @@
 
-
 const user = require('../user');
 const flags = require('../flags');
 

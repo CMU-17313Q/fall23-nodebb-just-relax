@@ -74,7 +74,7 @@ define('settings/object', () => {
                 } catch {
                     return $(document.createTextNode(separator));
                 }
-            }());
+            })();
             element.empty();
             if (typeof value !== 'object') {
                 value = {};
@@ -102,7 +102,7 @@ define('settings/object', () => {
                             separator.clone(),
                             (element_) => {
                                 element.append(element_);
-                            }
+                            },
                         );
                     }
                 }

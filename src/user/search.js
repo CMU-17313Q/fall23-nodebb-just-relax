@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const meta = require('../meta');
 const plugins = require('../plugins');
@@ -10,7 +8,7 @@ const utils = require('../utils');
 
 module.exports = function (User) {
     const filterFnMap = {
-        online: user => user.status !== 'offline' && (Date.now() - user.lastonline < 300000),
+        online: user => user.status !== 'offline' && (Date.now() - user.lastonline < 300_000),
         flagged: user => Number.parseInt(user.flags, 10) > 0,
         verified: user => Boolean(user['email:confirmed']),
         unverified: user => !user['email:confirmed'],
@@ -71,7 +69,7 @@ module.exports = function (User) {
 
         query = String(query).toLowerCase();
         const min = query;
-        /* eslint-disable-next-line max-len */
+
         const max = query.slice(0, Math.max(0, query.length - 1)) + String.fromCharCode(query.charCodeAt(query.length - 1) + 1);
 
         const resultsPerPage = meta.config.userSearchResultsPerPage;

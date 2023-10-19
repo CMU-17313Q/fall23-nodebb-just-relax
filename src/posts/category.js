@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const db = require('../database');
 const topics = require('../topics');

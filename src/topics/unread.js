@@ -1,6 +1,4 @@
 
-
-
 const async = require('async');
 const _ = require('lodash');
 const db = require('../database');
@@ -47,7 +45,7 @@ module.exports = function (Topics) {
     };
 
     Topics.unreadCutoff = async function (uid) {
-        const cutoff = Date.now() - (meta.config.unreadCutoff * 86400000);
+        const cutoff = Date.now() - (meta.config.unreadCutoff * 86_400_000);
         const data = await plugins.hooks.fire('filter:topics.unreadCutoff', { uid, cutoff });
         return Number.parseInt(data.cutoff, 10);
     };
@@ -116,8 +114,8 @@ module.exports = function (Topics) {
         }
 
         const unreadTopics = _.unionWith(categoryTids, followedTids, (a, b) => a.value === b.value)
-            .filter(t => !ignoredTids.includes(t.value) &&
-                    (!userReadTimes[t.value] || t.score > userReadTimes[t.value]))
+            .filter(t => !ignoredTids.includes(t.value)
+                    && (!userReadTimes[t.value] || t.score > userReadTimes[t.value]))
             .concat(tids_unread.filter(t => !ignoredTids.includes(t.value)))
             .sort((a, b) => b.score - a.score);
 
@@ -147,8 +145,8 @@ module.exports = function (Topics) {
         const filterCids = parameters.cid && parameters.cid.map(cid => Number.parseInt(cid, 10));
 
         for (const topic of topicData) {
-            if (topic && topic.cid && (!filterCids || filterCids.includes(topic.cid)) &&
-                !blockedUids.includes(topic.uid)) {
+            if (topic && topic.cid && (!filterCids || filterCids.includes(topic.cid))
+                && !blockedUids.includes(topic.uid)) {
                 if (isTopicsFollowed[topic.tid] || userCidState[topic.cid] === categories.watchStates.watching) {
                     tidsByFilter[''].push(topic.tid);
                 }
@@ -291,8 +289,8 @@ module.exports = function (Topics) {
             db.sortedSetScores(`uid:${uid}:tids_read`, tids),
         ]);
 
-        const topics = topicScores.filter((t, i) => t.lastposttime &&
-            (!userScores[i] || userScores[i] < t.lastposttime));
+        const topics = topicScores.filter((t, i) => t.lastposttime
+            && (!userScores[i] || userScores[i] < t.lastposttime));
         tids = topics.map(t => t.tid);
 
         if (tids.length === 0) {
@@ -351,9 +349,9 @@ module.exports = function (Topics) {
 
         const cutoff = await Topics.unreadCutoff(uid);
         const result = tids.map((tid, index) => {
-            const read = !tids_unread[index] &&
-                (topicScores[index] < cutoff ||
-                Boolean(userScores[index] && userScores[index] >= topicScores[index]));
+            const read = !tids_unread[index]
+                && (topicScores[index] < cutoff
+                || Boolean(userScores[index] && userScores[index] >= topicScores[index]));
             return { tid, read, index };
         });
 

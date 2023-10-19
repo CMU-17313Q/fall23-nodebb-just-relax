@@ -91,13 +91,13 @@ define('topicList', [
     function onNewTopic(data) {
         const d = ajaxify.data;
 
-        const categories = d.selectedCids &&
-            d.selectedCids.length &&
-            !d.selectedCids.includes(Number.parseInt(data.cid, 10));
-        const filterWatched = d.selectedFilter &&
-            d.selectedFilter.filter === 'watched';
-        const category = d.template.category &&
-            Number.parseInt(d.cid, 10) !== Number.parseInt(data.cid, 10);
+        const categories = d.selectedCids
+            && d.selectedCids.length
+            && !d.selectedCids.includes(Number.parseInt(data.cid, 10));
+        const filterWatched = d.selectedFilter
+            && d.selectedFilter.filter === 'watched';
+        const category = d.template.category
+            && Number.parseInt(d.cid, 10) !== Number.parseInt(data.cid, 10);
 
         const preventAlert = Boolean(categories || filterWatched || category || scheduledTopics.includes(data.tid));
         hooks.fire('filter:topicList.onNewTopic', { topic: data, preventAlert }).then((result) => {
@@ -123,16 +123,16 @@ define('topicList', [
         const d = ajaxify.data;
 
         const isMain = Number.parseInt(post.topic.mainPid, 10) === Number.parseInt(post.pid, 10);
-        const categories = d.selectedCids &&
-            d.selectedCids.length &&
-            !d.selectedCids.includes(Number.parseInt(post.topic.cid, 10));
-        const filterNew = d.selectedFilter &&
-            d.selectedFilter.filter === 'new';
-        const filterWatched = d.selectedFilter &&
-            d.selectedFilter.filter === 'watched' &&
-            !post.topic.isFollowing;
-        const category = d.template.category &&
-            Number.parseInt(d.cid, 10) !== Number.parseInt(post.topic.cid, 10);
+        const categories = d.selectedCids
+            && d.selectedCids.length
+            && !d.selectedCids.includes(Number.parseInt(post.topic.cid, 10));
+        const filterNew = d.selectedFilter
+            && d.selectedFilter.filter === 'new';
+        const filterWatched = d.selectedFilter
+            && d.selectedFilter.filter === 'watched'
+            && !post.topic.isFollowing;
+        const category = d.template.category
+            && Number.parseInt(d.cid, 10) !== Number.parseInt(post.topic.cid, 10);
 
         const preventAlert = Boolean(isMain || categories || filterNew || filterWatched || category);
         hooks.fire('filter:topicList.onNewPost', { post, preventAlert }).then((result) => {

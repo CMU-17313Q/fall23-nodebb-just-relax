@@ -1,5 +1,4 @@
 
-
 const db = require('../database');
 
 module.exports = function (User) {

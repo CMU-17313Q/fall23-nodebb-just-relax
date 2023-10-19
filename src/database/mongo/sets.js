@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     const _ = require('lodash');
     const helpers = require('./helpers');

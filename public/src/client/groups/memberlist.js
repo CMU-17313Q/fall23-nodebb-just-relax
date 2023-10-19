@@ -54,7 +54,6 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts'], (api, bootbox, a
                             return alerts.error(error);
                         }
 
-                        /* eslint-disable no-restricted-syntax */
                         for (const user of result.users) {
                             foundUsers[user.uid] = user;
                         }

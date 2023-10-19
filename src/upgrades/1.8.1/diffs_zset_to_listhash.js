@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const db = require('../../database');
 const batch = require('../../batch');

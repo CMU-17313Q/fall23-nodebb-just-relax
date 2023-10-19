@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     const helpers = require('./helpers');
     module.flushdb = async function () {
@@ -149,7 +148,7 @@ module.exports = function (module) {
     };
 
     module.pexpireAt = async function (key, timestamp) {
-        timestamp = Math.min(timestamp, 8640000000000000);
+        timestamp = Math.min(timestamp, 8_640_000_000_000_000);
         await module.setObjectField(key, 'expireAt', new Date(timestamp));
     };
 

@@ -1,5 +1,4 @@
 
-
 const topics = require('../../topics');
 const privileges = require('../../privileges');
 const events = require('../../events');

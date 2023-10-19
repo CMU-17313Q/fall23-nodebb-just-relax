@@ -1,5 +1,4 @@
 
-
 const os = require('node:os');
 const winston = require('winston');
 const _ = require('lodash');
@@ -41,7 +40,7 @@ module.exports = function (middleware) {
             originsRegex = originsRegex.map((origin) => {
                 try {
                     origin = new RegExp(origin.trim());
-                } catch (error) {
+                } catch {
                     winston.error(`[middleware.addHeaders] Invalid RegExp For access-control-allow-origin ${origin}`);
                     origin = null;
                 }

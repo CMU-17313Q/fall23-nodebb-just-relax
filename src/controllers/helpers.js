@@ -1,5 +1,4 @@
 
-
 const querystring = require('node:querystring');
 const nconf = require('nconf');
 const validator = require('validator');
@@ -186,8 +185,8 @@ helpers.redirect = function (res, url, permanent) {
 };
 
 function prependRelativePath(url) {
-    return url.startsWith('http://') || url.startsWith('https://') ?
-        url : relative_path + url;
+    return url.startsWith('http://') || url.startsWith('https://')
+        ? url : relative_path + url;
 }
 
 helpers.buildCategoryBreadcrumbs = async function (cid) {
@@ -320,10 +319,10 @@ helpers.getVisibleCategories = async function (parameters) {
 
         const hasVisibleChildren = checkVisibleChildren(c, cidToAllowed, cidToWatchState, states);
         const isCategoryVisible = (
-            cidToAllowed[c.cid] &&
-            (showLinks || !c.link) &&
-            !c.disabled &&
-            states.includes(cidToWatchState[c.cid])
+            cidToAllowed[c.cid]
+            && (showLinks || !c.link)
+            && !c.disabled
+            && states.includes(cidToWatchState[c.cid])
         );
         const shouldBeRemoved = !hasVisibleChildren && !isCategoryVisible;
         const shouldBeDisaplayedAsDisabled = hasVisibleChildren && !isCategoryVisible;
@@ -333,8 +332,8 @@ helpers.getVisibleCategories = async function (parameters) {
         }
 
         if (shouldBeRemoved && c.parent && c.parent.cid && cidToCategory[c.parent.cid]) {
-            cidToCategory[c.parent.cid].children =
-                cidToCategory[c.parent.cid].children.filter(child => child.cid !== c.cid);
+            cidToCategory[c.parent.cid].children
+                = cidToCategory[c.parent.cid].children.filter(child => child.cid !== c.cid);
         }
 
         return !shouldBeRemoved;
@@ -397,8 +396,8 @@ function checkVisibleChildren(c, cidToAllowed, cidToWatchState, states) {
     }
 
     return c.children.some(c => !c.disabled && (
-        (cidToAllowed[c.cid] && states.includes(cidToWatchState[c.cid])) ||
-        checkVisibleChildren(c, cidToAllowed, cidToWatchState, states)
+        (cidToAllowed[c.cid] && states.includes(cidToWatchState[c.cid]))
+        || checkVisibleChildren(c, cidToAllowed, cidToWatchState, states)
     ));
 }
 
@@ -449,17 +448,17 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
         let code = 'ok';
         let message = 'OK';
         switch (statusCode) {
-        case 202: {
-            code = 'accepted';
-            message = 'Accepted';
-            break;
-        }
+            case 202: {
+                code = 'accepted';
+                message = 'Accepted';
+                break;
+            }
 
-        case 204: {
-            code = 'no-content';
-            message = 'No Content';
-            break;
-        }
+            case 204: {
+                code = 'no-content';
+                message = 'No Content';
+                break;
+            }
         }
 
         res.status(statusCode).json({
@@ -472,20 +471,20 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
 
         // Update status code based on some common error codes
         switch (message) {
-        case '[[error:user-banned]]': {
-            Object.assign(response, await generateBannedResponse(res));
-        }
-        // Intentional fall through
+            case '[[error:user-banned]]': {
+                Object.assign(response, await generateBannedResponse(res));
+            }
+            // Intentional fall through
 
-        case '[[error:no-privileges]]': {
-            statusCode = 403;
-            break;
-        }
+            case '[[error:no-privileges]]': {
+                statusCode = 403;
+                break;
+            }
 
-        case '[[error:invalid-uid]]': {
-            statusCode = 401;
-            break;
-        }
+            case '[[error:invalid-uid]]': {
+                statusCode = 401;
+                break;
+            }
         }
 
         if (message.startsWith('[[error:required-parameters-missing, ')) {
@@ -550,50 +549,50 @@ helpers.generateError = async (statusCode, message, res) => {
     };
 
     switch (statusCode) {
-    case 400: {
-        payload.status.code = 'bad-request';
-        break;
-    }
+        case 400: {
+            payload.status.code = 'bad-request';
+            break;
+        }
 
-    case 401: {
-        payload.status.code = 'not-authorised';
-        break;
-    }
+        case 401: {
+            payload.status.code = 'not-authorised';
+            break;
+        }
 
-    case 403: {
-        payload.status.code = 'forbidden';
-        break;
-    }
+        case 403: {
+            payload.status.code = 'forbidden';
+            break;
+        }
 
-    case 404: {
-        payload.status.code = 'not-found';
-        break;
-    }
+        case 404: {
+            payload.status.code = 'not-found';
+            break;
+        }
 
-    case 426: {
-        payload.status.code = 'upgrade-required';
-        break;
-    }
+        case 426: {
+            payload.status.code = 'upgrade-required';
+            break;
+        }
 
-    case 429: {
-        payload.status.code = 'too-many-requests';
-        break;
-    }
+        case 429: {
+            payload.status.code = 'too-many-requests';
+            break;
+        }
 
-    case 500: {
-        payload.status.code = 'internal-server-error';
-        break;
-    }
+        case 500: {
+            payload.status.code = 'internal-server-error';
+            break;
+        }
 
-    case 501: {
-        payload.status.code = 'not-implemented';
-        break;
-    }
+        case 501: {
+            payload.status.code = 'not-implemented';
+            break;
+        }
 
-    case 503: {
-        payload.status.code = 'service-unavailable';
-        break;
-    }
+        case 503: {
+            payload.status.code = 'service-unavailable';
+            break;
+        }
     }
 
     return payload;

@@ -1,6 +1,4 @@
 
-
-
 const winston = require('winston');
 const _ = require('lodash');
 const db = require('../database');
@@ -75,8 +73,8 @@ module.exports = function (Categories) {
             return;
         }
 
-        const categoriesToLoad =
-            categoryData.filter(c => c && c.numRecentReplies && Number.parseInt(c.numRecentReplies, 10) > 0);
+        const categoriesToLoad
+            = categoryData.filter(c => c && c.numRecentReplies && Number.parseInt(c.numRecentReplies, 10) > 0);
         let keys = [];
         if (plugins.hooks.hasListeners('filter:categories.getRecentTopicReplies')) {
             const result = await plugins.hooks.fire('filter:categories.getRecentTopicReplies', {
@@ -154,7 +152,6 @@ module.exports = function (Categories) {
         for (const category of categoryData) {
             if (category) {
                 if (category.posts.length > 0) {
-                    /* eslint-disable no-continue */
                     continue;
                 }
 

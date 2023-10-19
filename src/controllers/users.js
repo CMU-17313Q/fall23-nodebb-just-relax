@@ -1,5 +1,4 @@
 
-
 const user = require('../user');
 const meta = require('../meta');
 const db = require('../database');
@@ -153,7 +152,7 @@ usersController.getUsers = async function (set, uid, query) {
 usersController.getUsersAndCount = async function (set, uid, start, stop) {
     async function getCount() {
         if (set === 'users:online') {
-            return await db.sortedSetCount('users:online', Date.now() - 86400000, '+inf');
+            return await db.sortedSetCount('users:online', Date.now() - 86_400_000, '+inf');
         }
 
         if (set === 'users:banned' || set === 'users:flags') {
@@ -166,7 +165,7 @@ usersController.getUsersAndCount = async function (set, uid, start, stop) {
     async function getUsers() {
         if (set === 'users:online') {
             const count = Number.parseInt(stop, 10) === -1 ? stop : stop - start + 1;
-            const data = await db.getSortedSetRevRangeByScoreWithScores(set, start, count, '+inf', Date.now() - 86400000);
+            const data = await db.getSortedSetRevRangeByScoreWithScores(set, start, count, '+inf', Date.now() - 86_400_000);
             const uids = data.map(d => d.value);
             const scores = data.map(d => d.score);
             const [userStatus, userData] = await Promise.all([

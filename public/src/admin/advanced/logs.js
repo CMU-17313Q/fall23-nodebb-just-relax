@@ -14,29 +14,29 @@ define('admin/advanced/logs', ['alerts'], (alerts) => {
             const action = btnElement.attr('data-action');
 
             switch (action) {
-            case 'reload': {
-                socket.emit('admin.logs.get', (error, logs) => {
-                    if (error) {
-                        alerts.error(error);
-                    } else {
-                        logsElement.text(logs);
-                        logsElement.scrollTop(logsElement.prop('scrollHeight'));
-                    }
-                });
-                break;
-            }
+                case 'reload': {
+                    socket.emit('admin.logs.get', (error, logs) => {
+                        if (error) {
+                            alerts.error(error);
+                        } else {
+                            logsElement.text(logs);
+                            logsElement.scrollTop(logsElement.prop('scrollHeight'));
+                        }
+                    });
+                    break;
+                }
 
-            case 'clear': {
-                socket.emit('admin.logs.clear', (error) => {
-                    if (error) {
-                        alerts.error(error);
-                    } else {
-                        alerts.success('[[admin/advanced/logs:clear-success]]');
-                        btnElement.prev().click();
-                    }
-                });
-                break;
-            }
+                case 'clear': {
+                    socket.emit('admin.logs.clear', (error) => {
+                        if (error) {
+                            alerts.error(error);
+                        } else {
+                            alerts.success('[[admin/advanced/logs:clear-success]]');
+                            btnElement.prev().click();
+                        }
+                    });
+                    break;
+                }
             }
         });
     };

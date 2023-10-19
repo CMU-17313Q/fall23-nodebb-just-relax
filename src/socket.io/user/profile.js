@@ -1,5 +1,4 @@
 
-
 const user = require('../../user');
 const privileges = require('../../privileges');
 const plugins = require('../../plugins');

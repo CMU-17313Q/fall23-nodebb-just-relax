@@ -1,7 +1,5 @@
 /* eslint-disable no-await-in-loop */
 
-
-
 const privileges = require('../../privileges');
 const groups = require('../../groups');
 const db = require('../../database');

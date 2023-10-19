@@ -1,5 +1,4 @@
 
-
 const widgetsController = module.exports;
 const admin = require('../../widgets/admin');
 

@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -1840,7 +1839,7 @@ describe('User', () => {
         it('should commit reset', (done) => {
             db.getObject('reset:uid', (error, data) => {
                 assert.ifError(error);
-                // eslint-disable-next-line max-len
+
                 const code = Object.keys(data).find(code => Number.parseInt(data[code], 10) === Number.parseInt(testUid, 10));
                 socketUser.reset.commit({ uid: 0 }, { code, password: 'pwdchange' }, (error_) => {
                     assert.ifError(error_);

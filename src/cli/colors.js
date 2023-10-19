@@ -1,5 +1,4 @@
 
-
 // Override commander help formatting functions
 // to include color styling in the output
 // so the CLI looks nice
@@ -82,9 +81,9 @@ module.exports = {
         const args = cmd._args.map(arg => humanReadableArgName(arg)).join(' ');
         return chalk[colors[depth].command](cmd._name + (
             cmd._aliases[0] ? `|${cmd._aliases[0]}` : ''
-        )) +
-        chalk[colors[depth].option](cmd.options.length > 0 ? ' [options]' : '') + // Simplistic check for non-help option
-        chalk[colors[depth].arg](args ? ` ${args}` : '');
+        ))
+        + chalk[colors[depth].option](cmd.options.length > 0 ? ' [options]' : '') // Simplistic check for non-help option
+        + chalk[colors[depth].arg](args ? ` ${args}` : '');
     },
     longestOptionTermLength(cmd, helper) {
         return helper.visibleOptions(cmd).reduce((max, option) => Math.max(

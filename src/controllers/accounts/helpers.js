@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const nconf = require('nconf');
 const db = require('../../database');
@@ -38,7 +37,7 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 
     userData.age = Math.max(
         0,
-        userData.birthday ? Math.floor((Date.now() - new Date(userData.birthday).getTime()) / 31536000000) : 0,
+        userData.birthday ? Math.floor((Date.now() - new Date(userData.birthday).getTime()) / 31_536_000_000) : 0,
     );
 
     userData = await user.hidePrivateData(userData, callerUID);

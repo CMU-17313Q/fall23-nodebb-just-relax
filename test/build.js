@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const fs = require('node:fs');
 const assert = require('node:assert');
@@ -45,16 +44,16 @@ describe('minifier', () => {
 
             assert.strictEqual(
                 fs.readFileSync(destPath).toString().replaceAll('\r\n', '\n'),
-                '(function (window, document) {' +
-                '\n    window.doStuff = function () {' +
-                '\n        document.body.innerHTML = \'Stuff has been done\';' +
-                '\n    };' +
-                '\n})(window, document);' +
-                '\n' +
-                '\n;function foo(name, age) {' +
-                '\n    return \'The person known as "\' + name + \'" is \' + age + \' years old\';' +
-                '\n}' +
-                '\n',
+                '(function (window, document) {'
+                + '\n    window.doStuff = function () {'
+                + '\n        document.body.innerHTML = \'Stuff has been done\';'
+                + '\n    };'
+                + '\n})(window, document);'
+                + '\n'
+                + '\n;function foo(name, age) {'
+                + '\n    return \'The person known as "\' + name + \'" is \' + age + \' years old\';'
+                + '\n}'
+                + '\n',
             );
             done();
         });
@@ -73,8 +72,8 @@ describe('minifier', () => {
 
             assert.strictEqual(
                 fs.readFileSync(destPath).toString(),
-                '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);function foo(n,o){return\'The person known as "\'+n+\'" is \'+o+" years old"}' +
-                '\n//# sourceMappingURL=minified.js.map',
+                '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);function foo(n,o){return\'The person known as "\'+n+\'" is \'+o+" years old"}'
+                + '\n//# sourceMappingURL=minified.js.map',
             );
             done();
         });
@@ -91,8 +90,8 @@ describe('minifier', () => {
                 assert.ifError(error);
                 assert.strictEqual(
                     buffer.toString(),
-                    '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);' +
-                    '\n//# sourceMappingURL=1.js.map',
+                    '(function(n,o){n.doStuff=function(){o.body.innerHTML="Stuff has been done"}})(window,document);'
+                    + '\n//# sourceMappingURL=1.js.map',
                 );
                 done();
             });

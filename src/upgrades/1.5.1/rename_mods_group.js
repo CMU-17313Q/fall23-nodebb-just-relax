@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const winston = require('winston');
 const batch = require('../../batch');

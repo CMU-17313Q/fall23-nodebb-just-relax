@@ -1,6 +1,4 @@
 
-
-
 const winston = require('winston');
 const _ = require('lodash');
 const db = require('../database');

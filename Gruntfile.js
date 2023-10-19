@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const nconf = require('nconf');
 
@@ -180,46 +179,46 @@ module.exports = function (grunt) {
     grunt.event.on('watch', (action, filepath, target) => {
         let compiling;
         switch (target) {
-        case 'styleUpdated_Client': {
-            compiling = 'clientCSS';
+            case 'styleUpdated_Client': {
+                compiling = 'clientCSS';
 
-            break;
-        }
-
-        case 'styleUpdated_Admin': {
-            compiling = 'acpCSS';
-
-            break;
-        }
-
-        case 'clientUpdated':
-        case 'typescriptUpdated': {
-            compiling = 'js';
-
-            break;
-        }
-
-        case 'templatesUpdated': {
-            compiling = 'tpl';
-
-            break;
-        }
-
-        case 'langUpdated': {
-            compiling = 'lang';
-
-            break;
-        }
-
-        case 'serverUpdated': {
-            // Empty require cache
-            const paths = ['./src/meta/build.js', './src/meta/index.js'];
-            for (const p of paths) {
-                delete require.cache[require.resolve(p)];
+                break;
             }
 
-            return run();
-        }
+            case 'styleUpdated_Admin': {
+                compiling = 'acpCSS';
+
+                break;
+            }
+
+            case 'clientUpdated':
+            case 'typescriptUpdated': {
+                compiling = 'js';
+
+                break;
+            }
+
+            case 'templatesUpdated': {
+                compiling = 'tpl';
+
+                break;
+            }
+
+            case 'langUpdated': {
+                compiling = 'lang';
+
+                break;
+            }
+
+            case 'serverUpdated': {
+            // Empty require cache
+                const paths = ['./src/meta/build.js', './src/meta/index.js'];
+                for (const p of paths) {
+                    delete require.cache[require.resolve(p)];
+                }
+
+                return run();
+            }
 		// No default
         }
 

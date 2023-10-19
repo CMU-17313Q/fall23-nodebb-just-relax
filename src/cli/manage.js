@@ -1,5 +1,4 @@
 
-
 const childProcess = require('node:child_process');
 const winston = require('winston');
 const CliGraph = require('cli-graph');
@@ -162,23 +161,23 @@ async function info() {
     const info = await db.info(db.client);
 
     switch (nconf.get('database')) {
-    case 'redis': {
-        console.log(`        version: ${info.redis_version}`);
-        console.log(`        disk sync:  ${info.rdb_last_bgsave_status}`);
-        break;
-    }
+        case 'redis': {
+            console.log(`        version: ${info.redis_version}`);
+            console.log(`        disk sync:  ${info.rdb_last_bgsave_status}`);
+            break;
+        }
 
-    case 'mongo': {
-        console.log(`        version: ${info.version}`);
-        console.log(`        engine:  ${info.storageEngine}`);
-        break;
-    }
+        case 'mongo': {
+            console.log(`        version: ${info.version}`);
+            console.log(`        engine:  ${info.storageEngine}`);
+            break;
+        }
 
-    case 'postgres': {
-        console.log(`        version: ${info.version}`);
-        console.log(`        uptime:  ${info.uptime}`);
-        break;
-    }
+        case 'postgres': {
+            console.log(`        version: ${info.version}`);
+            console.log(`        uptime:  ${info.uptime}`);
+            break;
+        }
     }
 
     const analyticsData = await analytics.getHourlyStatsForSet('analytics:pageviews', Date.now(), 24);

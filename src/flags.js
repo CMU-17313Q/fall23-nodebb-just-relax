@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const winston = require('winston');
 const validator = require('validator');
@@ -76,15 +75,15 @@ Flags.init = async function () {
             perPage() { /* noop */ },
             quick(sets, orSets, key, uid) {
                 switch (key) {
-                case 'mine': {
-                    sets.push(`flags:byAssignee:${uid}`);
-                    break;
-                }
+                    case 'mine': {
+                        sets.push(`flags:byAssignee:${uid}`);
+                        break;
+                    }
 
-                case 'unresolved': {
-                    prepareSets(sets, orSets, 'flags:byState:', ['open', 'wip']);
-                    break;
-                }
+                    case 'unresolved': {
+                        prepareSets(sets, orSets, 'flags:byState:', ['open', 'wip']);
+                        break;
+                    }
                 }
             },
         },
@@ -240,36 +239,36 @@ Flags.sort = async function (flagIds, sort) {
 
     switch (sort) {
     // 'newest' is not handled because that is default
-    case 'oldest': {
-        flagIds = flagIds.reverse();
-        break;
-    }
+        case 'oldest': {
+            flagIds = flagIds.reverse();
+            break;
+        }
 
-    case 'reports': {
-        const keys = flagIds.map(id => `flag:${id}:reports`);
-        const heat = await db.sortedSetsCard(keys);
-        const mapped = heat.map((element, i) => ({
-            index: i, heat: element,
-        }));
-        mapped.sort((a, b) => b.heat - a.heat);
-        flagIds = mapped.map(object => flagIds[object.index]);
-        break;
-    }
+        case 'reports': {
+            const keys = flagIds.map(id => `flag:${id}:reports`);
+            const heat = await db.sortedSetsCard(keys);
+            const mapped = heat.map((element, i) => ({
+                index: i, heat: element,
+            }));
+            mapped.sort((a, b) => b.heat - a.heat);
+            flagIds = mapped.map(object => flagIds[object.index]);
+            break;
+        }
 
-    case 'upvotes': // Fall-through
-    case 'downvotes':
-    case 'replies': {
-        flagIds = await filterPosts(flagIds);
-        const keys = flagIds.map(id => `flag:${id}`);
-        const pids = (await db.getObjectsFields(keys, ['targetId'])).map(object => object.targetId);
-        const votes = (await posts.getPostsFields(pids, [sort])).map(object => Number.parseInt(object[sort], 10) || 0);
-        const sortRef = flagIds.reduce((memo, cur, idx) => {
-            memo[cur] = votes[idx];
-            return memo;
-        }, {});
+        case 'upvotes': // Fall-through
+        case 'downvotes':
+        case 'replies': {
+            flagIds = await filterPosts(flagIds);
+            const keys = flagIds.map(id => `flag:${id}`);
+            const pids = (await db.getObjectsFields(keys, ['targetId'])).map(object => object.targetId);
+            const votes = (await posts.getPostsFields(pids, [sort])).map(object => Number.parseInt(object[sort], 10) || 0);
+            const sortRef = flagIds.reduce((memo, cur, idx) => {
+                memo[cur] = votes[idx];
+                return memo;
+            }, {});
 
-        flagIds = flagIds.sort((a, b) => sortRef[b] - sortRef[a]);
-    }
+            flagIds = flagIds.sort((a, b) => sortRef[b] - sortRef[a]);
+        }
     }
 
     return flagIds;
@@ -343,19 +342,19 @@ Flags.getNote = async function (flagId, datetime) {
 Flags.getFlagIdByTarget = async function (type, id) {
     let method;
     switch (type) {
-    case 'post': {
-        method = posts.getPostField;
-        break;
-    }
+        case 'post': {
+            method = posts.getPostField;
+            break;
+        }
 
-    case 'user': {
-        method = user.getUserField;
-        break;
-    }
+        case 'user': {
+            method = user.getUserField;
+            break;
+        }
 
-    default: {
-        throw new Error('[[error:invalid-data]]');
-    }
+        default: {
+            throw new Error('[[error:invalid-data]]');
+        }
     }
 
     return await method(id, 'flagId');
@@ -596,21 +595,21 @@ Flags.canFlag = async function (type, id, uid, skipLimitCheck = false) {
 
     const canRead = await privileges.posts.can('topics:read', id, uid);
     switch (type) {
-    case 'user': {
-        return true;
-    }
-
-    case 'post': {
-        if (!canRead) {
-            throw new Error('[[error:no-privileges]]');
+        case 'user': {
+            return true;
         }
 
-        break;
-    }
+        case 'post': {
+            if (!canRead) {
+                throw new Error('[[error:no-privileges]]');
+            }
 
-    default: {
-        throw new Error('[[error:invalid-data]]');
-    }
+            break;
+        }
+
+        default: {
+            throw new Error('[[error:invalid-data]]');
+        }
     }
 };
 

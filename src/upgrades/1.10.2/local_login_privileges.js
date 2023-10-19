@@ -1,5 +1,4 @@
 
-
 module.exports = {
     name: 'Give global local login privileges',
     timestamp: Date.UTC(2018, 8, 28),

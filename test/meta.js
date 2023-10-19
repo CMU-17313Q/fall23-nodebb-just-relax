@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const request = require('request');
@@ -393,19 +392,19 @@ describe('meta', () => {
 
     describe('session TTL', () => {
         it('should return 14 days in seconds', (done) => {
-            assert(meta.getSessionTTLSeconds(), 1209600);
+            assert(meta.getSessionTTLSeconds(), 1_209_600);
             done();
         });
 
         it('should return 7 days in seconds', (done) => {
             meta.config.loginDays = 7;
-            assert(meta.getSessionTTLSeconds(), 604800);
+            assert(meta.getSessionTTLSeconds(), 604_800);
             done();
         });
 
         it('should return 2 days in seconds', (done) => {
-            meta.config.loginSeconds = 172800;
-            assert(meta.getSessionTTLSeconds(), 172800);
+            meta.config.loginSeconds = 172_800;
+            assert(meta.getSessionTTLSeconds(), 172_800);
             done();
         });
     });

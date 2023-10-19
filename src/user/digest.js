@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const nconf = require('nconf');
 const db = require('../database');
@@ -104,7 +103,7 @@ Digest.send = async function (data) {
             ]);
             const unreadNotifs = notifications.filter(Boolean);
             // If there are no notifications and no new topics, don't bother sending a digest
-            /* eslint-disable-next-line max-len */
+
             if (unreadNotifs.length === 0 && topics.top.length === 0 && topics.popular.length === 0 && topics.recent.length === 0) {
                 return;
             }
@@ -209,8 +208,8 @@ async function getTermTopics(term, uid) {
             }
 
             // Fix relative paths in topic data
-            const user = topicObject.hasOwnProperty('teaser') && topicObject.teaser && topicObject.teaser.user ?
-                topicObject.teaser.user : topicObject.user;
+            const user = topicObject.hasOwnProperty('teaser') && topicObject.teaser && topicObject.teaser.user
+                ? topicObject.teaser.user : topicObject.user;
             if (user && user.picture && utils.isRelativeUrl(user.picture)) {
                 user.picture = baseUrl + user.picture;
             }

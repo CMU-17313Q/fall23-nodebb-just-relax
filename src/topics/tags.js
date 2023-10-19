@@ -1,6 +1,4 @@
 
-
-
 const async = require('async');
 const validator = require('validator');
 const _ = require('lodash');

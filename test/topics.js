@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const assert = require('node:assert');
 const util = require('node:util');
@@ -1371,7 +1370,7 @@ describe('Topic\'s', () => {
         });
 
         it('should 403 if cant read', (done) => {
-            request(`${nconf.get('url')}/api/topic/teaser/${123123}`, { json: true }, (error, response, body) => {
+            request(`${nconf.get('url')}/api/topic/teaser/${123_123}`, { json: true }, (error, response, body) => {
                 assert.ifError(error);
                 assert.equal(response.statusCode, 403);
                 assert.equal(body, '[[error:no-privileges]]');
@@ -1532,7 +1531,7 @@ describe('Topic\'s', () => {
         });
 
         it('should fail if topic does not exist', (done) => {
-            socketTopics.markUnread({ uid: adminUid }, 1231082, (error) => {
+            socketTopics.markUnread({ uid: adminUid }, 1_231_082, (error) => {
                 assert.equal(error.message, '[[error:no-topic]]');
                 done();
             });
@@ -1642,7 +1641,7 @@ describe('Topic\'s', () => {
         });
 
         it('should fail if topic does not exist', (done) => {
-            socketTopics.markAsUnreadForAll({ uid }, [12312313], (error) => {
+            socketTopics.markAsUnreadForAll({ uid }, [12_312_313], (error) => {
                 assert.equal(error.message, '[[error:no-topic]]');
                 done();
             });
@@ -2708,7 +2707,7 @@ describe('Topic\'s', () => {
                 cid: categoryObject.cid,
                 title: 'Scheduled Test Topic Title',
                 content: 'The content of scheduled test topic',
-                timestamp: new Date(Date.now() + 86400000).getTime(),
+                timestamp: new Date(Date.now() + 86_400_000).getTime(),
             };
         });
 
@@ -2823,7 +2822,7 @@ describe('Topic\'s', () => {
         });
 
         it('should able to reschedule', async () => {
-            const newDate = new Date(Date.now() + (5 * 86400000)).getTime();
+            const newDate = new Date(Date.now() + (5 * 86_400_000)).getTime();
             const editData = { ...adminApiOptions, form: { ...topic, pid: topicData.mainPid, timestamp: newDate } };
             const response = await requestType('put', `${nconf.get('url')}/api/v3/posts/${topicData.mainPid}`, editData);
 
@@ -2862,7 +2861,7 @@ describe('Topic\'s', () => {
         });
 
         it('should not be able to schedule a "published" topic', async () => {
-            const newDate = new Date(Date.now() + 86400000).getTime();
+            const newDate = new Date(Date.now() + 86_400_000).getTime();
             const editData = { ...adminApiOptions, form: { ...topic, pid: topicData.mainPid, timestamp: newDate } };
             const response = await requestType('put', `${nconf.get('url')}/api/v3/posts/${topicData.mainPid}`, editData);
             assert.strictEqual(response.body.response.timestamp, Date.now());

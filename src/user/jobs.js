@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const cronJob = require('cron').CronJob;
 const db = require('../database');

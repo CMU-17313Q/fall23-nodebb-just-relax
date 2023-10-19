@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const path = require('node:path');
 const fs = require('node:fs').promises;
@@ -152,7 +151,7 @@ module.exports = function (Plugins) {
         try {
             const stats = await fs.stat(pluginDir);
             return stats.isDirectory();
-        } catch (error) {
+        } catch {
             return false;
         }
     };

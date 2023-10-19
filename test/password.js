@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const bcrypt = require('bcryptjs');
 const password = require('../src/password');
@@ -41,7 +40,7 @@ describe('Password', () => {
             // ... because sha512 reduces it to a constant size
             const array = [];
             const start = Date.now();
-            array.length = 1000000;
+            array.length = 1_000_000;
             await password.hash(12, array.join('a'));
             const end = Date.now();
 

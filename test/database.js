@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const nconf = require('nconf');
 const db = require('./mocks/databasemock');
@@ -37,32 +36,32 @@ describe('Test database', () => {
         it('should return error with a too low version', (done) => {
             const dbName = nconf.get('database');
             switch (dbName) {
-            case 'redis': {
-                db.checkCompatibilityVersion('2.4.0', (error) => {
-                    assert.equal(error.message, 'Your Redis version is not new enough to support NodeBB, please upgrade Redis to v2.8.9 or higher.');
-                    done();
-                });
+                case 'redis': {
+                    db.checkCompatibilityVersion('2.4.0', (error) => {
+                        assert.equal(error.message, 'Your Redis version is not new enough to support NodeBB, please upgrade Redis to v2.8.9 or higher.');
+                        done();
+                    });
 
-                break;
-            }
+                    break;
+                }
 
-            case 'mongo': {
-                db.checkCompatibilityVersion('1.8.0', (error) => {
-                    assert.equal(error.message, 'The `mongodb` package is out-of-date, please run `./nodebb setup` again.');
-                    done();
-                });
+                case 'mongo': {
+                    db.checkCompatibilityVersion('1.8.0', (error) => {
+                        assert.equal(error.message, 'The `mongodb` package is out-of-date, please run `./nodebb setup` again.');
+                        done();
+                    });
 
-                break;
-            }
+                    break;
+                }
 
-            case 'postgres': {
-                db.checkCompatibilityVersion('6.3.0', (error) => {
-                    assert.equal(error.message, 'The `pg` package is out-of-date, please run `./nodebb setup` again.');
-                    done();
-                });
+                case 'postgres': {
+                    db.checkCompatibilityVersion('6.3.0', (error) => {
+                        assert.equal(error.message, 'The `pg` package is out-of-date, please run `./nodebb setup` again.');
+                        done();
+                    });
 
-                break;
-            }
+                    break;
+                }
 			// No default
             }
         });

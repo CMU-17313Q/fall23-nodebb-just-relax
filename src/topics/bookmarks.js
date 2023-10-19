@@ -1,6 +1,4 @@
 
-
-
 const async = require('async');
 const db = require('../database');
 const user = require('../user');

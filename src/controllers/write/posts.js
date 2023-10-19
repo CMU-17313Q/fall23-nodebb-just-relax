@@ -1,5 +1,4 @@
 
-
 const posts = require('../../posts');
 const privileges = require('../../privileges');
 const api = require('../../api');

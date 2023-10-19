@@ -23,7 +23,7 @@ define('forum/groups/details', [
     slugify,
     categorySelector,
     bootbox,
-    alerts
+    alerts,
 ) => {
     const Details = {};
     let groupName;
@@ -59,7 +59,7 @@ define('forum/groups/details', [
                         components.get('groups/cover').css('background-image', 'url(' + imageUrlOnServer + ')');
                     });
                 },
-                removeCover
+                removeCover,
             );
         }
 
@@ -78,67 +78,67 @@ define('forum/groups/details', [
             const action = btnElement.attr('data-action');
 
             switch (action) {
-            case 'toggleOwnership': {
-                api[isOwner ? 'del' : 'put'](`/groups/${ajaxify.data.group.slug}/ownership/${uid}`, {}).then(() => {
-                    ownerFlagElement.toggleClass('invisible');
-                }).catch(alerts.error);
-                break;
-            }
+                case 'toggleOwnership': {
+                    api[isOwner ? 'del' : 'put'](`/groups/${ajaxify.data.group.slug}/ownership/${uid}`, {}).then(() => {
+                        ownerFlagElement.toggleClass('invisible');
+                    }).catch(alerts.error);
+                    break;
+                }
 
-            case 'kick': {
-                translator.translate('[[groups:details.kick_confirm]]', (translated) => {
-                    bootbox.confirm(translated, (confirm) => {
-                        if (!confirm) {
-                            return;
-                        }
+                case 'kick': {
+                    translator.translate('[[groups:details.kick_confirm]]', (translated) => {
+                        bootbox.confirm(translated, (confirm) => {
+                            if (!confirm) {
+                                return;
+                            }
 
-                        api.del(`/groups/${ajaxify.data.group.slug}/membership/${uid}`, undefined).then(() => userRow.slideUp().remove()).catch(alerts.error);
+                            api.del(`/groups/${ajaxify.data.group.slug}/membership/${uid}`, undefined).then(() => userRow.slideUp().remove()).catch(alerts.error);
+                        });
                     });
-                });
-                break;
-            }
+                    break;
+                }
 
-            case 'update': {
-                Details.update();
-                break;
-            }
+                case 'update': {
+                    Details.update();
+                    break;
+                }
 
-            case 'delete': {
-                Details.deleteGroup();
-                break;
-            }
+                case 'delete': {
+                    Details.deleteGroup();
+                    break;
+                }
 
-            case 'join': {
-                api.put('/groups/' + ajaxify.data.group.slug + '/membership/' + (uid || app.user.uid), undefined).then(() => ajaxify.refresh()).catch(alerts.error);
-                break;
-            }
+                case 'join': {
+                    api.put('/groups/' + ajaxify.data.group.slug + '/membership/' + (uid || app.user.uid), undefined).then(() => ajaxify.refresh()).catch(alerts.error);
+                    break;
+                }
 
-            case 'leave': {
-                api.del('/groups/' + ajaxify.data.group.slug + '/membership/' + (uid || app.user.uid), undefined).then(() => ajaxify.refresh()).catch(alerts.error);
-                break;
-            }
+                case 'leave': {
+                    api.del('/groups/' + ajaxify.data.group.slug + '/membership/' + (uid || app.user.uid), undefined).then(() => ajaxify.refresh()).catch(alerts.error);
+                    break;
+                }
 
-            // TODO (14/10/2020): rewrite these to use api module and merge with above 2 case blocks
-            case 'accept': // Intentional fall-throughs!
-            case 'reject':
-            case 'issueInvite':
-            case 'rescindInvite':
-            case 'acceptInvite':
-            case 'rejectInvite':
-            case 'acceptAll':
-            case 'rejectAll': {
-                socket.emit('groups.' + action, {
-                    toUid: uid,
-                    groupName,
-                }, (error) => {
-                    if (error) {
-                        alerts.error(error);
-                    } else {
-                        ajaxify.refresh();
-                    }
-                });
-                break;
-            }
+                // TODO (14/10/2020): rewrite these to use api module and merge with above 2 case blocks
+                case 'accept': // Intentional fall-throughs!
+                case 'reject':
+                case 'issueInvite':
+                case 'rescindInvite':
+                case 'acceptInvite':
+                case 'rejectInvite':
+                case 'acceptAll':
+                case 'rejectAll': {
+                    socket.emit('groups.' + action, {
+                        toUid: uid,
+                        groupName,
+                    }, (error) => {
+                        if (error) {
+                            alerts.error(error);
+                        } else {
+                            ajaxify.refresh();
+                        }
+                    });
+                    break;
+                }
             }
         });
     };

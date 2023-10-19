@@ -1,5 +1,4 @@
 
-
 const crypto = require('node:crypto');
 
 process.profile = function (operation, start) {

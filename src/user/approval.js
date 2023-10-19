@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const winston = require('winston');
 const cronJob = require('cron').CronJob;
@@ -81,7 +80,7 @@ module.exports = function (User) {
             template: 'registration_accepted',
             uid,
         }).catch(error => winston.error(`[emailer.send] ${error.stack}`));
-        const total = await db.incrObjectFieldBy('registration:queue:approval:times', 'totalTime', Math.floor((Date.now() - creation_time) / 60000));
+        const total = await db.incrObjectFieldBy('registration:queue:approval:times', 'totalTime', Math.floor((Date.now() - creation_time) / 60_000));
         const counter = await db.incrObjectField('registration:queue:approval:times', 'counter');
         await db.setObjectField('registration:queue:approval:times', 'average', total / counter);
         return uid;
@@ -164,7 +163,7 @@ module.exports = function (User) {
 
         const users = await db.getSortedSetRevRangeWithScores('registration:queue', 0, -1);
         const now = Date.now();
-        for (const user of users.filter(user => now - user.score >= meta.config.autoApproveTime * 3600000)) {
+        for (const user of users.filter(user => now - user.score >= meta.config.autoApproveTime * 3_600_000)) {
             // eslint-disable-next-line no-await-in-loop
             await User.acceptRegistration(user.value);
         }

@@ -189,10 +189,10 @@ define('forum/topic/postTools', [
 
         function checkDuration(duration, postTimestamp, languageKey) {
             if (!ajaxify.data.privileges.isAdminOrMod && duration && Date.now() - postTimestamp > duration * 1000) {
-                const numberDays = Math.floor(duration / 86400);
-                const numberHours = Math.floor((duration % 86400) / 3600);
-                const numberMinutes = Math.floor(((duration % 86400) % 3600) / 60);
-                const numberSeconds = ((duration % 86400) % 3600) % 60;
+                const numberDays = Math.floor(duration / 86_400);
+                const numberHours = Math.floor((duration % 86_400) / 3600);
+                const numberMinutes = Math.floor(((duration % 86_400) % 3600) / 60);
+                const numberSeconds = ((duration % 86_400) % 3600) % 60;
                 let message = '[[error:' + languageKey + ', ' + duration + ']]';
                 if (numberDays) {
                     message = numberHours ? '[[error:' + languageKey + '-days-hours, ' + numberDays + ', ' + numberHours + ']]' : '[[error:' + languageKey + '-days, ' + numberDays + ']]';
@@ -433,8 +433,8 @@ define('forum/topic/postTools', [
     }
 
     function showStaleWarning(callback) {
-        const staleThreshold =
-            Math.min(Date.now() - (1000 * 60 * 60 * 24 * ajaxify.data.topicStaleDays), 8640000000000000);
+        const staleThreshold
+            = Math.min(Date.now() - (1000 * 60 * 60 * 24 * ajaxify.data.topicStaleDays), 8_640_000_000_000_000);
         if (staleReplyAnyway || ajaxify.data.lastposttime >= staleThreshold) {
             return callback();
         }

@@ -14,15 +14,15 @@ define('forum/header/unread', () => {
         function onNewPost(data) {
             if (data && data.posts && data.posts.length > 0 && unreadTopics) {
                 const post = data.posts[0];
-                if (Number.parseInt(post.uid, 10) === Number.parseInt(app.user.uid, 10) ||
-                    (!post.topic.isFollowing && post.categoryWatchState !== watchStates.watching)
+                if (Number.parseInt(post.uid, 10) === Number.parseInt(app.user.uid, 10)
+                    || (!post.topic.isFollowing && post.categoryWatchState !== watchStates.watching)
                 ) {
                     return;
                 }
 
                 const { tid } = post.topic;
-                if (!unreadTopics[''][tid] || !unreadTopics.new[tid] ||
-                    !unreadTopics.watched[tid] || !unreadTopics.unreplied[tid]) {
+                if (!unreadTopics[''][tid] || !unreadTopics.new[tid]
+                    || !unreadTopics.watched[tid] || !unreadTopics.unreplied[tid]) {
                     markTopicsUnread(tid);
                 }
 
@@ -62,7 +62,6 @@ define('forum/header/unread', () => {
 
         $(window).on('action:ajaxify.end', () => {
             if (ajaxify.data.template.topic) {
-                /* eslint-disable no-restricted-syntax */
                 for (const filter of ['', 'new', 'watched', 'unreplied']) {
                     delete unreadTopics[filter][ajaxify.data.tid];
                 }

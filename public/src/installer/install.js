@@ -112,25 +112,25 @@ $('document').ready(() => {
         }
 
         switch (type) {
-        case 'admin:username': {
-            return validateUsername(field);
-        }
+            case 'admin:username': {
+                return validateUsername(field);
+            }
 
-        case 'admin:password': {
-            return validatePassword(field);
-        }
+            case 'admin:password': {
+                return validatePassword(field);
+            }
 
-        case 'admin:passwordConfirm': {
-            return validateConfirmPassword(field);
-        }
+            case 'admin:passwordConfirm': {
+                return validateConfirmPassword(field);
+            }
 
-        case 'admin:email': {
-            return validateEmail(field);
-        }
+            case 'admin:email': {
+                return validateEmail(field);
+            }
 
-        case 'database': {
-            return switchDatabase(field);
-        }
+            case 'database': {
+                return switchDatabase(field);
+            }
         }
     }
 

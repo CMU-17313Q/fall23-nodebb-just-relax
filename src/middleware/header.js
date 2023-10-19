@@ -1,5 +1,4 @@
 
-
 const util = require('node:util');
 const nconf = require('nconf');
 const jsesc = require('jsesc');
@@ -177,7 +176,7 @@ async function appendUnreadCounts({ uid, navigation, unreadData, query }) {
             }
 
             return 0;
-        }()),
+        })(),
     };
     const results = await utils.promiseParallel(calls);
 

@@ -33,7 +33,7 @@ define('forum/account/edit', [
         userData.uid = ajaxify.data.uid;
         userData.groupTitle = userData.groupTitle || '';
         userData.groupTitle = JSON.stringify(
-            Array.isArray(userData.groupTitle) ? userData.groupTitle : [userData.groupTitle]
+            Array.isArray(userData.groupTitle) ? userData.groupTitle : [userData.groupTitle],
         );
 
         hooks.fire('action:profile.update', userData);

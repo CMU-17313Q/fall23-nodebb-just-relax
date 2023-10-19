@@ -1,5 +1,4 @@
 
-
 const loggerController = module.exports;
 
 loggerController.get = function (request, res) {

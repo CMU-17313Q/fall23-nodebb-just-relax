@@ -1,6 +1,4 @@
 
-
-
 const plugins = require('../plugins');
 const db = require('../database');
 

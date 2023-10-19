@@ -72,23 +72,23 @@ define('forum/users', [
         let sortBy;
         const activeSection = getActiveSection();
         switch (activeSection) {
-        case 'sort-posts': {
-            sortBy = 'postcount';
+            case 'sort-posts': {
+                sortBy = 'postcount';
 
-            break;
-        }
+                break;
+            }
 
-        case 'sort-reputation': {
-            sortBy = 'reputation';
+            case 'sort-reputation': {
+                sortBy = 'reputation';
 
-            break;
-        }
+                break;
+            }
 
-        case 'users': {
-            sortBy = 'joindate';
+            case 'users': {
+                sortBy = 'joindate';
 
-            break;
-        }
+                break;
+            }
 		// No default
         }
 

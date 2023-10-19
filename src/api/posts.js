@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const _ = require('lodash');
 const utils = require('../utils');

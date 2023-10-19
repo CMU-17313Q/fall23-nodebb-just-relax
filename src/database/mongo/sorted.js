@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const utils = require('../../utils');
 
@@ -537,7 +536,7 @@ module.exports = function (module) {
         let regex;
         try {
             regex = new RegExp(match);
-        } catch (error) {
+        } catch {
             return [];
         }
 

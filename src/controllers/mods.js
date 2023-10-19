@@ -1,5 +1,4 @@
 
-
 const user = require('../user');
 const posts = require('../posts');
 const flags = require('../flags');
@@ -64,8 +63,8 @@ modsController.flags.list = async function (request, res) {
 
     // Pagination doesn't count as a filter
     if (
-        (Object.keys(filters).length === 1 && filters.hasOwnProperty('page')) ||
-        (Object.keys(filters).length === 2 && filters.hasOwnProperty('page') && filters.hasOwnProperty('perPage'))
+        (Object.keys(filters).length === 1 && filters.hasOwnProperty('page'))
+        || (Object.keys(filters).length === 2 && filters.hasOwnProperty('page') && filters.hasOwnProperty('perPage'))
     ) {
         hasFilter = false;
     }
@@ -136,8 +135,8 @@ modsController.flags.detail = async function (request, res, next) {
                 memo[cur] = Object.keys(results.flagData.target).length === 0;
             } else {
                 memo[cur] = results.flagData.type === cur && (
-                    !results.flagData.target ||
-                    Object.keys(results.flagData.target).length > 0
+                    !results.flagData.target
+                    || Object.keys(results.flagData.target).length > 0
                 );
             }
 
@@ -171,9 +170,9 @@ modsController.postQueue = async function (request, res, next) {
         helpers.getSelectedCategory(cid),
     ]);
 
-    postData = postData.filter(p => p &&
-        (categoriesData.selectedCids.length === 0 || categoriesData.selectedCids.includes(p.category.cid)) &&
-        (isAdmin || isGlobalMod || moderatedCids.includes(Number(p.category.cid)) || request.uid === p.user.uid));
+    postData = postData.filter(p => p
+        && (categoriesData.selectedCids.length === 0 || categoriesData.selectedCids.includes(p.category.cid))
+        && (isAdmin || isGlobalMod || moderatedCids.includes(Number(p.category.cid)) || request.uid === p.user.uid));
 
     ({ posts: postData } = await plugins.hooks.fire('filter:post-queue.get', {
         posts: postData,

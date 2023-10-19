@@ -31,7 +31,6 @@ define('forum/chats/search', ['components', 'api', 'alerts'], (components, api, 
             return chatsListElement.translateHtml('<li><div><span>[[users:no-users-found]]</span></div></li>');
         }
 
-        /* eslint-disable no-restricted-syntax */
         for (const userObject of data.users) {
             const chatElement = displayUser(chatsListElement, userObject);
             onUserClick(chatElement, userObject);
@@ -42,10 +41,10 @@ define('forum/chats/search', ['components', 'api', 'alerts'], (components, api, 
 
     function displayUser(chatsListElement, userObject) {
         function createUserImage() {
-            return (userObject.picture ?
-                '<img src="' + userObject.picture + '" title="' + userObject.username + '" />' :
-                '<div class="user-icon" style="background-color: ' + userObject['icon:bgColor'] + '">' + userObject['icon:text'] + '</div>') +
-                '<i class="fa fa-circle status ' + userObject.status + '"></i> ' + userObject.username;
+            return (userObject.picture
+                ? '<img src="' + userObject.picture + '" title="' + userObject.username + '" />'
+                : '<div class="user-icon" style="background-color: ' + userObject['icon:bgColor'] + '">' + userObject['icon:text'] + '</div>')
+                + '<i class="fa fa-circle status ' + userObject.status + '"></i> ' + userObject.username;
         }
 
         const chatElement = $('<li component="chat/search/user"></li>')

@@ -1,7 +1,5 @@
 /* eslint-disable no-await-in-loop */
 
-
-
 const db = require('../../database');
 const batch = require('../../batch');
 
@@ -23,10 +21,10 @@ module.exports = {
                 // Has no history, but is banned, create plain object with just uid and timestmap
                 if (bans.length === 0 && Number.parseInt(userData.banned, 10)) {
                     const banTimestamp = (
-                        userData.lastonline ||
-                        userData.lastposttime ||
-                        userData.joindate ||
-                        Date.now()
+                        userData.lastonline
+                        || userData.lastposttime
+                        || userData.joindate
+                        || Date.now()
                     );
                     const banKey = `uid:${uid}:ban:${banTimestamp}`;
                     await addBan(uid, banKey, { uid, timestamp: banTimestamp });

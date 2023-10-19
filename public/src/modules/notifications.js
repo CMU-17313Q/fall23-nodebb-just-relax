@@ -14,7 +14,6 @@ define('notifications', [
 
     const _addShortTimeagoString = ({ notifications: notifs }) => new Promise((resolve) => {
         translator.toggleTimeagoShorthand(() => {
-            /* eslint-disable no-restricted-syntax */
             for (const notif of notifs) {
                 notif.timeago = $.timeago(new Date(Number.parseInt(notif.datetime, 10)));
             }
@@ -32,7 +31,6 @@ define('notifications', [
                 return alerts.error(error);
             }
 
-            /* eslint-disable-next-line max-len */
             const notifs = data.unread.concat(data.read).sort((a, b) => (Number.parseInt(a.datetime, 10) > Number.parseInt(b.datetime, 10) ? -1 : 1));
 
             hooks.fire('filter:notifications.load', { notifications: notifs }).then(({ notifications }) => {

@@ -1,5 +1,4 @@
 
-
 const zxcvbn = require('zxcvbn');
 const winston = require('winston');
 const db = require('../database');

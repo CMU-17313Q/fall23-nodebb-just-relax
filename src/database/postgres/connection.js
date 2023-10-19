@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const winston = require('winston');
 const _ = require('lodash');

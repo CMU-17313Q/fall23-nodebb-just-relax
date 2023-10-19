@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const nconf = require('nconf');
@@ -244,7 +243,7 @@ describe('Admin Controllers', () => {
     });
 
     it('should load /admin/extend/plugins', function (done) {
-        this.timeout(50000);
+        this.timeout(50_000);
         request(`${nconf.get('url')}/api/admin/extend/plugins`, { jar, json: true }, (error, res, body) => {
             assert.ifError(error);
             assert(body.hasOwnProperty('installed'));
@@ -824,7 +823,7 @@ describe('Admin Controllers', () => {
 
         describe('routeMap parsing', () => {
             it('should allow normal user access to admin pages', async function () {
-                this.timeout(50000);
+                this.timeout(50_000);
                 function makeRequest(url) {
                     return new Promise((resolve, reject) => {
                         request(url, { jar: userJar, json: true }, (error, res, body) => {

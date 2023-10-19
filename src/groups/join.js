@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const db = require('../database');
 const user = require('../user');

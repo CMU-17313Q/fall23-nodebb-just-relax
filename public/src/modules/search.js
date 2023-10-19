@@ -118,14 +118,13 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
                     return quickSearchResults.addClass('hidden').find('.quick-search-results-container').html('');
                 }
 
-                /* eslint-disable no-restricted-syntax */
                 for (const p of data.posts) {
                     const text = $('<div>' + p.content + '</div>').text();
                     const query = inputEl.val().toLowerCase().replace(/^in:topic-\d+/, '');
                     const start = Math.max(0, text.toLowerCase().indexOf(query) - 40);
-                    p.snippet = utils.escapeHTML((start > 0 ? '...' : '') +
-                        text.slice(start, start + 80) +
-                        (text.length - start > 80 ? '...' : ''));
+                    p.snippet = utils.escapeHTML((start > 0 ? '...' : '')
+                        + text.slice(start, start + 80)
+                        + (text.length - start > 80 ? '...' : ''));
                 }
 
                 app.parseAndTranslate('partials/quick-search-results', data, (html) => {
@@ -137,7 +136,7 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
                         .find('.quick-search-results-container')
                         .html(html.length > 0 ? html : '');
                     const highlightEls = quickSearchResults.find(
-                        '.quick-search-results .quick-search-title, .quick-search-results .snippet'
+                        '.quick-search-results .quick-search-title, .quick-search-results .snippet',
                     );
                     Search.highlightMatches(options.searchOptions.term, highlightEls);
                     hooks.fire('action:search.quick.complete', {
@@ -207,7 +206,7 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
 
                 inputEl[0].setSelectionRange(
                     query.startsWith('in:topic') ? query.indexOf(' ') + 1 : 0,
-                    query.length
+                    query.length,
                 );
             }
         });
@@ -334,7 +333,6 @@ define('search', ['translator', 'storage', 'hooks', 'alerts'], (translator, stor
 
             result.html(result.html().replace(regex, (match, p1) => '<strong class="search-match">' + p1 + '</strong>'));
 
-            /* eslint-disable no-restricted-syntax */
             for (const [i, nestedElement] of nested.entries()) {
                 result.html(result.html().replace('<!-- ' + i + ' -->', () => nestedElement.html()));
             }

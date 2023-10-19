@@ -1,5 +1,4 @@
 
-
 const db = require('../../database');
 const posts = require('../../posts');
 const topics = require('../../topics');

@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const db = require('../database');
 const privileges = require('../privileges');
@@ -67,14 +65,14 @@ module.exports = function (Topics) {
 
     async function getTagTids(parameters) {
         const sets = [
-            parameters.sort === 'old' ?
-                'topics:recent' :
-                `topics:${parameters.sort}`,
+            parameters.sort === 'old'
+                ? 'topics:recent'
+                : `topics:${parameters.sort}`,
             ...parameters.tags.map(tag => `tag:${tag}:topics`),
         ];
-        const method = parameters.sort === 'old' ?
-            'getSortedSetIntersect' :
-            'getSortedSetRevIntersect';
+        const method = parameters.sort === 'old'
+            ? 'getSortedSetIntersect'
+            : 'getSortedSetRevIntersect';
         return await db[method]({
             sets,
             start: 0,
@@ -105,9 +103,9 @@ module.exports = function (Topics) {
 
         let pinnedTids = await db.getSortedSetRevRange(pinnedSets, 0, -1);
         pinnedTids = await Topics.tools.checkPinExpiry(pinnedTids);
-        const method = parameters.sort === 'old' ?
-            'getSortedSetRange' :
-            'getSortedSetRevRange';
+        const method = parameters.sort === 'old'
+            ? 'getSortedSetRange'
+            : 'getSortedSetRevRange';
         const tids = await db[method](sets, 0, meta.config.recentMaxTopics - 1);
         return pinnedTids.concat(tids);
     }
@@ -202,10 +200,10 @@ module.exports = function (Topics) {
 
         const cids = parameters.cids && parameters.cids.map(String);
         tids = topicData.filter(t => (
-            t &&
-            t.cid &&
-            !isCidIgnored[t.cid] &&
-            (!cids || cids.includes(String(t.cid)))
+            t
+            && t.cid
+            && !isCidIgnored[t.cid]
+            && (!cids || cids.includes(String(t.cid)))
         )).map(t => t.tid);
 
         const result = await plugins.hooks.fire('filter:topics.filterSortedTids', { tids, params: parameters });

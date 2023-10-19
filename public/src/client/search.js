@@ -92,7 +92,7 @@ define('forum/search', [
 
             if (formData.by) {
                 formData.by = Array.isArray(formData.by) ? formData.by : [formData.by];
-                /* eslint-disable no-restricted-syntax */
+
                 for (const by of formData.by) {
                     $('#posted-by-user').tagsinput('add', by);
                 }
@@ -108,7 +108,7 @@ define('forum/search', [
 
             if (formData.hasTags) {
                 formData.hasTags = Array.isArray(formData.hasTags) ? formData.hasTags : [formData.hasTags];
-                /* eslint-disable no-restricted-syntax */
+
                 for (const tag of formData.hasTags) {
                     $('#has-tags').tagsinput('add', tag);
                 }

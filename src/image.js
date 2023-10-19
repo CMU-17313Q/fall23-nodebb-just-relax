@@ -1,5 +1,4 @@
 
-
 const os = require('node:os');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -56,21 +55,21 @@ image.resizeImage = async function (data) {
 
         if (data.quality) {
             switch (metadata.format) {
-            case 'jpeg': {
-                sharpImage.jpeg({
-                    quality: data.quality,
-                    mozjpeg: true,
-                });
-                break;
-            }
+                case 'jpeg': {
+                    sharpImage.jpeg({
+                        quality: data.quality,
+                        mozjpeg: true,
+                    });
+                    break;
+                }
 
-            case 'png': {
-                sharpImage.png({
-                    quality: data.quality,
-                    compressionLevel: 9,
-                });
-                break;
-            }
+                case 'png': {
+                    sharpImage.png({
+                        quality: data.quality,
+                        compressionLevel: 9,
+                    });
+                    break;
+                }
             }
         }
 

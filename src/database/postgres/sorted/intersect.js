@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     module.sortedSetIntersectCard = async function (keys) {
         if (!Array.isArray(keys) || keys.length === 0) {

@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     module.sortedSetIntersectCard = async function (keys) {
         if (!Array.isArray(keys) || keys.length === 0) {
@@ -7,7 +6,7 @@ module.exports = function (module) {
         }
 
         const objects = module.client.collection('objects');
-        const counts = await countSets(keys, 50000);
+        const counts = await countSets(keys, 50_000);
         if (counts.minCount === 0) {
             return 0;
         }
@@ -33,7 +32,7 @@ module.exports = function (module) {
         const objects = module.client.collection('objects');
         const counts = await Promise.all(
             sets.map(s => objects.countDocuments({ _key: s }, {
-                limit: limit || 25000,
+                limit: limit || 25_000,
             })),
         );
         const minCount = Math.min(...counts);
@@ -71,7 +70,7 @@ module.exports = function (module) {
         }
 
         const simple = parameters.weights.filter(w => w === 1).length === 1 && parameters.limit !== 0;
-        if (parameters.counts.minCount < 25000 && simple) {
+        if (parameters.counts.minCount < 25_000 && simple) {
             return await intersectSingle(parameters);
         }
 
@@ -133,7 +132,7 @@ module.exports = function (module) {
         }
 
         const sortSet = parameters.sets[parameters.weights.indexOf(1)];
-        const batchSize = 10000;
+        const batchSize = 10_000;
         const cursor = await module.client.collection('objects')
             .find({ _key: sortSet }, { projection: project })
             .sort({ score: parameters.sort })

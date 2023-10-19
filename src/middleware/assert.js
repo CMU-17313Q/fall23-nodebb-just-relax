@@ -1,5 +1,4 @@
 
-
 /**
  * The middlewares here strictly act to "assert" validity of the incoming
  * payload and throw an error otherwise.
@@ -129,9 +128,9 @@ Assert.room = helpers.try(async (request, res, next) => {
 
 Assert.message = helpers.try(async (request, res, next) => {
     if (
-        !isFinite(request.params.mid) ||
-        !(await messaging.messageExists(request.params.mid)) ||
-        !(await messaging.canViewMessage(request.params.mid, request.params.roomId, request.uid))
+        !isFinite(request.params.mid)
+        || !(await messaging.messageExists(request.params.mid))
+        || !(await messaging.canViewMessage(request.params.mid, request.params.roomId, request.uid))
     ) {
         return controllerHelpers.formatApiResponse(400, res, new Error('[[error:invalid-mid]]'));
     }

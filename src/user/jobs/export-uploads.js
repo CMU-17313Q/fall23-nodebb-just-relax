@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 
 nconf.argv().env({
@@ -39,15 +38,15 @@ process.on('message', async (message) => {
 
         archive.on('warning', (error) => {
             switch (error.code) {
-            case 'ENOENT': {
-                winston.warn(`[user/export/uploads] File not found: ${error.path}`);
-                break;
-            }
+                case 'ENOENT': {
+                    winston.warn(`[user/export/uploads] File not found: ${error.path}`);
+                    break;
+                }
 
-            default: {
-                winston.warn(`[user/export/uploads] Unexpected warning: ${error.message}`);
-                break;
-            }
+                default: {
+                    winston.warn(`[user/export/uploads] Unexpected warning: ${error.message}`);
+                    break;
+                }
             }
         });
 
@@ -57,15 +56,15 @@ process.on('message', async (message) => {
             };
 
             switch (error.code) {
-            case 'EACCES': {
-                winston.error(`[user/export/uploads] File inaccessible: ${trimPath(error.path)}`);
-                break;
-            }
+                case 'EACCES': {
+                    winston.error(`[user/export/uploads] File inaccessible: ${trimPath(error.path)}`);
+                    break;
+                }
 
-            default: {
-                winston.error(`[user/export/uploads] Unable to construct archive: ${error.message}`);
-                break;
-            }
+                default: {
+                    winston.error(`[user/export/uploads] Unable to construct archive: ${error.message}`);
+                    break;
+                }
             }
         });
 

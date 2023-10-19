@@ -1,5 +1,4 @@
 
-
 const navigationAdmin = require('../../navigation/admin');
 
 const SocketNavigation = module.exports;

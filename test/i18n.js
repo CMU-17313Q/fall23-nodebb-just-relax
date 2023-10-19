@@ -1,5 +1,4 @@
 
-
 // For tests relating to the translator module, check translator.js
 
 const assert = require('node:assert');
@@ -40,7 +39,6 @@ describe('i18n', () => {
                 try {
                     for (const fullPath of fullPaths) {
                         if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
-                            /* eslint-disable no-continue */
                             continue;
                         }
 
@@ -88,7 +86,6 @@ describe('i18n', () => {
                     try {
                         for (const fullPath of fullPaths) {
                             if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
-                                /* eslint-disable no-continue */
                                 continue;
                             }
 

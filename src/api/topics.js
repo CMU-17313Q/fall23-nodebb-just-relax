@@ -1,5 +1,4 @@
 
-
 const user = require('../user');
 const topics = require('../topics');
 const posts = require('../posts');
@@ -20,10 +19,10 @@ topicsAPI.get = async function (caller, data) {
         topics.getTopicData(data.tid),
     ]);
     if (
-        !topic ||
-        !userPrivileges.read ||
-        !userPrivileges['topics:read'] ||
-        !privileges.topics.canViewDeletedScheduled(topic, userPrivileges)
+        !topic
+        || !userPrivileges.read
+        || !userPrivileges['topics:read']
+        || !privileges.topics.canViewDeletedScheduled(topic, userPrivileges)
     ) {
         return null;
     }

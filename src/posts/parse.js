@@ -1,5 +1,4 @@
 
-
 const url = require('node:url');
 const nconf = require('nconf');
 const winston = require('winston');
@@ -115,9 +114,9 @@ module.exports = function (Posts) {
                             absolute = `//${current[1]}`;
                         }
 
-                        content = content.slice(0, current.index + regex.length) +
-                        absolute +
-                        content.slice(current.index + regex.length + current[1].length);
+                        content = content.slice(0, current.index + regex.length)
+                        + absolute
+                        + content.slice(current.index + regex.length + current[1].length);
                     }
                 } catch (error) {
                     winston.verbose(error.messsage);

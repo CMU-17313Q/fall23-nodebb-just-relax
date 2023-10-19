@@ -1,5 +1,4 @@
 
-
 const helpers = module.exports;
 
 helpers.valueToString = String;

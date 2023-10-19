@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     module.sortedSetUnionCard = async function (keys) {
         if (!Array.isArray(keys) || keys.length === 0) {

@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const nconf = require('nconf');
@@ -177,7 +176,7 @@ describe('Notifications', () => {
     });
 
     it('should error if notification does not exist', (done) => {
-        socketNotifications.markUnread({ uid }, 123123, (error) => {
+        socketNotifications.markUnread({ uid }, 123_123, (error) => {
             assert.equal(error.message, '[[error:no-notification]]');
             done();
         });
@@ -465,7 +464,7 @@ describe('Notifications', () => {
             assert.ifError(error);
             notifications.prune((error_) => {
                 assert.ifError(error_);
-                const month = 2592000000;
+                const month = 2_592_000_000;
                 db.sortedSetAdd('notifications', Date.now() - (2 * month), notification.nid, (error_) => {
                     assert.ifError(error_);
                     notifications.prune((error_) => {

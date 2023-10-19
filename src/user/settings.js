@@ -1,6 +1,4 @@
 
-
-
 const validator = require('validator');
 const meta = require('../meta');
 const db = require('../database');
@@ -95,18 +93,18 @@ module.exports = function (User) {
     User.saveSettings = async function (uid, data) {
         const maxPostsPerPage = meta.config.maxPostsPerPage || 20;
         if (
-            !data.postsPerPage ||
-            Number.parseInt(data.postsPerPage, 10) <= 1 ||
-            Number.parseInt(data.postsPerPage, 10) > maxPostsPerPage
+            !data.postsPerPage
+            || Number.parseInt(data.postsPerPage, 10) <= 1
+            || Number.parseInt(data.postsPerPage, 10) > maxPostsPerPage
         ) {
             throw new Error(`[[error:invalid-pagination-value, 2, ${maxPostsPerPage}]]`);
         }
 
         const maxTopicsPerPage = meta.config.maxTopicsPerPage || 20;
         if (
-            !data.topicsPerPage ||
-            Number.parseInt(data.topicsPerPage, 10) <= 1 ||
-            Number.parseInt(data.topicsPerPage, 10) > maxTopicsPerPage
+            !data.topicsPerPage
+            || Number.parseInt(data.topicsPerPage, 10) <= 1
+            || Number.parseInt(data.topicsPerPage, 10) > maxTopicsPerPage
         ) {
             throw new Error(`[[error:invalid-pagination-value, 2, ${maxTopicsPerPage}]]`);
         }

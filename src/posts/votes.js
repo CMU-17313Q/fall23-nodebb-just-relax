@@ -1,5 +1,4 @@
 
-
 const meta = require('../meta');
 const db = require('../database');
 const flags = require('../flags');
@@ -146,7 +145,7 @@ module.exports = function (Posts) {
 
     async function checkVoteLimitation(pid, uid, type) {
         // Type = 'upvote' or 'downvote'
-        const oneDay = 86400000;
+        const oneDay = 86_400_000;
         const [reputation, targetUid, votedPidsToday] = await Promise.all([
             user.getUserField(uid, 'reputation'),
             Posts.getPostField(pid, 'uid'),

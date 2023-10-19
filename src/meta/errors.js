@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const validator = require('validator');
 const cronJob = require('cron').CronJob;

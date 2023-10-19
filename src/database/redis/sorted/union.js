@@ -1,6 +1,4 @@
 
-
-
 module.exports = function (module) {
     const helpers = require('../helpers');
     module.sortedSetUnionCard = async function (keys) {

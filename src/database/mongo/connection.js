@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const winston = require('winston');
 const _ = require('lodash');
@@ -22,7 +21,7 @@ connection.getConnectionString = function (mongo) {
     }
 
     if (!mongo.port) {
-        mongo.port = 27017;
+        mongo.port = 27_017;
     }
 
     const dbName = mongo.database;
@@ -47,7 +46,7 @@ connection.getConnectionOptions = function (mongo) {
     const connOptions = {
         maxPoolSize: 10,
         minPoolSize: 3,
-        connectTimeoutMS: 90000,
+        connectTimeoutMS: 90_000,
     };
 
     return _.merge(connOptions, mongo.options || {});

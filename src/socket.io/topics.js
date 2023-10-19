@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const db = require('../database');
 const posts = require('../posts');
@@ -85,7 +84,7 @@ SocketTopics.getMyNextPostIndex = async function (socket, data) {
         }
 
         const pids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](topicSet, 0, -1);
-        cache.set(cacheKey, pids, 30000);
+        cache.set(cacheKey, pids, 30_000);
         return pids.slice(index - 1);
     }
 
@@ -98,7 +97,7 @@ SocketTopics.getMyNextPostIndex = async function (socket, data) {
         }
 
         const pids = await db.getSortedSetRange(`cid:${cid}:uid:${socket.uid}:pids`, 0, -1);
-        cache.set(cacheKey, pids, 30000);
+        cache.set(cacheKey, pids, 30_000);
         return pids;
     }
 

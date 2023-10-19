@@ -42,11 +42,11 @@ define('categorySelector', [
 
             if (categoryElement.length > 0) {
                 selector.el.find('[component="category-selector-selected"]').html(
-                    categoryElement.find('[component="category-markup"]').html()
+                    categoryElement.find('[component="category-markup"]').html(),
                 );
             } else {
                 selector.el.find('[component="category-selector-selected"]').html(
-                    defaultSelectHtml
+                    defaultSelectHtml,
                 );
             }
         };

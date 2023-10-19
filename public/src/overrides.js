@@ -62,7 +62,7 @@ if (typeof window !== 'undefined') {
                     $(this).val($(this).val());
                 }
 
-                this.scrollTop = 999999;
+                this.scrollTop = 999_999;
             });
         };
 
@@ -86,7 +86,7 @@ if (typeof window !== 'undefined') {
                 });
             });
         };
-    }(jQuery || { fn: {} }));
+    })(jQuery || { fn: {} });
 
     (function () {
         // FIX FOR #1245 - https://github.com/NodeBB/NodeBB/issues/1245
@@ -107,7 +107,7 @@ if (typeof window !== 'undefined') {
                     _clearMenus();
                 }
             });
-    }());
+    })();
 
     let timeagoFn;
     overrides.overrideTimeagoCutoff = function () {

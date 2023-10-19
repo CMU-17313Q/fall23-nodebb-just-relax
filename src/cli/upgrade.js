@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const chalk = require('chalk');
 const packageInstall = require('./package-install');
@@ -78,8 +77,8 @@ async function runUpgrade(upgrades, options) {
 
     if (upgrades === true) {
         let tasks = Object.keys(steps);
-        if (options.package || options.install ||
-                options.plugins || options.schema || options.build) {
+        if (options.package || options.install
+                || options.plugins || options.schema || options.build) {
             tasks = tasks.filter(key => options[key]);
         }
 

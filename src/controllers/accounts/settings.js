@@ -1,5 +1,4 @@
 
-
 const util = require('node:util');
 const nconf = require('nconf');
 const winston = require('winston');
@@ -167,7 +166,7 @@ settingsController.unsubscribePost = async function (request, res) {
         if (!payload || !unsubscribable.has(payload.template)) {
             return res.sendStatus(404);
         }
-    } catch (error) {
+    } catch {
         return res.sendStatus(403);
     }
 

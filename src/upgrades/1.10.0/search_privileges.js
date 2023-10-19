@@ -1,5 +1,4 @@
 
-
 module.exports = {
     name: 'Give global search privileges',
     timestamp: Date.UTC(2018, 4, 28),

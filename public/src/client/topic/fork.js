@@ -70,7 +70,6 @@ define('forum/topic/fork', ['components', 'postSelect', 'alerts'], (components, 
                 },
             });
 
-            /* eslint-disable no-restricted-syntax */
             for (const pid of postSelect.pids) {
                 fadeOutAndRemove(pid);
             }

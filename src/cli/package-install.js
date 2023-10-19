@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const fs = require('node:fs');
 const cproc = require('node:child_process');
@@ -87,7 +86,7 @@ pkgInstall.getPackageManager = () => {
         }
 
         return nconf.get('package_manager') || 'npm';
-    } catch (error) {
+    } catch {
         // Nconf not installed or other unexpected error/exception
         return getPackageManagerByLockfile() || 'npm';
     }
@@ -98,7 +97,7 @@ function getPackageManagerByLockfile() {
         try {
             fs.accessSync(path.resolve(__dirname, `../../${lockfile}`), fs.constants.R_OK);
             return packageManager;
-        } catch (error) {}
+        } catch {}
     }
 }
 
@@ -110,25 +109,25 @@ pkgInstall.installAll = () => {
     const packageManager = pkgInstall.getPackageManager();
     if (supportedPackageManagerList.includes(packageManager)) {
         switch (packageManager) {
-        case 'yarn': {
-            command = `yarn${prod ? ' --production' : ''}`;
-            break;
-        }
+            case 'yarn': {
+                command = `yarn${prod ? ' --production' : ''}`;
+                break;
+            }
 
-        case 'pnpm': {
-            command = 'pnpm install'; // Pnpm checks NODE_ENV
-            break;
-        }
+            case 'pnpm': {
+                command = 'pnpm install'; // Pnpm checks NODE_ENV
+                break;
+            }
 
-        case 'cnpm': {
-            command = `cnpm install ${prod ? ' --production' : ''}`;
-            break;
-        }
+            case 'cnpm': {
+                command = `cnpm install ${prod ? ' --production' : ''}`;
+                break;
+            }
 
-        default: {
-            command += prod ? ' --omit=dev' : '';
-            break;
-        }
+            default: {
+                command += prod ? ' --omit=dev' : '';
+                break;
+            }
         }
     }
 
@@ -150,7 +149,7 @@ pkgInstall.preserveExtraneousPlugins = () => {
     // Skip if `node_modules/` is not found or inaccessible
     try {
         fs.accessSync(paths.nodeModules, fs.constants.R_OK);
-    } catch (error) {
+    } catch {
         return;
     }
 

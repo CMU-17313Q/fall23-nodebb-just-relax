@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const nconf = require('nconf');
 const _ = require('lodash');
@@ -327,16 +326,16 @@ module.exports = function (User) {
         }
 
         user.displayname = validator.escape(String(
-            meta.config.showFullnameAsDisplayName && showfullname && user.fullname ?
-                user.fullname :
-                user.username,
+            meta.config.showFullnameAsDisplayName && showfullname && user.fullname
+                ? user.fullname
+                : user.username,
         ));
     }
 
     function parseGroupTitle(user) {
         try {
             user.groupTitleArray = JSON.parse(user.groupTitle);
-        } catch (error) {
+        } catch {
             if (user.groupTitle) {
                 user.groupTitleArray = [user.groupTitle];
             } else {

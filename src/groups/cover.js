@@ -1,5 +1,4 @@
 
-
 const path = require('node:path');
 const nconf = require('nconf');
 const db = require('../database');

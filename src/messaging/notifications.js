@@ -1,5 +1,4 @@
 
-
 const winston = require('winston');
 const user = require('../user');
 const notifications = require('../notifications');
@@ -59,7 +58,7 @@ module.exports = function (Messaging) {
 
     async function sendNotifications(fromuid, uids, roomId, messageObject) {
         const isOnline = await user.isOnline(uids);
-        /* eslint-disable-next-line max-len */
+
         uids = uids.filter((uid, index) => !isOnline[index] && Number.parseInt(fromuid, 10) !== Number.parseInt(uid, 10));
         if (uids.length === 0) {
             return;

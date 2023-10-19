@@ -1,5 +1,4 @@
 
-
 const SocketCache = module.exports;
 
 const db = require('../../database');

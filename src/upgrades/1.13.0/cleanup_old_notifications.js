@@ -1,5 +1,4 @@
 
-
 const db = require('../../database');
 const batch = require('../../batch');
 const user = require('../../user');
@@ -9,7 +8,7 @@ module.exports = {
     timestamp: Date.UTC(2019, 9, 7),
     async method() {
         const { progress } = this;
-        const week = 604800000;
+        const week = 604_800_000;
         const cutoffTime = Date.now() - week;
         await batch.processSortedSet('users:joindate', async (uids) => {
             progress.incr(uids.length);

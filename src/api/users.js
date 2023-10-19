@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const winston = require('winston');
 const db = require('../database');
@@ -387,12 +386,12 @@ usersAPI.search = async function (caller, data) {
     ]);
     let filters = data.filters || [];
     filters = Array.isArray(filters) ? filters : [filters];
-    if (!allowed ||
-        ((
-            data.searchBy === 'ip' ||
-            data.searchBy === 'email' ||
-            filters.includes('banned') ||
-            filters.includes('flagged')
+    if (!allowed
+        || ((
+            data.searchBy === 'ip'
+            || data.searchBy === 'email'
+            || filters.includes('banned')
+            || filters.includes('flagged')
         ) && !isPrivileged)
     ) {
         throw new Error('[[error:no-privileges]]');

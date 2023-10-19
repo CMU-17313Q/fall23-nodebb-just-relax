@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const winston = require('winston');
 const plugins = require('../plugins');

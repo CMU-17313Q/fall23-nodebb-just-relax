@@ -112,15 +112,14 @@ module.exports = function (utils, Benchpress, relative_path) {
             return html;
         }
 
-        /* eslint-disable no-restricted-syntax */
         for (const child of category.children) {
             if (child && !child.isSection) {
                 const link = child.link ? child.link : (relative_path + '/category/' + child.slug);
-                html += '<span class="category-children-item pull-left">' +
-                    '<div role="presentation" class="icon pull-left" style="' + generateCategoryBackground(child) + '">' +
-                    '<i class="fa fa-fw ' + child.icon + '"></i>' +
-                    '</div>' +
-                    '<a href="' + link + '"><small>' + child.name + '</small></a></span>';
+                html += '<span class="category-children-item pull-left">'
+                    + '<div role="presentation" class="icon pull-left" style="' + generateCategoryBackground(child) + '">'
+                    + '<i class="fa fa-fw ' + child.icon + '"></i>'
+                    + '</div>'
+                    + '<a href="' + link + '"><small>' + child.name + '</small></a></span>';
             }
         }
 
@@ -169,10 +168,10 @@ module.exports = function (utils, Benchpress, relative_path) {
             const guestDisabled = ['groups:moderate', 'groups:posts:upvote', 'groups:posts:downvote', 'groups:local:login', 'groups:group:create'];
             const spidersEnabled = ['groups:find', 'groups:read', 'groups:topics:read', 'groups:view:users', 'groups:view:tags', 'groups:view:groups'];
             const globalModDisabled = ['groups:moderate'];
-            const disabled =
-                (member === 'guests' && (guestDisabled.includes(priv.name) || priv.name.startsWith('groups:admin:'))) ||
-                (member === 'spiders' && !spidersEnabled.includes(priv.name)) ||
-                (member === 'Global Moderators' && globalModDisabled.includes(priv.name));
+            const disabled
+                = (member === 'guests' && (guestDisabled.includes(priv.name) || priv.name.startsWith('groups:admin:')))
+                || (member === 'spiders' && !spidersEnabled.includes(priv.name))
+                || (member === 'Global Moderators' && globalModDisabled.includes(priv.name));
 
             return '<td class="text-center" data-privilege="' + priv.name + '" data-value="' + priv.state + '"><input autocomplete="off" type="checkbox"' + (priv.state ? ' checked' : '') + (disabled ? ' disabled="disabled"' : '') + ' /></td>';
         }).join('');
@@ -251,73 +250,73 @@ module.exports = function (utils, Benchpress, relative_path) {
         let icons = '';
 
         switch (data.platform) {
-        case 'Linux': {
-            icons += '<i class="fa fa-fw fa-linux"></i>';
-            break;
-        }
+            case 'Linux': {
+                icons += '<i class="fa fa-fw fa-linux"></i>';
+                break;
+            }
 
-        case 'Microsoft Windows': {
-            icons += '<i class="fa fa-fw fa-windows"></i>';
-            break;
-        }
+            case 'Microsoft Windows': {
+                icons += '<i class="fa fa-fw fa-windows"></i>';
+                break;
+            }
 
-        case 'Apple Mac': {
-            icons += '<i class="fa fa-fw fa-apple"></i>';
-            break;
-        }
+            case 'Apple Mac': {
+                icons += '<i class="fa fa-fw fa-apple"></i>';
+                break;
+            }
 
-        case 'Android': {
-            icons += '<i class="fa fa-fw fa-android"></i>';
-            break;
-        }
+            case 'Android': {
+                icons += '<i class="fa fa-fw fa-android"></i>';
+                break;
+            }
 
-        case 'iPad': {
-            icons += '<i class="fa fa-fw fa-tablet"></i>';
-            break;
-        }
+            case 'iPad': {
+                icons += '<i class="fa fa-fw fa-tablet"></i>';
+                break;
+            }
 
-        case 'iPod': // Intentional fall-through
-        case 'iPhone': {
-            icons += '<i class="fa fa-fw fa-mobile"></i>';
-            break;
-        }
+            case 'iPod': // Intentional fall-through
+            case 'iPhone': {
+                icons += '<i class="fa fa-fw fa-mobile"></i>';
+                break;
+            }
 
-        default: {
-            icons += '<i class="fa fa-fw fa-question-circle"></i>';
-            break;
-        }
+            default: {
+                icons += '<i class="fa fa-fw fa-question-circle"></i>';
+                break;
+            }
         }
 
         switch (data.browser) {
-        case 'Chrome': {
-            icons += '<i class="fa fa-fw fa-chrome"></i>';
-            break;
-        }
+            case 'Chrome': {
+                icons += '<i class="fa fa-fw fa-chrome"></i>';
+                break;
+            }
 
-        case 'Firefox': {
-            icons += '<i class="fa fa-fw fa-firefox"></i>';
-            break;
-        }
+            case 'Firefox': {
+                icons += '<i class="fa fa-fw fa-firefox"></i>';
+                break;
+            }
 
-        case 'Safari': {
-            icons += '<i class="fa fa-fw fa-safari"></i>';
-            break;
-        }
+            case 'Safari': {
+                icons += '<i class="fa fa-fw fa-safari"></i>';
+                break;
+            }
 
-        case 'IE': {
-            icons += '<i class="fa fa-fw fa-internet-explorer"></i>';
-            break;
-        }
+            case 'IE': {
+                icons += '<i class="fa fa-fw fa-internet-explorer"></i>';
+                break;
+            }
 
-        case 'Edge': {
-            icons += '<i class="fa fa-fw fa-edge"></i>';
-            break;
-        }
+            case 'Edge': {
+                icons += '<i class="fa fa-fw fa-edge"></i>';
+                break;
+            }
 
-        default: {
-            icons += '<i class="fa fa-fw fa-question-circle"></i>';
-            break;
-        }
+            default: {
+                icons += '<i class="fa fa-fw fa-question-circle"></i>';
+                break;
+            }
         }
 
         return icons;
@@ -380,7 +379,6 @@ module.exports = function (utils, Benchpress, relative_path) {
     }
 
     function register() {
-        /* eslint-disable no-restricted-syntax */
         for (const helperName of Object.keys(helpers)) {
             Benchpress.registerHelper(helperName, helpers[helperName]);
         }

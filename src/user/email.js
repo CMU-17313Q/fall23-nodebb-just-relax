@@ -1,6 +1,4 @@
 
-
-
 const nconf = require('nconf');
 const winston = require('winston');
 const utils = require('../utils');
@@ -173,7 +171,7 @@ UserEmail.confirmByCode = async function (code, sessionId) {
     }
 
     const oldEmail = await user.getUserField(confirmObject.uid, 'email');
-    /* eslint-disable-next-line max-len */
+
     await (oldEmail && confirmObject.email !== oldEmail ? UserEmail.remove(confirmObject.uid, sessionId) : user.auth.revokeAllSessions(confirmObject.uid, sessionId));
 
     await user.setUserField(confirmObject.uid, 'email', confirmObject.email);

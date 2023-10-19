@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const user = require('../user');
 const meta = require('../meta');
@@ -111,7 +110,7 @@ chatsAPI.kick = async (caller, data) => {
     }
 
     // Additional checks if kicking vs leaving
-    /* eslint-disable-next-line max-len */
+
     await (data.uids.length === 1 && Number.parseInt(data.uids[0], 10) === caller.uid ? messaging.leaveRoom([caller.uid], data.roomId) : messaging.removeUsersFromRoom(caller.uid, data.uids, data.roomId));
 
     delete data.uids;

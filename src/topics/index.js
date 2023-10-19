@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const validator = require('validator');
 const db = require('../database');
@@ -151,9 +150,9 @@ Topics.getTopicsByTids = async function (tids, options) {
             topic.isOwner = topic.uid === Number.parseInt(uid, 10);
             topic.ignored = isIgnored[i];
             topic.unread = Number.parseInt(uid, 10) <= 0 || (!hasRead[i] && !isIgnored[i]);
-            topic.bookmark = sortNewToOld ?
-                Math.max(1, topic.postcount + 2 - bookmarks[i]) :
-                Math.min(topic.postcount, bookmarks[i] + 1);
+            topic.bookmark = sortNewToOld
+                ? Math.max(1, topic.postcount + 2 - bookmarks[i])
+                : Math.min(topic.postcount, bookmarks[i] + 1);
             topic.unreplied = !topic.teaser;
 
             topic.icons = [];

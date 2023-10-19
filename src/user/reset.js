@@ -1,5 +1,4 @@
 
-
 const nconf = require('nconf');
 const winston = require('winston');
 const groups = require('../groups');
@@ -13,7 +12,7 @@ const user = require('./index');
 
 const UserReset = module.exports;
 
-const twoHours = 7200000;
+const twoHours = 7_200_000;
 
 UserReset.validate = async function (code) {
     const uid = await db.getObjectField('reset:uid', code);

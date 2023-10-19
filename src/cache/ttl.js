@@ -1,5 +1,4 @@
 
-
 module.exports = function (options) {
     const TTLCache = require('@isaacs/ttlcache');
     const pubsub = require('../pubsub');

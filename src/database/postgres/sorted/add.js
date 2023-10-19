@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     const helpers = require('../helpers');
     const utils = require('../../../utils');
@@ -75,8 +74,8 @@ DO UPDATE SET "score" = EXCLUDED."score"`,
         }
 
         const isArrayOfScores = Array.isArray(scores);
-        if ((!isArrayOfScores && !utils.isNumber(scores)) ||
-            (isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
+        if ((!isArrayOfScores && !utils.isNumber(scores))
+            || (isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
             throw new Error(`[[error:invalid-score, ${scores}]]`);
         }
 

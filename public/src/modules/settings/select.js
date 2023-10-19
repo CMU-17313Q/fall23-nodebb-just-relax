@@ -4,7 +4,6 @@ define('settings/select', () => {
     let Settings = null;
 
     function addOptions(element, options) {
-        /* eslint-disable no-restricted-syntax */
         for (const optionData of options) {
             const value = optionData.text || optionData.value;
             delete optionData.text;

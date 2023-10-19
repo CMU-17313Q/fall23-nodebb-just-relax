@@ -1,5 +1,4 @@
 
-
 const privileges = require('../../privileges');
 const categories = require('../../categories');
 const api = require('../../api');

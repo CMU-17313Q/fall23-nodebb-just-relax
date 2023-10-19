@@ -1,5 +1,4 @@
 
-
 const async = require('async');
 const groups = require('../../groups');
 const privileges = require('../../privileges');

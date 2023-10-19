@@ -1,5 +1,4 @@
 
-
 const user = require('../../user');
 const authenticationController = require('../authentication');
 const helpers = require('../helpers');

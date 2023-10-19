@@ -1,5 +1,4 @@
 
-
 const { fork } = require('node:child_process');
 
 let debugArg = process.execArgv.find(arg => /^--(debug|inspect)/.test(arg));

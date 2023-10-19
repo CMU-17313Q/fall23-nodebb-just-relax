@@ -1,6 +1,4 @@
 
-
-
 const _ = require('lodash');
 const validator = require('validator');
 const groups = require('../groups');

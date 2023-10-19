@@ -1,16 +1,14 @@
 
-
-
 const db = require('../database');
 const plugins = require('../plugins');
 const posts = require('../posts');
 
 module.exports = function (Topics) {
     const terms = {
-        day: 86400000,
-        week: 604800000,
-        month: 2592000000,
-        year: 31104000000,
+        day: 86_400_000,
+        week: 604_800_000,
+        month: 2_592_000_000,
+        year: 31_104_000_000,
     };
 
     Topics.getRecentTopics = async function (cid, uid, start, stop, filter) {

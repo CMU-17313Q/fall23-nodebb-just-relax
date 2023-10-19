@@ -1,5 +1,4 @@
 
-
 const cproc = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -57,7 +56,7 @@ async function getInstalledPlugins() {
         try {
             fs.accessSync(path.join(paths.nodeModules, pkgName, '.git'));
             return false;
-        } catch (error) {
+        } catch {
             return true;
         }
     });

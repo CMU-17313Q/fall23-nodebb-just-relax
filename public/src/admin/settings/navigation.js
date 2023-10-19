@@ -104,13 +104,11 @@ define('admin/settings/navigation', [
             indices.push($(this).attr('data-index'));
         });
 
-        /* eslint-disable no-restricted-syntax */
         for (const index of indices) {
             const element = $('#enabled').children('[data-index="' + index + '"]');
             const form = element.find('form').serializeArray();
             const data = {};
 
-            /* eslint-disable no-restricted-syntax */
             for (const input of form) {
                 if (data[input.name]) {
                     if (!Array.isArray(data[input.name])) {

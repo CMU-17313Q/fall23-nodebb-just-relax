@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const upgrade = require('../src/upgrade');
 const db = require('./mocks/databasemock');

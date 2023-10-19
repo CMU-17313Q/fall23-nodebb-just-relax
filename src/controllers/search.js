@@ -1,6 +1,4 @@
 
-
-
 const validator = require('validator');
 const db = require('../database');
 const meta = require('../meta');
@@ -29,10 +27,10 @@ searchController.search = async function (request, res, next) {
         'search:tags': privileges.global.can('search:tags', request.uid),
     });
     request.query.in = request.query.in || meta.config.searchDefaultIn || 'titlesposts';
-    let allowed = (request.query.in === 'users' && userPrivileges['search:users']) ||
-                    (request.query.in === 'tags' && userPrivileges['search:tags']) ||
-                    (request.query.in === 'categories') ||
-                    (['titles', 'titlesposts', 'posts'].includes(request.query.in) && userPrivileges['search:content']);
+    let allowed = (request.query.in === 'users' && userPrivileges['search:users'])
+                    || (request.query.in === 'tags' && userPrivileges['search:tags'])
+                    || (request.query.in === 'categories')
+                    || (['titles', 'titlesposts', 'posts'].includes(request.query.in) && userPrivileges['search:content']);
     ({ allowed } = await plugins.hooks.fire('filter:search.isAllowed', {
         uid: request.uid,
         query: request.query,

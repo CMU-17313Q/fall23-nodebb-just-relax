@@ -1,5 +1,4 @@
 
-
 const _ = require('lodash');
 const db = require('./database');
 const posts = require('./posts');
@@ -18,40 +17,40 @@ search.search = async function (data) {
 
     let result;
     switch (data.searchIn) {
-    case 'posts':
-    case 'titles':
-    case 'titlesposts': {
-        result = await searchInContent(data);
+        case 'posts':
+        case 'titles':
+        case 'titlesposts': {
+            result = await searchInContent(data);
 
-        break;
-    }
+            break;
+        }
 
-    case 'users': {
-        result = await user.search(data);
+        case 'users': {
+            result = await user.search(data);
 
-        break;
-    }
+            break;
+        }
 
-    case 'categories': {
-        result = await categories.search(data);
+        case 'categories': {
+            result = await categories.search(data);
 
-        break;
-    }
+            break;
+        }
 
-    case 'tags': {
-        result = await topics.searchAndLoadTags(data);
+        case 'tags': {
+            result = await topics.searchAndLoadTags(data);
 
-        break;
-    }
+            break;
+        }
 
-    default: { if (data.searchIn) {
-        result = await plugins.hooks.fire('filter:search.searchIn', {
-            data,
-        });
-    } else {
-        throw new Error('[[error:unknown-search-filter]]');
-    }
-    }
+        default: { if (data.searchIn) {
+            result = await plugins.hooks.fire('filter:search.searchIn', {
+                data,
+            });
+        } else {
+            throw new Error('[[error:unknown-search-filter]]');
+        }
+        }
     }
 
     result.time = (process.elapsedTimeSince(start) / 1000).toFixed(2);

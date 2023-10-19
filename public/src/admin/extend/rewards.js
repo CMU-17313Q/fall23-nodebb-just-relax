@@ -54,20 +54,20 @@ define('admin/extend/rewards', ['alerts'], (alerts) => {
     function select(element) {
         element.val(element.attr('data-selected'));
         switch (element.attr('name')) {
-        case 'rid': {
-            selectReward(element);
-            break;
-        }
+            case 'rid': {
+                selectReward(element);
+                break;
+            }
         }
     }
 
     function update(element) {
         element.attr('data-selected', element.val());
         switch (element.attr('name')) {
-        case 'rid': {
-            selectReward(element);
-            break;
-        }
+            case 'rid': {
+                selectReward(element);
+                break;
+            }
         }
     }
 
@@ -89,24 +89,23 @@ define('admin/extend/rewards', ['alerts'], (alerts) => {
             return alerts.error('[[admin/extend/rewards:alert.no-inputs-found]] ' + element.attr('data-selected'));
         }
 
-        /* eslint-disable no-restricted-syntax */
         for (const input of inputs) {
             html += '<label for="' + input.name + '">' + input.label + '<br />';
             switch (input.type) {
-            case 'select': {
-                html += '<select class="form-control" name="' + input.name + '">';
-                /* eslint-disable no-restricted-syntax */
-                for (const value of input.values) {
-                    html += '<option value="' + value.value + '">' + value.name + '</option>';
+                case 'select': {
+                    html += '<select class="form-control" name="' + input.name + '">';
+
+                    for (const value of input.values) {
+                        html += '<option value="' + value.value + '">' + value.name + '</option>';
+                    }
+
+                    break;
                 }
 
-                break;
-            }
-
-            case 'text': {
-                html += '<input type="text" class="form-control" name="' + input.name + '" />';
-                break;
-            }
+                case 'text': {
+                    html += '<input type="text" class="form-control" name="' + input.name + '" />';
+                    break;
+                }
             }
 
             html += '</label><br />';
@@ -158,12 +157,10 @@ define('admin/extend/rewards', ['alerts'], (alerts) => {
             const main = $(this).find('form.main').serializeArray();
             const rewards = $(this).find('form.rewards').serializeArray();
 
-            /* eslint-disable no-restricted-syntax */
             for (const object of main) {
                 data[object.name] = object.value;
             }
 
-            /* eslint-disable no-restricted-syntax */
             for (const object of rewards) {
                 data.rewards[object.name] = object.value;
             }

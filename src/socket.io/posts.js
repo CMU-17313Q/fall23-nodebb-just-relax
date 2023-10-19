@@ -1,5 +1,4 @@
 
-
 const validator = require('validator');
 const db = require('../database');
 const posts = require('../posts');

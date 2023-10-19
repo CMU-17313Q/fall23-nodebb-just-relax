@@ -1,5 +1,4 @@
 
-
 const topics = require('../../topics');
 
 const tagsController = module.exports;

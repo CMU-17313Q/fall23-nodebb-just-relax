@@ -1,5 +1,4 @@
 
-
 module.exports = function (module) {
     const helpers = require('../helpers');
     const utils = require('../../../utils');
@@ -49,7 +48,6 @@ module.exports = function (module) {
 
         const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
         for (const [i, score] of scores.entries()) {
-            /* eslint-disable-next-line max-len */
             bulk.find({ _key: key, value: values[i] }).upsert().updateOne({ $set: { score: Number.parseFloat(score) } });
         }
 
@@ -62,8 +60,8 @@ module.exports = function (module) {
         }
 
         const isArrayOfScores = Array.isArray(scores);
-        if ((!isArrayOfScores && !utils.isNumber(scores)) ||
-            (isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
+        if ((!isArrayOfScores && !utils.isNumber(scores))
+            || (isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
             throw new Error(`[[error:invalid-score, ${scores}]]`);
         }
 

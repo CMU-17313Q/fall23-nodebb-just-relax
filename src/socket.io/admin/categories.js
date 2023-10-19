@@ -1,5 +1,4 @@
 
-
 const categories = require('../../categories');
 
 const Categories = module.exports;

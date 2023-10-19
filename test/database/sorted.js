@@ -1,5 +1,4 @@
 
-
 const assert = require('node:assert');
 const async = require('async');
 const db = require('../mocks/databasemock');
@@ -334,14 +333,14 @@ describe('Sorted Set methods', () => {
         });
 
         it('should work with big arrays (length > 100) ', async function () {
-            this.timeout(100000);
+            this.timeout(100_000);
             const keys = [];
             for (let i = 0; i < 400; i++) {
                 /* eslint-disable no-await-in-loop */
                 const bulkAdd = [];
                 keys.push(`testzset${i}`);
                 for (let k = 0; k < 100; k++) {
-                    bulkAdd.push([`testzset${i}`, 1000000 + k + (i * 100), k + (i * 100)]);
+                    bulkAdd.push([`testzset${i}`, 1_000_000 + k + (i * 100), k + (i * 100)]);
                 }
 
                 await db.sortedSetAddBulk(bulkAdd);
@@ -352,16 +351,16 @@ describe('Sorted Set methods', () => {
 
             data = await db.getSortedSetRevRangeWithScores(keys, 0, 3);
             assert.deepStrictEqual(data, [
-                { value: '39999', score: 1039999 },
-                { value: '39998', score: 1039998 },
-                { value: '39997', score: 1039997 },
-                { value: '39996', score: 1039996 },
+                { value: '39999', score: 1_039_999 },
+                { value: '39998', score: 1_039_998 },
+                { value: '39997', score: 1_039_997 },
+                { value: '39996', score: 1_039_996 },
             ]);
 
             data = await db.getSortedSetRevRange(keys, 0, -1);
-            assert.equal(data.length, 40000);
+            assert.equal(data.length, 40_000);
 
-            data = await db.getSortedSetRange(keys, 9998, 10002);
+            data = await db.getSortedSetRange(keys, 9998, 10_002);
             assert.deepStrictEqual(data, ['9998', '9999', '10000', '10001', '10002']);
         });
     });
@@ -1382,7 +1381,7 @@ describe('Sorted Set methods', () => {
         it('should return correct results when intersecting big zsets', async () => {
             const scores = [];
             const values = [];
-            for (let i = 0; i < 30000; i++) {
+            for (let i = 0; i < 30_000; i++) {
                 scores.push((i + 1) * 1000);
                 values.push(String(i + 1));
             }
@@ -1391,7 +1390,7 @@ describe('Sorted Set methods', () => {
 
             scores.length = 0;
             values.length = 0;
-            for (let i = 15000; i < 45000; i++) {
+            for (let i = 15_000; i < 45_000; i++) {
                 scores.push((i + 1) * 1000);
                 values.push(String(i + 1));
             }
@@ -1405,10 +1404,10 @@ describe('Sorted Set methods', () => {
                 withScores: true,
             });
             assert.deepStrictEqual(data, [
-                { value: '30000', score: 30000000 },
-                { value: '29999', score: 29999000 },
-                { value: '29998', score: 29998000 },
-                { value: '29997', score: 29997000 },
+                { value: '30000', score: 30_000_000 },
+                { value: '29999', score: 29_999_000 },
+                { value: '29998', score: 29_998_000 },
+                { value: '29997', score: 29_997_000 },
             ]);
         });
     });
