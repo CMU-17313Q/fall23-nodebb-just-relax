@@ -25,8 +25,8 @@ define('share', ['hooks'], (hooks) => {
             }, 50);
         });
 
-        addHandler('.post-link', (event) => {
-            event.preventDefault();
+        addHandler('.post-link', (e) => {
+            e.preventDefault();
             return false;
         });
 

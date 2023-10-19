@@ -4,7 +4,7 @@ const meta = require('../../meta');
 const Logs = module.exports;
 
 Logs.get = async function () {
-    await meta.logs.get();
+    return await meta.logs.get();
 };
 
 Logs.clear = async function () {

@@ -8,8 +8,8 @@ define('accounts/invite', ['api', 'benchpress', 'bootbox', 'alerts'], (api, Benc
     }
 
     Invite.handle = function () {
-        $('[component="user/invite"]').on('click', (event) => {
-            event.preventDefault();
+        $('[component="user/invite"]').on('click', (e) => {
+            e.preventDefault();
             api.get(`/api/v3/users/${app.user.uid}/invites/groups`, {}).then((groups) => {
                 Benchpress.parse('modals/invite', { groups }, (html) => {
                     bootbox.dialog({
