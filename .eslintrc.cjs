@@ -49,7 +49,10 @@ function find_compiled_js() {
         root: true,
         ignorePatterns: find_compiled_js(),
         rules: {
+            'no-undef': "off",
             "indent": ["error", 4],
+            "object-curly-spacing": ["error", "always"], // Enforce spacing inside curly braces
+            "quotes": ["error", "double"], // Enforce the use of double quotes
             'no-restricted-syntax': [
                 'off',
                 {
@@ -71,6 +74,7 @@ function find_compiled_js() {
                     project: "./tsconfig.json"
                 },
                 rules: {
+                    'no-undef': "off",
                     "no-use-before-define": "off",
                     "@typescript-eslint/no-use-before-define": "error",            
                 }
