@@ -151,15 +151,15 @@ async function getStats() {
         helpers: { getStatsForSet, getStatsFromAnalytics },
     }));
 
-    cache.set('admin:stats', results, 600_000);
+    cache.set('admin:stats', results, 600000);
     return results;
 }
 
 async function getStatsForSet(set, field) {
     const terms = {
-        day: 86_400_000,
-        week: 604_800_000,
-        month: 2_592_000_000,
+        day: 86400000,
+        week: 604800000,
+        month: 2592000000,
     };
 
     const now = Date.now();

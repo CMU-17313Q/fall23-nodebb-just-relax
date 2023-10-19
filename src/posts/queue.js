@@ -88,10 +88,10 @@ module.exports = function (Posts) {
             isCategoryQueueEnabled(data),
         ]);
 
-        const shouldQueue = meta.config.postQueue && categoryQueueEnabled
-            && !isMemberOfExempt
-            && (!userData.uid || userData.reputation < meta.config.postQueueReputationThreshold
-                || userData.postcount <= 0);
+        const shouldQueue = meta.config.postQueue && categoryQueueEnabled &&
+            !isMemberOfExempt &&
+            (!userData.uid || userData.reputation < meta.config.postQueueReputationThreshold ||
+                userData.postcount <= 0);
         const result = await plugins.hooks.fire('filter:post.shouldQueue', {
             shouldQueue: Boolean(shouldQueue),
             uid,

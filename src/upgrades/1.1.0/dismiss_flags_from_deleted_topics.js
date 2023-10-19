@@ -14,6 +14,7 @@ module.exports = {
         const tids = postData.map(t => t.tid);
         const topicData = await topics.getTopicsFields(tids, ['deleted']);
 
+        /* eslint-disable-next-line max-len */
         const toDismiss = topicData.map((t, idx) => (Number.parseInt(t.deleted, 10) === 1 ? pids[idx] : null)).filter(Boolean);
 
         winston.verbose(`[2016/04/29] ${toDismiss.length} dismissable flags found`);

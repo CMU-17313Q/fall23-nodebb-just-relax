@@ -25,7 +25,7 @@ module.exports = function (User) {
 
         try {
             User.isPasswordValid(password, 0);
-        } catch {
+        } catch (error) {
             return false;
         }
 

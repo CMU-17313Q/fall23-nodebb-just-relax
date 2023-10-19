@@ -24,8 +24,8 @@ topicsController.get = async function getTopic(request, res, next) {
     const tid = request.params.topic_id;
 
     if (
-        (request.params.post_index && !utils.isNumber(request.params.post_index) && request.params.post_index !== 'unread')
-        || !utils.isNumber(tid)
+        (request.params.post_index && !utils.isNumber(request.params.post_index) && request.params.post_index !== 'unread') ||
+        !utils.isNumber(tid)
     ) {
         return next();
     }
@@ -47,10 +47,10 @@ topicsController.get = async function getTopic(request, res, next) {
     const pageCount = Math.max(1, Math.ceil((topicData && topicData.postcount) / settings.postsPerPage));
     const invalidPagination = (settings.usePagination && (currentPage < 1 || currentPage > pageCount));
     if (
-        !topicData
-        || userPrivileges.disabled
-        || invalidPagination
-        || (topicData.scheduled && !userPrivileges.view_scheduled)
+        !topicData ||
+        userPrivileges.disabled ||
+        invalidPagination ||
+        (topicData.scheduled && !userPrivileges.view_scheduled)
     ) {
         return next();
     }
@@ -156,7 +156,7 @@ async function incrementViewCount(request, tid) {
     if (allow) {
         request.session.tids_viewed = request.session.tids_viewed || {};
         const now = Date.now();
-        const interval = meta.config.incrementTopicViewsInterval * 60_000;
+        const interval = meta.config.incrementTopicViewsInterval * 60000;
         if (!request.session.tids_viewed[tid] || request.session.tids_viewed[tid] < now - interval) {
             await topics.increaseViewCount(tid);
             request.session.tids_viewed[tid] = now;
@@ -201,7 +201,7 @@ async function addOldCategory(topicData, userPrivileges) {
 
 async function addTags(topicData, request, res) {
     const postIndex = Number.parseInt(request.params.post_index, 10) || 0;
-
+    /* eslint-disable-next-line max-len */
     const postAtIndex = topicData.posts.find(p => Number.parseInt(p.index, 10) === Number.parseInt(Math.max(0, postIndex - 1), 10));
     let description = '';
     if (postAtIndex && postAtIndex.content) {
@@ -399,7 +399,7 @@ topicsController.postIsResolved = async function (request, res) {
         const topicData = await topicsController.get(request, request.params);
         // An API response for success!
         helpers.formatApiResponse(200, res, topicData);
-    } catch {
+    } catch (error) {
         // Handling the error from the API
         helpers.formatApiResponse(500, res, { error: 'Error' });
     }

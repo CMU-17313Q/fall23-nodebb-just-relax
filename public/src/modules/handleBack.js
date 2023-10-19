@@ -35,10 +35,10 @@ define('handleBack', [
     function onBackClicked(isMarkedUnread) {
         const highlightUnread = isMarkedUnread && ajaxify.data.template.unread;
         if (
-            ajaxify.data.template.category
-            || ajaxify.data.template.recent
-            || ajaxify.data.template.popular
-            || highlightUnread
+            ajaxify.data.template.category ||
+            ajaxify.data.template.recent ||
+            ajaxify.data.template.popular ||
+            highlightUnread
         ) {
             let bookmarkIndex = storage.getItem('category:bookmark');
             let clickedIndex = storage.getItem('category:bookmark:clicked');

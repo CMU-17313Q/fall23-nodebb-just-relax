@@ -81,9 +81,9 @@ define('forum/topic/events', [
 
     function onTopicPurged(data) {
         if (
-            ajaxify.data.category
-            && ajaxify.data.category.slug
-            && Number.parseInt(data.tid, 10) === Number.parseInt(ajaxify.data.tid, 10)
+            ajaxify.data.category &&
+            ajaxify.data.category.slug &&
+            Number.parseInt(data.tid, 10) === Number.parseInt(ajaxify.data.tid, 10)
         ) {
             ajaxify.go('category/' + ajaxify.data.category.slug, null, true);
         }
@@ -189,7 +189,7 @@ define('forum/topic/events', [
         postElement.toggleClass('deleted');
         const isDeleted = postElement.hasClass('deleted');
         postTools.toggle(data.pid, isDeleted);
-
+        /* eslint-disable-next-line max-len */
         if (!ajaxify.data.privileges.isAdminOrMod && Number.parseInt(data.uid, 10) !== Number.parseInt(app.user.uid, 10)) {
             postElement.find('[component="post/tools"]').toggleClass('hidden', isDeleted);
             if (isDeleted) {

@@ -158,7 +158,7 @@ define('forum/post-queue', [
             let queueEls = $('.posts-list [data-id]');
             if (bulkAction === 'accept-selected' || bulkAction === 'reject-selected') {
                 queueEls = queueEls.filter(
-                    (i, element) => $(element).find('input[type="checkbox"]').is(':checked'),
+                    (i, element) => $(element).find('input[type="checkbox"]').is(':checked')
                 );
             }
 
@@ -179,6 +179,7 @@ define('forum/post-queue', [
                     ajaxify.refresh();
                 }
 
+                /* eslint-disable no-restricted-syntax */
                 for (const res of errors) {
                     alerts.error(res.reason);
                 }

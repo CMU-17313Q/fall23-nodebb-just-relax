@@ -76,10 +76,10 @@ module.exports = function (Categories) {
 
 function defaultIntField(category, fields, fieldName, defaultField) {
     if (fields.length === 0 || fields.includes(fieldName)) {
-        const useDefault = !category.hasOwnProperty(fieldName)
-            || category[fieldName] === null
-            || category[fieldName] === ''
-            || !utils.isNumber(category[fieldName]);
+        const useDefault = !category.hasOwnProperty(fieldName) ||
+            category[fieldName] === null ||
+            category[fieldName] === '' ||
+            !utils.isNumber(category[fieldName]);
 
         category[fieldName] = useDefault ? meta.config[defaultField] : category[fieldName];
     }

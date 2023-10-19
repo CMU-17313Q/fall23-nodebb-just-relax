@@ -31,6 +31,7 @@ define('hooks', [], () => {
         if (Hooks.logs._collection && Hooks.logs._collection.size > 0) {
             console.groupCollapsed('[hooks] Changes to hooks on this page …');
 
+            /* eslint-disable no-restricted-syntax */
             for (const args of Hooks.logs._collection) {
                 console.log.apply(console, args);
             }
@@ -76,6 +77,7 @@ define('hooks', [], () => {
 
     Hooks.onPage = Hooks.registerPage;
     Hooks.register('action:ajaxify.start', () => {
+        /* eslint-disable no-restricted-syntax */
         for (const pair of Hooks.temporary) {
             Hooks.unregister(pair.hookName, pair.method);
             Hooks.temporary.delete(pair);
@@ -112,9 +114,9 @@ define('hooks', [], () => {
         return listeners.reduce((promise, listener) => promise.then((data) => {
             try {
                 const result = listener(data);
-                return utils.isPromise(result)
-                    ? result.then(data => data).catch(error => _onHookError(error, listener, data))
-                    : result;
+                return utils.isPromise(result) ?
+                    result.then(data => data).catch(error => _onHookError(error, listener, data)) :
+                    result;
             } catch (error) {
                 return _onHookError(error, listener, data);
             }
@@ -123,6 +125,7 @@ define('hooks', [], () => {
 
     const _fireActionHook = (hookName, data) => {
         if (Hooks.hasListeners(hookName)) {
+            /* eslint-disable no-restricted-syntax */
             for (const listener of Hooks.loaded[hookName]) {
                 listener(data);
             }
@@ -153,22 +156,23 @@ define('hooks', [], () => {
         const type = hookName.split(':').shift();
         let result;
         switch (type) {
-            case 'filter': {
-                result = _fireFilterHook(hookName, data);
-                break;
-            }
-
-            case 'action': {
-                result = _fireActionHook(hookName, data);
-                break;
-            }
-
-            case 'static': {
-                result = _fireStaticHook(hookName, data);
-                break;
-            }
+        case 'filter': {
+            result = _fireFilterHook(hookName, data);
+            break;
         }
 
+        case 'action': {
+            result = _fireActionHook(hookName, data);
+            break;
+        }
+
+        case 'static': {
+            result = _fireStaticHook(hookName, data);
+            break;
+        }
+        }
+
+        /* eslint-disable no-restricted-syntax */
         for (const pair of Hooks.runOnce) {
             if (pair.hookName === hookName) {
                 Hooks.unregister(hookName, pair.method);

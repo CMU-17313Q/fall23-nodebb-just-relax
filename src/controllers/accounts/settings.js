@@ -166,7 +166,7 @@ settingsController.unsubscribePost = async function (request, res) {
         if (!payload || !unsubscribable.has(payload.template)) {
             return res.sendStatus(404);
         }
-    } catch {
+    } catch (error) {
         return res.sendStatus(403);
     }
 

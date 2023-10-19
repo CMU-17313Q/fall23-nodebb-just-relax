@@ -55,6 +55,7 @@ module.exports = function (Posts) {
     };
 
     Posts.overrideGuestHandle = function (postData, handle) {
+        /* eslint-disable-next-line max-len */
         if (meta.config.allowGuestHandles && postData && postData.user && Number.parseInt(postData.uid, 10) === 0 && handle) {
             postData.user.username = validator.escape(String(handle));
             if (postData.user.hasOwnProperty('fullname')) {

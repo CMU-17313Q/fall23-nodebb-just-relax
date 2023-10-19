@@ -6,6 +6,7 @@ define('forum/account/categories', ['forum/account/header', 'alerts'], (header, 
     Categories.init = function () {
         header.init();
 
+        /* eslint-disable no-restricted-syntax */
         for (const category of ajaxify.data.categories) {
             handleIgnoreWatch(category.cid);
         }
@@ -46,6 +47,7 @@ define('forum/account/categories', ['forum/account/header', 'alerts'], (header, 
     }
 
     function updateDropdowns(modified_cids, state) {
+        /* eslint-disable no-restricted-syntax */
         for (const cid of modified_cids) {
             const category = $('[data-cid="' + cid + '"]');
             category.find('[component="category/watching/menu"]').toggleClass('hidden', state !== 'watching');

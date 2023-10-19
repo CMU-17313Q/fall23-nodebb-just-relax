@@ -17,10 +17,10 @@ define('forum/topic/posts', [
 
     Posts.onNewPost = function (data) {
         if (
-            !data
-            || !data.posts
-            || data.posts.length === 0
-            || Number.parseInt(data.posts[0].tid, 10) !== Number.parseInt(ajaxify.data.tid, 10)
+            !data ||
+            !data.posts ||
+            data.posts.length === 0 ||
+            Number.parseInt(data.posts[0].tid, 10) !== Number.parseInt(ajaxify.data.tid, 10)
         ) {
             return;
         }
@@ -53,7 +53,9 @@ define('forum/topic/posts', [
     };
 
     Posts.modifyPostsByPrivileges = function (posts) {
+        /* eslint-disable no-restricted-syntax */
         for (const post of posts) {
+            /* eslint-disable-next-line max-len */
             post.selfPost = Boolean(app.user.uid) && Number.parseInt(post.uid, 10) === Number.parseInt(app.user.uid, 10);
             post.topicOwnerPost = Number.parseInt(post.uid, 10) === Number.parseInt(ajaxify.data.uid, 10);
 
@@ -61,11 +63,11 @@ define('forum/topic/posts', [
             post.display_delete_tools = (ajaxify.data.privileges['posts:delete'] && post.selfPost) || ajaxify.data.privileges.isAdminOrMod;
             post.display_moderator_tools = post.display_edit_tools || post.display_delete_tools;
             post.display_move_tools = ajaxify.data.privileges.isAdminOrMod;
-            post.display_post_menu = ajaxify.data.privileges.isAdminOrMod
-                || (post.selfPost && !ajaxify.data.locked && !post.deleted)
-
-                || (post.selfPost && post.deleted && Number.parseInt(post.deleterUid, 10) === Number.parseInt(app.user.uid, 10))
-                || ((app.user.uid || ajaxify.data.postSharing.length) && !post.deleted);
+            post.display_post_menu = ajaxify.data.privileges.isAdminOrMod ||
+                (post.selfPost && !ajaxify.data.locked && !post.deleted) ||
+                /* eslint-disable-next-line max-len */
+                (post.selfPost && post.deleted && Number.parseInt(post.deleterUid, 10) === Number.parseInt(app.user.uid, 10)) ||
+                ((app.user.uid || ajaxify.data.postSharing.length) && !post.deleted);
         }
     };
 
@@ -98,13 +100,14 @@ define('forum/topic/posts', [
         const direction = config.topicPostSort === 'oldest_to_newest' || config.topicPostSort === 'most_votes' ? 1 : -1;
 
         const isPostVisible = (
-            ajaxify.data.pagination.currentPage === ajaxify.data.pagination.pageCount
-            && direction === 1
+            ajaxify.data.pagination.currentPage === ajaxify.data.pagination.pageCount &&
+            direction === 1
         ) || (ajaxify.data.pagination.currentPage === 1 && direction === -1);
 
         if (isPostVisible) {
             const repliesSelector = $('[component="post"]:not([data-index=0]), [component="topic/event"]');
             createNewPosts(data, repliesSelector, direction, false, scrollToPost);
+            /* eslint-disable-next-line max-len */
         } else if (ajaxify.data.scrollToMyPost && Number.parseInt(posts[0].uid, 10) === Number.parseInt(app.user.uid, 10)) {
             // https://github.com/NodeBB/NodeBB/issues/5004#issuecomment-247157441
             setTimeout(() => {
@@ -178,6 +181,7 @@ define('forum/topic/posts', [
             }
 
             if (newPosts.length > 0 && data.posts.length > 1) {
+                /* eslint-disable no-restricted-syntax */
                 for (const post of data.posts) {
                     const p = components.get('post', 'pid', post.pid);
                     if (p.hasClass('new')) {
@@ -322,14 +326,17 @@ define('forum/topic/posts', [
 
         const postEls = $('[component="post"]').toArray();
 
+        /* eslint-disable no-restricted-syntax */
         for (let post of postEls) {
             post = $(post);
             const previous = post.prev('[component="post"]');
             if (post.is(':has(.necro-post)') || previous.length === 0) {
+                /* eslint-disable no-continue */
                 continue;
             }
 
             if (config.topicPostSort === 'newest_to_oldest' && Number.parseInt(previous.attr('data-index'), 10) === 0) {
+                /* eslint-disable no-continue */
                 continue;
             }
 

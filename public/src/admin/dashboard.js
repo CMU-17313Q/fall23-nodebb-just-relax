@@ -19,8 +19,8 @@ define('admin/dashboard', [
     };
 
     const DEFAULTS = {
-        roomInterval: 10_000,
-        graphInterval: 15_000,
+        roomInterval: 10000,
+        graphInterval: 15000,
         realtimeInterval: 1500,
     };
 
@@ -63,22 +63,22 @@ define('admin/dashboard', [
 
         graphData.rooms = data;
 
-        const html = '<div class="text-center pull-left">'
-                        + '<span class="formatted-number">' + data.onlineRegisteredCount + '</span>'
-                        + '<div class="stat">[[admin/dashboard:active-users.users]]</div>'
-                    + '</div>'
-                    + '<div class="text-center pull-left">'
-                        + '<span class="formatted-number">' + data.onlineGuestCount + '</span>'
-                        + '<div class="stat">[[admin/dashboard:active-users.guests]]</div>'
-                    + '</div>'
-                    + '<div class="text-center pull-left">'
-                        + '<span class="formatted-number">' + (data.onlineRegisteredCount + data.onlineGuestCount) + '</span>'
-                        + '<div class="stat">[[admin/dashboard:active-users.total]]</div>'
-                    + '</div>'
-                    + '<div class="text-center pull-left">'
-                        + '<span class="formatted-number">' + data.socketCount + '</span>'
-                        + '<div class="stat">[[admin/dashboard:active-users.connections]]</div>'
-                    + '</div>';
+        const html = '<div class="text-center pull-left">' +
+                        '<span class="formatted-number">' + data.onlineRegisteredCount + '</span>' +
+                        '<div class="stat">[[admin/dashboard:active-users.users]]</div>' +
+                    '</div>' +
+                    '<div class="text-center pull-left">' +
+                        '<span class="formatted-number">' + data.onlineGuestCount + '</span>' +
+                        '<div class="stat">[[admin/dashboard:active-users.guests]]</div>' +
+                    '</div>' +
+                    '<div class="text-center pull-left">' +
+                        '<span class="formatted-number">' + (data.onlineRegisteredCount + data.onlineGuestCount) + '</span>' +
+                        '<div class="stat">[[admin/dashboard:active-users.total]]</div>' +
+                    '</div>' +
+                    '<div class="text-center pull-left">' +
+                        '<span class="formatted-number">' + data.socketCount + '</span>' +
+                        '<div class="stat">[[admin/dashboard:active-users.connections]]</div>' +
+                    '</div>';
 
         updateRegisteredGraph(data.onlineRegisteredCount, data.onlineGuestCount);
         updatePresenceGraph(data.users);
@@ -514,6 +514,7 @@ define('admin/dashboard', [
         graphs.topics.data.datasets[0].backgroundColor = [];
         graphs.topics.data.datasets[0].hoverBackgroundColor = [];
 
+        /* eslint-disable no-restricted-syntax */
         for (const [i, topic] of topics.entries()) {
             graphs.topics.data.labels.push(topic.title);
             graphs.topics.data.datasets[0].data.push(topic.count);
@@ -524,14 +525,15 @@ define('admin/dashboard', [
         function buildTopicsLegend() {
             let html = '';
 
+            /* eslint-disable no-restricted-syntax */
             for (const [i, t] of topics.entries()) {
                 const link = t.tid ? '<a title="' + t.title + '"href="' + config.relative_path + '/topic/' + t.tid + '" target="_blank"> ' + t.title + '</a>' : t.title;
                 const label = t.count === '0' ? t.title : link;
 
-                html += '<li>'
-                    + '<div style="background-color: ' + topicColors[i] + ';"></div>'
-                    + '<span> (' + t.count + ') ' + label + '</span>'
-                    + '</li>';
+                html += '<li>' +
+                    '<div style="background-color: ' + topicColors[i] + ';"></div>' +
+                    '<span> (' + t.count + ') ' + label + '</span>' +
+                    '</li>';
             }
 
             $('#topics-legend').translateHtml(html);

@@ -52,8 +52,8 @@ groupsAPI.delete = async function (caller, data) {
     const groupName = await groups.getGroupNameByGroupSlug(data.slug);
     await isOwner(caller, groupName);
     if (
-        groups.systemGroups.includes(groupName)
-        || groups.ephemeralGroups.includes(groupName)
+        groups.systemGroups.includes(groupName) ||
+        groups.ephemeralGroups.includes(groupName)
     ) {
         throw new Error('[[error:not-allowed]]');
     }
@@ -80,8 +80,8 @@ groupsAPI.join = async function (caller, data) {
 
     const isCallerAdmin = await user.isAdministrator(caller.uid);
     if (!isCallerAdmin && (
-        groups.systemGroups.includes(groupName)
-        || groups.isPrivilegeGroup(groupName)
+        groups.systemGroups.includes(groupName) ||
+        groups.isPrivilegeGroup(groupName)
     )) {
         throw new Error('[[error:not-allowed]]');
     }

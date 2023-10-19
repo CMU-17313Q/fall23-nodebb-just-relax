@@ -124,7 +124,7 @@ middleware.routeTouchIcon = function routeTouchIcon(request, res) {
     iconPath = meta.config['brand:touchIcon'] ? path.join(nconf.get('upload_path'), meta.config['brand:touchIcon'].replace(/assets\/uploads/, '')) : path.join(nconf.get('base_dir'), 'public/images/touch/512.png');
 
     return res.sendFile(iconPath, {
-        maxAge: request.app.enabled('cache') ? 5_184_000_000 : 0,
+        maxAge: request.app.enabled('cache') ? 5184000000 : 0,
     });
 };
 

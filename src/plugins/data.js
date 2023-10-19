@@ -73,7 +73,7 @@ function parseLicense(packageData) {
             name: licenseData.name,
             text: licenseData.licenseText,
         };
-    } catch {
+    } catch (error) {
         // No license matched
         return null;
     }
@@ -249,6 +249,7 @@ Data.getLanguageData = async function getLanguageData(pluginData) {
         const namespace = rel.join('/').replace(/\.json$/, '');
 
         if (!language || !namespace) {
+            /* eslint-disable no-continue */
             continue;
         }
 

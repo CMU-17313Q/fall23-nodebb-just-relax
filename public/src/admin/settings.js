@@ -161,19 +161,19 @@ define('admin/settings', ['uploader', 'mousetrap', 'hooks', 'alerts', 'settings'
             if (field.is('input')) {
                 inputType = field.attr('type');
                 switch (inputType) {
-                    case 'text':
-                    case 'password':
-                    case 'hidden':
-                    case 'textarea':
-                    case 'number': {
-                        value = field.val();
-                        break;
-                    }
+                case 'text':
+                case 'password':
+                case 'hidden':
+                case 'textarea':
+                case 'number': {
+                    value = field.val();
+                    break;
+                }
 
-                    case 'checkbox': {
-                        value = field.prop('checked') ? '1' : '0';
-                        break;
-                    }
+                case 'checkbox': {
+                    value = field.prop('checked') ? '1' : '0';
+                    break;
+                }
                 }
             } else if (field.is('textarea') || field.is('select')) {
                 value = field.val();

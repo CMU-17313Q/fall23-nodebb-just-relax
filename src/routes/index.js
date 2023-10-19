@@ -180,7 +180,7 @@ function addCoreRoutes(app, router, middleware, mounts) {
         { route: '/assets', path: path.join(__dirname, '../../public') },
     ];
     const staticOptions = {
-        maxAge: app.enabled('cache') ? 5_184_000_000 : 0,
+        maxAge: app.enabled('cache') ? 5184000000 : 0,
     };
 
     if (path.resolve(__dirname, '../../public/uploads') !== nconf.get('upload_path')) {

@@ -41,9 +41,9 @@ require('./uploads')(User);
 
 User.exists = async function (uids) {
     return await (
-        Array.isArray(uids)
-            ? db.isSortedSetMembers('users:joindate', uids)
-            : db.isSortedSetMember('users:joindate', uids)
+        Array.isArray(uids) ?
+            db.isSortedSetMembers('users:joindate', uids) :
+            db.isSortedSetMember('users:joindate', uids)
     );
 };
 
@@ -56,7 +56,7 @@ User.getUidsFromSet = async function (set, start, stop) {
     if (set === 'users:online') {
         const count = Number.parseInt(stop, 10) === -1 ? stop : stop - start + 1;
         const now = Date.now();
-        return await db.getSortedSetRevRangeByScore(set, start, count, '+inf', now - (meta.config.onlineCutoff * 60_000));
+        return await db.getSortedSetRevRangeByScore(set, start, count, '+inf', now - (meta.config.onlineCutoff * 60000));
     }
 
     return await db.getSortedSetRevRange(set, start, stop);
@@ -101,7 +101,7 @@ User.getStatus = function (userData) {
         return 'offline';
     }
 
-    const isOnline = (Date.now() - userData.lastonline) < (meta.config.onlineCutoff * 60_000);
+    const isOnline = (Date.now() - userData.lastonline) < (meta.config.onlineCutoff * 60000);
     return isOnline ? (userData.status || 'online') : 'offline';
 };
 

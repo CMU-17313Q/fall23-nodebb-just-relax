@@ -128,6 +128,7 @@ Topics.deleteTags = async (request, res) => {
 };
 
 Topics.getThumbs = async (request, res) => {
+    /* eslint-disable-next-line max-len */
     if (isFinite(request.params.tid)) { // Post_uuids can be passed in occasionally, in that case no checks are necessary
         const [exists, canRead] = await Promise.all([
             topics.exists(request.params.tid),

@@ -40,7 +40,7 @@ module.exports = function (middleware) {
             originsRegex = originsRegex.map((origin) => {
                 try {
                     origin = new RegExp(origin.trim());
-                } catch {
+                } catch (error) {
                     winston.error(`[middleware.addHeaders] Invalid RegExp For access-control-allow-origin ${origin}`);
                     origin = null;
                 }

@@ -18,8 +18,8 @@ define('scrollStop', () => {
             const elementHeight = Math.round(this.getBoundingClientRect().height);
 
             if (
-                (e.originalEvent.deltaY < 0 && scrollTop === 0) // Scroll up
-                || (e.originalEvent.deltaY > 0 && (elementHeight + scrollTop) >= scrollHeight) // Scroll down
+                (e.originalEvent.deltaY < 0 && scrollTop === 0) || // Scroll up
+                (e.originalEvent.deltaY > 0 && (elementHeight + scrollTop) >= scrollHeight) // Scroll down
             ) {
                 return false;
             }

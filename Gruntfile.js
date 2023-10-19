@@ -179,46 +179,46 @@ module.exports = function (grunt) {
     grunt.event.on('watch', (action, filepath, target) => {
         let compiling;
         switch (target) {
-            case 'styleUpdated_Client': {
-                compiling = 'clientCSS';
+        case 'styleUpdated_Client': {
+            compiling = 'clientCSS';
 
-                break;
-            }
+            break;
+        }
 
-            case 'styleUpdated_Admin': {
-                compiling = 'acpCSS';
+        case 'styleUpdated_Admin': {
+            compiling = 'acpCSS';
 
-                break;
-            }
+            break;
+        }
 
-            case 'clientUpdated':
-            case 'typescriptUpdated': {
-                compiling = 'js';
+        case 'clientUpdated':
+        case 'typescriptUpdated': {
+            compiling = 'js';
 
-                break;
-            }
+            break;
+        }
 
-            case 'templatesUpdated': {
-                compiling = 'tpl';
+        case 'templatesUpdated': {
+            compiling = 'tpl';
 
-                break;
-            }
+            break;
+        }
 
-            case 'langUpdated': {
-                compiling = 'lang';
+        case 'langUpdated': {
+            compiling = 'lang';
 
-                break;
-            }
+            break;
+        }
 
-            case 'serverUpdated': {
+        case 'serverUpdated': {
             // Empty require cache
-                const paths = ['./src/meta/build.js', './src/meta/index.js'];
-                for (const p of paths) {
-                    delete require.cache[require.resolve(p)];
-                }
-
-                return run();
+            const paths = ['./src/meta/build.js', './src/meta/index.js'];
+            for (const p of paths) {
+                delete require.cache[require.resolve(p)];
             }
+
+            return run();
+        }
 		// No default
         }
 

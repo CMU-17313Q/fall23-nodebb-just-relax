@@ -28,7 +28,7 @@ define('forum/account/edit/username', [
 
             api.put('/users/' + userData.uid, userData).then((response) => {
                 const userslug = slugify(userData.username);
-
+                /* eslint-disable-next-line max-len */
                 if (userData.username && userslug && Number.parseInt(userData.uid, 10) === Number.parseInt(app.user.uid, 10)) {
                     $('[component="header/profilelink"]').attr('href', config.relative_path + '/user/' + userslug);
                     $('[component="header/profilelink/edit"]').attr('href', config.relative_path + '/user/' + userslug + '/edit');

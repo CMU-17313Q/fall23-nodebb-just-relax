@@ -88,17 +88,17 @@ privsPosts.filter = async function (privilege, pids, uid) {
     cids = _.uniq(cids);
 
     const results = await privsCategories.getBase(privilege, cids, uid);
-    const allowedCids = cids.filter((cid, index) => !results.categories[index].disabled
-            && (results.allowedTo[index] || results.isAdmin));
+    const allowedCids = cids.filter((cid, index) => !results.categories[index].disabled &&
+            (results.allowedTo[index] || results.isAdmin));
 
     const cidsSet = new Set(allowedCids);
     const canViewDeleted = _.zipObject(cids, results.view_deleted);
     const canViewScheduled = _.zipObject(cids, results.view_scheduled);
 
     pids = postData.filter(post => (
-        post.topic
-        && cidsSet.has(post.topic.cid)
-        && (privsTopics.canViewDeletedScheduled({
+        post.topic &&
+        cidsSet.has(post.topic.cid) &&
+        (privsTopics.canViewDeletedScheduled({
             deleted: post.topic.deleted || post.deleted,
             scheduled: post.topic.scheduled,
         }, {}, canViewDeleted[post.topic.cid], canViewScheduled[post.topic.cid]) || results.isAdmin)
@@ -129,18 +129,18 @@ privsPosts.canEdit = async function (pid, uid) {
     }
 
     if (
-        !results.isMod
-        && meta.config.postEditDuration
-        && (Date.now() - results.postData.timestamp > meta.config.postEditDuration * 1000)
+        !results.isMod &&
+        meta.config.postEditDuration &&
+        (Date.now() - results.postData.timestamp > meta.config.postEditDuration * 1000)
     ) {
         return { flag: false, message: `[[error:post-edit-duration-expired, ${meta.config.postEditDuration}]]` };
     }
 
     if (
-        !results.isMod
-        && meta.config.newbiePostEditDuration > 0
-        && meta.config.newbiePostDelayThreshold > results.userData.reputation
-        && Date.now() - results.postData.timestamp > meta.config.newbiePostEditDuration * 1000
+        !results.isMod &&
+        meta.config.newbiePostEditDuration > 0 &&
+        meta.config.newbiePostDelayThreshold > results.userData.reputation &&
+        Date.now() - results.postData.timestamp > meta.config.newbiePostEditDuration * 1000
     ) {
         return { flag: false, message: `[[error:post-edit-duration-expired, ${meta.config.newbiePostEditDuration}]]` };
     }
@@ -149,7 +149,7 @@ privsPosts.canEdit = async function (pid, uid) {
     if (!results.isMod && isLocked) {
         return { flag: false, message: '[[error:topic-locked]]' };
     }
-
+    /* eslint-disable-next-line max-len */
     if (!results.isMod && results.postData.deleted && Number.parseInt(uid, 10) !== Number.parseInt(results.postData.deleterUid, 10)) {
         return { flag: false, message: '[[error:post-deleted]]' };
     }

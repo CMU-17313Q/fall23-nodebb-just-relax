@@ -42,8 +42,8 @@ module.exports = function (Groups) {
             { name: 'Global Moderators', displayName: 'Global Moderators' },
         ];
         // Private (but not hidden)
-        const privateGroups = allGroups.filter(group => group.hidden === 0
-            && group.system === 0 && group.private === 1);
+        const privateGroups = allGroups.filter(group => group.hidden === 0 &&
+            group.system === 0 && group.private === 1);
 
         const [ownership, isAdmin, isGlobalMod] = await Promise.all([
             Promise.all(privateGroups.map(group => Groups.ownership.isOwner(uid, group.name))),

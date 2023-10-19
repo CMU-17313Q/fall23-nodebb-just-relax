@@ -4,7 +4,7 @@ const cacheCreate = require('../cache/lru');
 module.exports = function (Groups) {
     Groups.cache = cacheCreate({
         name: 'group',
-        max: 40_000,
+        max: 40000,
         ttl: 0,
     });
 

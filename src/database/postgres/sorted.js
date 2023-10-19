@@ -76,7 +76,7 @@ OFFSET $2::INTEGER`,
         if (reverse) {
             res.rows.reverse();
         }
-
+        /* eslint-disable-next-line max-len */
         res.rows = withScores ? res.rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : res.rows.map(r => r.value);
 
         return res.rows;
@@ -136,7 +136,7 @@ SELECT z."value",
 OFFSET $2::INTEGER`,
             values: [key, start, count, min, max],
         });
-
+        /* eslint-disable-next-line max-len */
         res.rows = withScores ? res.rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : res.rows.map(r => r.value);
 
         return res.rows;
@@ -661,7 +661,7 @@ SELECT z."value", z."score"
                 client.release();
                 return;
             }
-
+            /* eslint-disable-next-line max-len */
             rows = options.withScores ? rows.map(r => ({ value: r.value, score: Number.parseFloat(r.score) })) : rows.map(r => r.value);
 
             try {

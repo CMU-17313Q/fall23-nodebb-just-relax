@@ -18,10 +18,10 @@ function filterDirectories(directories) {
         // only include subpaths
         // exclude category.tpl, group.tpl, category-analytics.tpl
         dir => (
-            !dir.endsWith('.js')
-            && !dir.includes('/partials/')
-            && /\/.*\//.test(dir)
-            && !/manage\/(category|group|category-analytics)$/.test(dir)
+            !dir.endsWith('.js') &&
+            !dir.includes('/partials/') &&
+            /\/.*\//.test(dir) &&
+            !/manage\/(category|group|category-analytics)$/.test(dir)
         ),
     );
 }

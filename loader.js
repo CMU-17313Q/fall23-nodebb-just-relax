@@ -64,7 +64,7 @@ Loader.addWorkerEvents = function (worker) {
 
                 Loader.crashTimer = setTimeout(() => {
                     Loader.timesStarted = 0;
-                }, 10_000);
+                }, 10000);
             } else {
                 console.log(`${numberProcs * 3} restarts in 10 seconds, most likely an error on startup. Halting.`);
                 process.exit();
@@ -82,29 +82,29 @@ Loader.addWorkerEvents = function (worker) {
     worker.on('message', (message) => {
         if (message && typeof message === 'object' && message.action) {
             switch (message.action) {
-                case 'restart': {
-                    console.log('[cluster] Restarting...');
-                    Loader.restart();
-                    break;
+            case 'restart': {
+                console.log('[cluster] Restarting...');
+                Loader.restart();
+                break;
+            }
+
+            case 'pubsub': {
+                for (const w of workers) {
+                    w.send(message);
                 }
 
-                case 'pubsub': {
-                    for (const w of workers) {
+                break;
+            }
+
+            case 'socket.io': {
+                for (const w of workers) {
+                    if (w !== worker) {
                         w.send(message);
                     }
-
-                    break;
                 }
 
-                case 'socket.io': {
-                    for (const w of workers) {
-                        if (w !== worker) {
-                            w.send(message);
-                        }
-                    }
-
-                    break;
-                }
+                break;
+            }
             }
         }
     });

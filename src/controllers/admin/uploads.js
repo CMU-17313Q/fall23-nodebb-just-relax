@@ -76,9 +76,9 @@ function buildBreadcrumbs(currentFolder) {
         const dir = path.join(currentPath, part);
         crumbs.push({
             text: part || 'Uploads',
-            url: part
-                ? (`${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`)
-                : `${nconf.get('relative_path')}/admin/manage/uploads`,
+            url: part ?
+                (`${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`) :
+                `${nconf.get('relative_path')}/admin/manage/uploads`,
         });
         currentPath = dir;
     }
@@ -118,7 +118,7 @@ uploadsController.uploadCategoryPicture = async function (request, res, next) {
 
     try {
         parameters = JSON.parse(request.body.params);
-    } catch {
+    } catch (error) {
         file.delete(uploadedFile.path);
         return next(new Error('[[error:invalid-json]]'));
     }
@@ -198,7 +198,7 @@ uploadsController.uploadFile = async function (request, res, next) {
     let parameters;
     try {
         parameters = JSON.parse(request.body.params);
-    } catch {
+    } catch (error) {
         file.delete(uploadedFile.path);
         return next(new Error('[[error:invalid-json]]'));
     }

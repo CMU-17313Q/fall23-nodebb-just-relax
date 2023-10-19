@@ -21,8 +21,8 @@ define('categorySearch', ['alerts'], (alerts) => {
             return;
         }
 
-        const toggleVisibility = searchElement.parent('[component="category/dropdown"]').length > 0
-            || searchElement.parent('[component="category-selector"]').length > 0;
+        const toggleVisibility = searchElement.parent('[component="category/dropdown"]').length > 0 ||
+            searchElement.parent('[component="category-selector"]').length > 0;
 
         element.on('show.bs.dropdown', () => {
             if (toggleVisibility) {
@@ -38,6 +38,7 @@ define('categorySearch', ['alerts'], (alerts) => {
                         renderList(categories);
                     });
                 } else if (!value && categoriesList) {
+                    /* eslint-disable no-restricted-syntax */
                     for (const c of categoriesList) {
                         c.selected = options.selectedCids.includes(c.cid);
                     }

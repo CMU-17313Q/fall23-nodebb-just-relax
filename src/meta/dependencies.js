@@ -46,7 +46,7 @@ Dependencies.checkModule = async function (moduleName) {
 Dependencies.parseModuleData = function (moduleName, pkgData) {
     try {
         pkgData = JSON.parse(pkgData);
-    } catch {
+    } catch (error) {
         winston.warn(`[${chalk.red('missing')}] ${chalk.bold(moduleName)} is a required dependency but could not be found\n`);
         depsMissing = true;
         return null;
@@ -60,8 +60,8 @@ Dependencies.doesSatisfy = function (moduleData, packageJSONVersion) {
         return false;
     }
 
-    const versionOk = !semver.validRange(packageJSONVersion)
-        || semver.satisfies(moduleData.version, packageJSONVersion);
+    const versionOk = !semver.validRange(packageJSONVersion) ||
+        semver.satisfies(moduleData.version, packageJSONVersion);
     const githubRepo = moduleData._resolved && moduleData._resolved.includes('//github.com');
     const satisfies = versionOk || githubRepo;
     if (!satisfies) {

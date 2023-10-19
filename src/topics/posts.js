@@ -178,12 +178,12 @@ module.exports = function (Topics) {
                 post.display_delete_tools = topicPrivileges.isAdminOrMod || (post.selfPost && topicPrivileges['posts:delete']);
                 post.display_moderator_tools = post.display_edit_tools || post.display_delete_tools;
                 post.display_move_tools = topicPrivileges.isAdminOrMod && post.index !== 0;
-                post.display_post_menu = topicPrivileges.isAdminOrMod
-                    || (post.selfPost
-                        && ((!topicData.locked && !post.deleted)
-
-                            || (post.deleted && Number.parseInt(post.deleterUid, 10) === Number.parseInt(topicPrivileges.uid, 10))))
-                    || ((loggedIn || topicData.postSharing.length) && !post.deleted);
+                post.display_post_menu = topicPrivileges.isAdminOrMod ||
+                    (post.selfPost &&
+                        ((!topicData.locked && !post.deleted) ||
+                            /* eslint-disable-next-line max-len */
+                            (post.deleted && Number.parseInt(post.deleterUid, 10) === Number.parseInt(topicPrivileges.uid, 10)))) ||
+                    ((loggedIn || topicData.postSharing.length) && !post.deleted);
                 post.ip = topicPrivileges.isAdminOrMod ? post.ip : undefined;
 
                 posts.modifyPostByPrivilege(post, topicPrivileges);

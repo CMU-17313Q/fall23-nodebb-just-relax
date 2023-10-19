@@ -12,7 +12,7 @@ module.exports = function (User) {
 
         const userData = await db.getObjectFields(`user:${uid}`, ['status', 'lastonline']);
         const now = Date.now();
-        if (userData.status === 'offline' || now - Number.parseInt(userData.lastonline, 10) < 300_000) {
+        if (userData.status === 'offline' || now - Number.parseInt(userData.lastonline, 10) < 300000) {
             return;
         }
 
@@ -26,7 +26,7 @@ module.exports = function (User) {
 
         const now = Date.now();
         const userOnlineTime = await db.sortedSetScore('users:online', uid);
-        if (now - Number.parseInt(userOnlineTime, 10) < 300_000) {
+        if (now - Number.parseInt(userOnlineTime, 10) < 300000) {
             return;
         }
 
@@ -40,7 +40,7 @@ module.exports = function (User) {
         const isArray = Array.isArray(uid);
         uid = isArray ? uid : [uid];
         const lastonline = await db.sortedSetScores('users:online', uid);
-        const isOnline = uid.map((uid, index) => (now - lastonline[index]) < (meta.config.onlineCutoff * 60_000));
+        const isOnline = uid.map((uid, index) => (now - lastonline[index]) < (meta.config.onlineCutoff * 60000));
         return isArray ? isOnline : isOnline[0];
     };
 };

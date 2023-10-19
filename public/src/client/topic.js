@@ -16,7 +16,7 @@ define('forum/topic', [
 ], (
     infinitescroll, threadTools, postTools,
     events, posts, navigator, sort,
-    components, storage, hooks, api, alerts,
+    components, storage, hooks, api, alerts
 ) => {
     const Topic = {};
     let tid = 0;
@@ -139,8 +139,8 @@ define('forum/topic', [
                 return navigator.scrollToPostIndex(postIndex - 1, true, 0);
             }
         } else if (bookmark && (
-            !config.usePagination
-            || (config.usePagination && ajaxify.data.pagination.currentPage === 1)
+            !config.usePagination ||
+            (config.usePagination && ajaxify.data.pagination.currentPage === 1)
         ) && ajaxify.data.postcount > ajaxify.data.bookmarkThreshold) {
             alerts.alert({
                 alert_id: 'bookmark',
@@ -156,7 +156,7 @@ define('forum/topic', [
             });
             setTimeout(() => {
                 alerts.remove('bookmark');
-            }, 10_000);
+            }, 10000);
         }
     }
 
@@ -335,11 +335,11 @@ define('forum/topic', [
         }
 
         if (
-            ajaxify.data.postcount > ajaxify.data.bookmarkThreshold
-            && (
-                !currentBookmark
-                || Number.parseInt(index, 10) > Number.parseInt(currentBookmark, 10)
-                || ajaxify.data.postcount < Number.parseInt(currentBookmark, 10)
+            ajaxify.data.postcount > ajaxify.data.bookmarkThreshold &&
+            (
+                !currentBookmark ||
+                Number.parseInt(index, 10) > Number.parseInt(currentBookmark, 10) ||
+                ajaxify.data.postcount < Number.parseInt(currentBookmark, 10)
             )
         ) {
             if (app.user.uid) {

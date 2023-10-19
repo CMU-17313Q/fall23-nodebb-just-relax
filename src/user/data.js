@@ -326,16 +326,16 @@ module.exports = function (User) {
         }
 
         user.displayname = validator.escape(String(
-            meta.config.showFullnameAsDisplayName && showfullname && user.fullname
-                ? user.fullname
-                : user.username,
+            meta.config.showFullnameAsDisplayName && showfullname && user.fullname ?
+                user.fullname :
+                user.username,
         ));
     }
 
     function parseGroupTitle(user) {
         try {
             user.groupTitleArray = JSON.parse(user.groupTitle);
-        } catch {
+        } catch (error) {
             if (user.groupTitle) {
                 user.groupTitleArray = [user.groupTitle];
             } else {

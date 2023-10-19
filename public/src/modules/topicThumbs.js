@@ -118,6 +118,7 @@ define('topicThumbs', [
     Thumbs.modal.handleSortChange = (ev, ui) => {
         const items = ui.item.get(0).parentNode.querySelectorAll('[data-id]');
 
+        /* eslint-disable no-restricted-syntax */
         for (const [order, element] of [...items].entries()) {
             const { id } = element.dataset;
             let { path } = element.dataset;

@@ -54,9 +54,9 @@ module.exports = function (Posts) {
         ]);
 
         await Posts.setPostFields(data.pid, result.post);
-        const contentChanged = data.content !== oldContent
-            || topic.renamed
-            || topic.tagsupdated;
+        const contentChanged = data.content !== oldContent ||
+            topic.renamed ||
+            topic.tagsupdated;
 
         if (meta.config.enablePostHistory === 1 && contentChanged) {
             await Posts.diffs.save({
@@ -131,8 +131,8 @@ module.exports = function (Posts) {
             newTopicData.slug = `${tid}/${slugify(title) || 'topic'}`;
         }
 
-        const tagsupdated = Array.isArray(data.tags)
-            && !_.isEqual(data.tags, topicData.tags.map(tag => tag.value));
+        const tagsupdated = Array.isArray(data.tags) &&
+            !_.isEqual(data.tags, topicData.tags.map(tag => tag.value));
 
         if (tagsupdated) {
             const canTag = await privileges.categories.can('topics:tag', topicData.cid, data.uid);

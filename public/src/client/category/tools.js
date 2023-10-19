@@ -65,6 +65,7 @@ define('forum/category/tools', [
 
                 alerts.success('[[topic:markAsUnreadForAll.success]]');
 
+                /* eslint-disable no-restricted-syntax */
                 for (const tid of tids) {
                     $('[component="category/topic"][data-tid="' + tid + '"]').addClass('unread');
                 }
@@ -110,6 +111,7 @@ define('forum/category/tools', [
             require(['forum/topic/merge'], (merge) => {
                 merge.init(() => {
                     if (tids.length > 0) {
+                        /* eslint-disable no-restricted-syntax */
                         for (const tid of tids) {
                             merge.addTopic(tid);
                         }
@@ -149,22 +151,22 @@ define('forum/category/tools', [
         }
 
         switch (command) {
-            case 'delete':
-            case 'restore':
-            case 'purge': {
-                bootbox.confirm(`[[topic:thread_tools.${command}_confirm]]`, execute);
-                break;
-            }
+        case 'delete':
+        case 'restore':
+        case 'purge': {
+            bootbox.confirm(`[[topic:thread_tools.${command}_confirm]]`, execute);
+            break;
+        }
 
-            case 'pin': {
-                threadTools.requestPinExpiry(body, execute.bind(null, true));
-                break;
-            }
+        case 'pin': {
+            threadTools.requestPinExpiry(body, execute.bind(null, true));
+            break;
+        }
 
-            default: {
-                execute(true);
-                break;
-            }
+        default: {
+            execute(true);
+            break;
+        }
         }
     }
 
@@ -216,6 +218,7 @@ define('forum/category/tools', [
     }
 
     function isAny(method, tids) {
+        /* eslint-disable no-restricted-syntax */
         for (const tid of tids) {
             if (method(tid)) {
                 return true;
@@ -226,6 +229,7 @@ define('forum/category/tools', [
     }
 
     function areAll(method, tids) {
+        /* eslint-disable no-restricted-syntax */
         for (const tid of tids) {
             if (!method(tid)) {
                 return false;

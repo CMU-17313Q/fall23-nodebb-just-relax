@@ -17,6 +17,7 @@ module.exports = {
 
                     progress.incr();
 
+                    /* eslint-disable-next-line max-len */
                     const votes = Number.parseInt(postData.upvotes || 0, 10) - Number.parseInt(postData.downvotes || 0, 10);
                     db.sortedSetAdd('posts:votes', votes, pid, next);
                 });

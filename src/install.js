@@ -87,7 +87,7 @@ function checkSetupFlagEnv() {
             const setupJSON = JSON.parse(nconf.get('setup'));
             setupValue = { ...setupValue, ...setupJSON };
         }
-    } catch {
+    } catch (error) {
         winston.error('[install/checkSetupFlagEnv] invalid json in nconf.get(\'setup\'), ignoring setup values from json');
     }
 
@@ -124,7 +124,7 @@ function checkCIFlag() {
     let ciVals;
     try {
         ciVals = JSON.parse(nconf.get('ci'));
-    } catch {
+    } catch (error) {
         ciVals = undefined;
     }
 
@@ -524,7 +524,7 @@ async function enableDefaultPlugins() {
         try {
             customDefaults = Array.isArray(customDefaults) ? customDefaults : JSON.parse(customDefaults);
             defaultEnabled = defaultEnabled.concat(customDefaults);
-        } catch {
+        } catch (error) {
             // Invalid value received
             winston.info('[install/enableDefaultPlugins] Invalid defaultPlugins value received. Ignoring.');
         }

@@ -159,7 +159,7 @@ define('admin/modules/dashboard-line-graph', ['Chart', 'translator', 'benchpress
         set,
         units = ajaxify.data.query.units || 'hours',
         until = ajaxify.data.query.until,
-        amount = ajaxify.data.query.count,
+        amount = ajaxify.data.query.count
     ) => {
         if (!Graph._current) {
             return Promise.reject(new Error('[[error:invalid-data]]'));

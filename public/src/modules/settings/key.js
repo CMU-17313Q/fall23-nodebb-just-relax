@@ -42,20 +42,20 @@ define('settings/key', () => {
      */
     function getKey(event) {
         const anyModChange = (
-            event.ctrlKey !== lastKey.c
-            || event.altKey !== lastKey.a
-            || event.shiftKey !== lastKey.s
-            || event.metaKey !== lastKey.m
+            event.ctrlKey !== lastKey.c ||
+            event.altKey !== lastKey.a ||
+            event.shiftKey !== lastKey.s ||
+            event.metaKey !== lastKey.m
         );
         const modChange = (
-            event.ctrlKey
-            + event.altKey
-            + event.shiftKey
-            + event.metaKey
-            - lastKey.c
-            - lastKey.a
-            - lastKey.s
-            - lastKey.m
+            event.ctrlKey +
+            event.altKey +
+            event.shiftKey +
+            event.metaKey -
+            lastKey.c -
+            lastKey.a -
+            lastKey.s -
+            lastKey.m
         );
         const key = new Key();
         key.c = event.ctrlKey;
@@ -167,40 +167,41 @@ define('settings/key', () => {
         const sep = /([^CtrlAShifMea#\d]+)[#\d]/.exec(string_);
         const parts = sep == null ? [string_] : string_.split(sep[1]);
 
+        /* eslint-disable no-restricted-syntax */
         for (const part of parts) {
             switch (part) {
-                case 'C':
-                case 'Ctrl': {
-                    key.c = true;
-                    break;
+            case 'C':
+            case 'Ctrl': {
+                key.c = true;
+                break;
+            }
+
+            case 'A':
+            case 'Alt': {
+                key.a = true;
+                break;
+            }
+
+            case 'S':
+            case 'Shift': {
+                key.s = true;
+                break;
+            }
+
+            case 'M':
+            case 'Meta': {
+                key.m = true;
+                break;
+            }
+
+            default: {
+                const number_ = /\d+/.exec(part);
+                if (number_ != null) {
+                    key.code = number_[0];
                 }
 
-                case 'A':
-                case 'Alt': {
-                    key.a = true;
-                    break;
-                }
-
-                case 'S':
-                case 'Shift': {
-                    key.s = true;
-                    break;
-                }
-
-                case 'M':
-                case 'Meta': {
-                    key.m = true;
-                    break;
-                }
-
-                default: {
-                    const number_ = /\d+/.exec(part);
-                    if (number_ != null) {
-                        key.code = number_[0];
-                    }
-
-                    key.char = convertKeyCodeToChar(key.code);
-                }
+                key.char = convertKeyCodeToChar(key.code);
+            }
             }
         }
 

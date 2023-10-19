@@ -96,7 +96,7 @@ async function resetSettings() {
 async function resetTheme(themeId) {
     try {
         await fs.promises.access(path.join(paths.nodeModules, themeId, 'package.json'));
-    } catch {
+    } catch (error) {
         winston.warn('[reset] Theme `%s` is not installed on this forum', themeId);
         throw new Error('theme-not-found');
     }

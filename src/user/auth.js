@@ -99,9 +99,9 @@ module.exports = function (User) {
         await Promise.all(Object.keys(uuidMapping).map(async (uuid) => {
             const sid = uuidMapping[uuid];
             const sessionObject = await getSessionFromStore(sid);
-            const expired = !sessionObject || !sessionObject.hasOwnProperty('passport')
-                || !sessionObject.passport.hasOwnProperty('user')
-                || Number.parseInt(sessionObject.passport.user, 10) !== Number.parseInt(uid, 10);
+            const expired = !sessionObject || !sessionObject.hasOwnProperty('passport') ||
+                !sessionObject.passport.hasOwnProperty('user') ||
+                Number.parseInt(sessionObject.passport.user, 10) !== Number.parseInt(uid, 10);
             if (expired) {
                 expiredUUIDs.push(uuid);
                 expiredSids.push(sid);

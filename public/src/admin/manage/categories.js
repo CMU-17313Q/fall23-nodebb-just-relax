@@ -195,7 +195,7 @@ define('admin/manage/categories', [
         const isCategoryUpdate = Number.parseInt(newCategoryId, 10) !== -1;
 
         // Update needed?
-
+        /* eslint-disable-next-line max-len */
         if ((e.newIndex != null && Number.parseInt(e.oldIndex, 10) !== Number.parseInt(e.newIndex, 10)) || isCategoryUpdate) {
             const { cid } = e.item.dataset;
             const modified = {};

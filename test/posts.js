@@ -996,7 +996,7 @@ describe('Post\'s', () => {
     });
 
     it('should error if user does not exist', (done) => {
-        user.isReadyToPost(21_123_123, 1, (error) => {
+        user.isReadyToPost(21123123, 1, (error) => {
             assert.equal(error.message, '[[error:no-user]]');
             done();
         });
@@ -1105,7 +1105,7 @@ describe('Post\'s', () => {
         });
 
         it('should prevent regular users from approving non existing posts', (done) => {
-            socketPosts.accept({ uid }, { id: 123_123 }, (error) => {
+            socketPosts.accept({ uid }, { id: 123123 }, (error) => {
                 assert.equal(error.message, '[[error:no-privileges]]');
                 done();
             });

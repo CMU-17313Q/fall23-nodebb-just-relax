@@ -77,9 +77,9 @@ module.exports = function (middleware) {
                     footer: renderHeaderFooter('renderFooter', req, res, options),
                 });
 
-                const string_ = `${results.header
-                    + (res.locals.postHeader || '')
-                    + results.content
+                const string_ = `${results.header +
+                    (res.locals.postHeader || '') +
+                    results.content
                 }<script id="ajaxify-data" type="application/json">${
                     optionsString
                 }</script>${

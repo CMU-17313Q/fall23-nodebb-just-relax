@@ -28,37 +28,37 @@ function deserialize(config) {
             deserialized[key] = !isNaN(number) && isFinite(config[key]) ? number : defaults[key];
         } else {
             switch (config[key]) {
-                case 'true': {
-                    deserialized[key] = true;
+            case 'true': {
+                deserialized[key] = true;
 
-                    break;
-                }
+                break;
+            }
 
-                case 'false': {
-                    deserialized[key] = false;
+            case 'false': {
+                deserialized[key] = false;
 
-                    break;
-                }
+                break;
+            }
 
-                case null: {
+            case null: {
+                deserialized[key] = defaults[key];
+
+                break;
+            }
+
+            default: { if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
+                deserialized[key] = number;
+            } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
+                try {
+                    deserialized[key] = JSON.parse(config[key] || '[]');
+                } catch (error) {
+                    winston.error(error.stack);
                     deserialized[key] = defaults[key];
-
-                    break;
                 }
-
-                default: { if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
-                    deserialized[key] = number;
-                } else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
-                    try {
-                        deserialized[key] = JSON.parse(config[key] || '[]');
-                    } catch (error) {
-                        winston.error(error.stack);
-                        deserialized[key] = defaults[key];
-                    }
-                } else {
-                    deserialized[key] = config[key];
-                }
-                }
+            } else {
+                deserialized[key] = config[key];
+            }
+            }
             }
         }
     }

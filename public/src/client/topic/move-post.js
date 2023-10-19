@@ -51,7 +51,7 @@ define('forum/topic/move-post', [
                         title: '[[topic:thread_tools.move-posts]]',
                         message: '[[topic:topic_move_posts_success]]',
                         type: 'success',
-                        timeout: 10_000,
+                        timeout: 10000,
                         timeoutfn() {
                             movePosts(data);
                         },
@@ -75,8 +75,8 @@ define('forum/topic/move-post', [
 
         const tidInput = moveModal.find('#topicId');
         let targetTid = null;
-        if (ajaxify.data.template.topic && ajaxify.data.tid
-            && Number.parseInt(ajaxify.data.tid, 10) !== fromTid
+        if (ajaxify.data.template.topic && ajaxify.data.tid &&
+            Number.parseInt(ajaxify.data.tid, 10) !== fromTid
         ) {
             targetTid = ajaxify.data.tid;
         }
@@ -131,8 +131,8 @@ define('forum/topic/move-post', [
         }
 
         const targetTid = getTargetTid();
-        if (postSelect.pids.length > 0 && targetTid
-            && Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)
+        if (postSelect.pids.length > 0 && targetTid &&
+            Number.parseInt(targetTid, 10) !== Number.parseInt(fromTid, 10)
         ) {
             moveCommit.removeAttr('disabled');
         } else {
@@ -154,6 +154,7 @@ define('forum/topic/move-post', [
         Promise.all(data.pids.map(pid => api.put(`/posts/${pid}/move`, {
             tid: data.tid,
         }))).then(() => {
+            /* eslint-disable no-restricted-syntax */
             for (const pid of data.pids) {
                 components.get('post', 'pid', pid).fadeOut(500, function () {
                     $(this).remove();

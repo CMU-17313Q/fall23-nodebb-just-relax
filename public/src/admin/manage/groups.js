@@ -60,14 +60,14 @@ define('admin/manage/groups', [
             const groupName = element.parents('tr[data-groupname]').attr('data-groupname');
 
             switch (action) {
-                case 'delete': {
-                    bootbox.confirm('[[admin/manage/groups:alerts.confirm-delete]]', (confirm) => {
-                        if (confirm) {
-                            api.del(`/groups/${slugify(groupName)}`, {}).then(ajaxify.refresh).catch(alerts.error);
-                        }
-                    });
-                    break;
-                }
+            case 'delete': {
+                bootbox.confirm('[[admin/manage/groups:alerts.confirm-delete]]', (confirm) => {
+                    if (confirm) {
+                        api.del(`/groups/${slugify(groupName)}`, {}).then(ajaxify.refresh).catch(alerts.error);
+                    }
+                });
+                break;
+            }
             }
         });
 

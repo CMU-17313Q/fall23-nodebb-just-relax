@@ -9,7 +9,7 @@
     } else {
         window.slugify = factory(XRegExp);
     }
-})((XRegExp) => {
+}((XRegExp) => {
     const invalidUnicodeChars = XRegExp('[^\\p{L}\\s\\d\\-_]', 'g');
     const invalidLatinChars = /[^\w\s\d\-_]/g;
     const trimRegex = /^\s+|\s+$/g;
@@ -35,4 +35,4 @@
         string_ = string_.replaceAll(trimLeadingDash, '');
         return string_;
     };
-});
+}));

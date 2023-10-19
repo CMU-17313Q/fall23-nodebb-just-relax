@@ -214,22 +214,22 @@ define('forum/topic/threadTools', [
         };
 
         switch (command) {
-            case 'delete':
-            case 'restore':
-            case 'purge': {
-                bootbox.confirm(`[[topic:thread_tools.${command}_confirm]]`, execute);
-                break;
-            }
+        case 'delete':
+        case 'restore':
+        case 'purge': {
+            bootbox.confirm(`[[topic:thread_tools.${command}_confirm]]`, execute);
+            break;
+        }
 
-            case 'pin': {
-                ThreadTools.requestPinExpiry(body, execute.bind(null, true));
-                break;
-            }
+        case 'pin': {
+            ThreadTools.requestPinExpiry(body, execute.bind(null, true));
+            break;
+        }
 
-            default: {
-                execute(true);
-                break;
-            }
+        default: {
+            execute(true);
+            break;
+        }
         }
     }
 
@@ -347,9 +347,9 @@ define('forum/topic/threadTools', [
         icon.toggleClass('hidden', !data.pinned);
         if (data.pinned) {
             icon.translateAttr('title', (
-                data.pinExpiry && data.pinExpiryISO
-                    ? '[[topic:pinned-with-expiry, ' + data.pinExpiryISO + ']]'
-                    : '[[topic:pinned]]'
+                data.pinExpiry && data.pinExpiryISO ?
+                    '[[topic:pinned-with-expiry, ' + data.pinExpiryISO + ']]' :
+                    '[[topic:pinned]]'
             ));
         }
 

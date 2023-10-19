@@ -23,9 +23,9 @@ define('forum/topic/images', [], () => {
             const altExt = altFilename.split('.').slice(1).pop();
 
             if (!$this.parent().is('a')) {
-                $this.wrap('<a href="' + src + '" '
-                    + (!srcExt && altExt ? ' download="' + altFilename + '" ' : '')
-                    + ' target="_blank" rel="noopener">');
+                $this.wrap('<a href="' + src + '" ' +
+                    (!srcExt && altExt ? ' download="' + altFilename + '" ' : '') +
+                    ' target="_blank" rel="noopener">');
             }
         });
     };

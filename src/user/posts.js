@@ -48,9 +48,9 @@ module.exports = function (User) {
         const lasttime = userData[field] || 0;
 
         if (
-            meta.config.newbiePostDelay > 0
-            && meta.config.newbiePostDelayThreshold > userData.reputation
-            && now - lasttime < meta.config.newbiePostDelay * 1000
+            meta.config.newbiePostDelay > 0 &&
+            meta.config.newbiePostDelayThreshold > userData.reputation &&
+            now - lasttime < meta.config.newbiePostDelay * 1000
         ) {
             throw new Error(`[[error:too-many-posts-newbie, ${meta.config.newbiePostDelay}, ${meta.config.newbiePostDelayThreshold}]]`);
         } else if (now - lasttime < meta.config.postDelay * 1000) {

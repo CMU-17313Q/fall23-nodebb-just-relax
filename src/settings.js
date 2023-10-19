@@ -73,7 +73,7 @@ function Settings(hash, version, defCfg, callback, forceUpdate, reset) {
     pubsub.on(`action:settings.set.${hash}`, (data) => {
         try {
             self.cfg._ = JSON.parse(data._);
-        } catch {}
+        } catch (error) {}
     });
 }
 
@@ -93,7 +93,7 @@ Settings.prototype.sync = function (callback) {
             if (settings._) {
                 settings._ = JSON.parse(settings._);
             }
-        } catch {}
+        } catch (error) {}
 
         _this.cfg = settings;
         if (typeof _this.cfg._ !== 'object') {

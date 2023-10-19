@@ -6,9 +6,9 @@ helpers.mergeBatch = function (batchData, start, stop, sort) {
         let selectedArray = batchData[0];
         for (let i = 1; i < batchData.length; i++) {
             if (batchData[i].length > 0 && (
-                selectedArray.length === 0
-                || (sort === 1 && batchData[i][0].score < selectedArray[0].score)
-                || (sort === -1 && batchData[i][0].score > selectedArray[0].score)
+                selectedArray.length === 0 ||
+                (sort === 1 && batchData[i][0].score < selectedArray[0].score) ||
+                (sort === -1 && batchData[i][0].score > selectedArray[0].score)
             )) {
                 selectedArray = batchData[i];
             }

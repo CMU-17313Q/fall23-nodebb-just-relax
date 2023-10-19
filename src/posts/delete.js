@@ -30,9 +30,9 @@ module.exports = function (Posts) {
         await Promise.all([
             topics.updateLastPostTimeFromLastPid(postData.tid),
             topics.updateTeaser(postData.tid),
-            isDeleting
-                ? db.sortedSetRemove(`cid:${topicData.cid}:pids`, pid)
-                : db.sortedSetAdd(`cid:${topicData.cid}:pids`, postData.timestamp, pid),
+            isDeleting ?
+                db.sortedSetRemove(`cid:${topicData.cid}:pids`, pid) :
+                db.sortedSetAdd(`cid:${topicData.cid}:pids`, postData.timestamp, pid),
         ]);
         await categories.updateRecentTidForCid(postData.cid);
         plugins.hooks.fire(`action:post.${type}`, { post: _.clone(postData), uid });

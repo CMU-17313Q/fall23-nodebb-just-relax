@@ -266,8 +266,8 @@ module.exports = function (Groups) {
         for (const area of data.areas) {
             area.widgets = area.data;
             for (const widget of area.widgets) {
-                if (widget && widget.data && Array.isArray(widget.data.groups)
-                    && widget.data.groups.includes(oldName)) {
+                if (widget && widget.data && Array.isArray(widget.data.groups) &&
+                    widget.data.groups.includes(oldName)) {
                     widget.data.groups.splice(widget.data.groups.indexOf(oldName), 1, newName);
                 }
             }

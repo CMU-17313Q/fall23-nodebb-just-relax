@@ -94,8 +94,8 @@ define('admin/manage/category', [
 
                                         let percent = 0;
                                         if (ajaxify.data.category.topic_count > 0) {
-                                            percent
-                                                = Math.max(0, (1 - (count / ajaxify.data.category.topic_count))) * 100;
+                                            percent =
+                                                Math.max(0, (1 - (count / ajaxify.data.category.topic_count))) * 100;
                                         }
 
                                         modal.find('.progress-bar').css({ width: percent + '%' });
@@ -131,9 +131,9 @@ define('admin/manage/category', [
                             label: '[[modules:bootbox.confirm]]',
                             className: 'btn-primary',
                             callback() {
-                                if (!selectedCid
-
-                                    || Number.parseInt(selectedCid, 10) === Number.parseInt(ajaxify.data.category.cid, 10)) {
+                                if (!selectedCid ||
+                                    /* eslint-disable-next-line max-len */
+                                    Number.parseInt(selectedCid, 10) === Number.parseInt(ajaxify.data.category.cid, 10)) {
                                     return;
                                 }
 
@@ -277,6 +277,7 @@ define('admin/manage/category', [
             trimValue: true,
         });
 
+        /* eslint-disable no-restricted-syntax */
         for (const tag of ajaxify.data.category.tagWhitelist) {
             tagElement.tagsinput('add', tag);
         }

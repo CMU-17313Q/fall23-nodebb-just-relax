@@ -332,8 +332,8 @@ Emailer.sendToEmail = async (template, email, language, parameters) => {
         headers: parameters.headers,
         rtl: parameters.rtl,
     });
-    const usingFallback = !Plugins.hooks.hasListeners('filter:email.send')
-        && !Plugins.hooks.hasListeners('static:email.send');
+    const usingFallback = !Plugins.hooks.hasListeners('filter:email.send') &&
+        !Plugins.hooks.hasListeners('static:email.send');
     try {
         if (Plugins.hooks.hasListeners('filter:email.send')) {
             // Deprecated, remove in v1.19.0

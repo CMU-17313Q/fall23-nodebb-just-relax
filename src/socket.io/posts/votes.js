@@ -12,8 +12,8 @@ module.exports = function (SocketPosts) {
         }
 
         const showDownvotes = !meta.config['downvote:disabled'];
-        const canSeeVotes = meta.config.votesArePublic
-            || await privileges.categories.isAdminOrMod(data.cid, socket.uid);
+        const canSeeVotes = meta.config.votesArePublic ||
+            await privileges.categories.isAdminOrMod(data.cid, socket.uid);
         if (!canSeeVotes) {
             throw new Error('[[error:no-privileges]]');
         }

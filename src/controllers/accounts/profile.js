@@ -70,9 +70,9 @@ async function incrementProfileViews(request, userData) {
         request.session.uids_viewed = request.session.uids_viewed || {};
 
         if (
-            request.uid !== userData.uid
-
-            && (!request.session.uids_viewed[userData.uid] || request.session.uids_viewed[userData.uid] < Date.now() - 3_600_000)
+            request.uid !== userData.uid &&
+            /* eslint-disable-next-line max-len */
+            (!request.session.uids_viewed[userData.uid] || request.session.uids_viewed[userData.uid] < Date.now() - 3600000)
         ) {
             await user.incrementUserFieldBy(userData.uid, 'profileviews', 1);
             request.session.uids_viewed[userData.uid] = Date.now();
@@ -120,8 +120,8 @@ async function getPosts(callerUid, userData, setSuffix) {
             }));
             const p = await posts.getPostSummaryByPids(pids, callerUid, { stripTags: false });
             postData.push(...p.filter(
-                p => p && p.topic && (isAdmin || cidToIsMod[p.topic.cid]
-                    || (p.topic.scheduled && cidToCanSchedule[p.topic.cid]) || (!p.deleted && !p.topic.deleted)),
+                p => p && p.topic && (isAdmin || cidToIsMod[p.topic.cid] ||
+                    (p.topic.scheduled && cidToCanSchedule[p.topic.cid]) || (!p.deleted && !p.topic.deleted)),
             ));
         }
 

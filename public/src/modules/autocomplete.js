@@ -13,7 +13,7 @@ define('autocomplete', ['api', 'alerts'], (api, alerts) => {
             input.autocomplete({
                 delay,
                 open() {
-                    $(this).autocomplete('widget').css('z-index', 100_005);
+                    $(this).autocomplete('widget').css('z-index', 100005);
                 },
                 select(event, ui) {
                     handleOnSelect(input, onSelect, event, ui);

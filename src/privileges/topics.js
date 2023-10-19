@@ -80,8 +80,8 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
     const results = await privsCategories.getBase(privilege, cids, uid);
 
     const allowedCids = cids.filter((cid, index) => (
-        !results.categories[index].disabled
-        && (results.allowedTo[index] || results.isAdmin)
+        !results.categories[index].disabled &&
+        (results.allowedTo[index] || results.isAdmin)
     ));
 
     const cidsSet = new Set(allowedCids);
@@ -89,8 +89,8 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
     const canViewScheduled = _.zipObject(cids, results.view_scheduled);
 
     tids = topicsData.filter(t => (
-        cidsSet.has(t.cid)
-        && (results.isAdmin || privsTopics.canViewDeletedScheduled(t, {}, canViewDeleted[t.cid], canViewScheduled[t.cid]))
+        cidsSet.has(t.cid) &&
+        (results.isAdmin || privsTopics.canViewDeletedScheduled(t, {}, canViewDeleted[t.cid], canViewScheduled[t.cid]))
     )).map(t => t.tid);
 
     const data = await plugins.hooks.fire('filter:privileges.topics.filter', {
@@ -119,8 +119,8 @@ privsTopics.filterUids = async function (privilege, tid, uids) {
         uids = uids.filter((uid, index) => canViewScheduled[index]);
     }
 
-    return uids.filter((uid, index) => !disabled
-            && ((allowedTo[index] && (topicData.scheduled || !topicData.deleted)) || isAdmins[index]));
+    return uids.filter((uid, index) => !disabled &&
+            ((allowedTo[index] && (topicData.scheduled || !topicData.deleted)) || isAdmins[index]));
 };
 
 privsTopics.canPurge = async function (tid, uid) {
@@ -149,9 +149,9 @@ privsTopics.canDelete = async function (tid, uid) {
 
     const { preventTopicDeleteAfterReplies } = meta.config;
     if (!isModerator && preventTopicDeleteAfterReplies && (topicData.postcount - 1) >= preventTopicDeleteAfterReplies) {
-        const langKey = preventTopicDeleteAfterReplies > 1
-            ? `[[error:cant-delete-topic-has-replies, ${meta.config.preventTopicDeleteAfterReplies}]]`
-            : '[[error:cant-delete-topic-has-reply]]';
+        const langKey = preventTopicDeleteAfterReplies > 1 ?
+            `[[error:cant-delete-topic-has-replies, ${meta.config.preventTopicDeleteAfterReplies}]]` :
+            '[[error:cant-delete-topic-has-reply]]';
         throw new Error(langKey);
     }
 

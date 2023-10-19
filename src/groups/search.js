@@ -14,13 +14,13 @@ module.exports = function (Groups) {
             groupNames = Groups.ephemeralGroups.concat(groupNames);
         }
 
-        groupNames = groupNames.filter(name => name.toLowerCase().includes(query)
-            && name !== Groups.BANNED_USERS // Hide banned-users in searches
-            && !Groups.isPrivilegeGroup(name));
+        groupNames = groupNames.filter(name => name.toLowerCase().includes(query) &&
+            name !== Groups.BANNED_USERS && // Hide banned-users in searches
+            !Groups.isPrivilegeGroup(name));
         groupNames = groupNames.slice(0, 100);
 
         let groupsData;
-
+        /* eslint-disable-next-line max-len */
         groupsData = await (options.showMembers ? Groups.getGroupsAndMembers(groupNames) : Groups.getGroupsData(groupNames));
 
         groupsData = groupsData.filter(Boolean);
@@ -33,21 +33,21 @@ module.exports = function (Groups) {
 
     Groups.sort = function (strategy, groups) {
         switch (strategy) {
-            case 'count': {
-                groups.sort((a, b) => a.slug > b.slug)
-                    .sort((a, b) => b.memberCount - a.memberCount);
-                break;
-            }
+        case 'count': {
+            groups.sort((a, b) => a.slug > b.slug)
+                .sort((a, b) => b.memberCount - a.memberCount);
+            break;
+        }
 
-            case 'date': {
-                groups.sort((a, b) => b.createtime - a.createtime);
-                break;
-            }
+        case 'date': {
+            groups.sort((a, b) => b.createtime - a.createtime);
+            break;
+        }
 
-            case 'alpha': // Intentional fall-through
-            default: {
-                groups.sort((a, b) => (a.slug > b.slug ? 1 : -1));
-            }
+        case 'alpha': // Intentional fall-through
+        default: {
+            groups.sort((a, b) => (a.slug > b.slug ? 1 : -1));
+        }
         }
 
         return groups;

@@ -9,7 +9,7 @@ define('accounts/delete', ['api', 'bootbox', 'alerts'], (api, bootbox, alerts) =
             '[[user:delete_this_account_confirm]]',
             '/account',
             '[[user:account-deleted]]',
-            callback,
+            callback
         );
     };
 
@@ -19,7 +19,7 @@ define('accounts/delete', ['api', 'bootbox', 'alerts'], (api, bootbox, alerts) =
             '[[user:delete_account_content_confirm]]',
             '/content',
             '[[user:account-content-deleted]]',
-            callback,
+            callback
         );
     };
 
@@ -29,7 +29,7 @@ define('accounts/delete', ['api', 'bootbox', 'alerts'], (api, bootbox, alerts) =
             '[[user:delete_all_confirm]]',
             '',
             '[[user:account-deleted]]',
-            callback,
+            callback
         );
     };
 

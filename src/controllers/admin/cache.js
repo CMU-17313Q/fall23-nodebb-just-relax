@@ -16,9 +16,9 @@ cacheController.get = async function (request, res) {
             max: cache.max,
             maxSize: cache.maxSize,
             itemCount: cache.itemCount,
-            percentFull: cache.name === 'post'
-                ? ((cache.length / cache.maxSize) * 100).toFixed(2)
-                : ((cache.itemCount / cache.max) * 100).toFixed(2),
+            percentFull: cache.name === 'post' ?
+                ((cache.length / cache.maxSize) * 100).toFixed(2) :
+                ((cache.itemCount / cache.max) * 100).toFixed(2),
             hits: utils.addCommas(String(cache.hits)),
             misses: utils.addCommas(String(cache.misses)),
             hitRatio: ((cache.hits / (cache.hits + cache.misses) || 0)).toFixed(4),

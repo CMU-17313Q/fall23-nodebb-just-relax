@@ -23,6 +23,7 @@ define('chat', [
             api.get(`/chats/${roomId}`, {
                 uid: uid || app.user.uid,
             }).then((roomData) => {
+                /* eslint-disable-next-line max-len */
                 roomData.users = roomData.users.filter(user => user && Number.parseInt(user.uid, 10) !== Number.parseInt(app.user.uid, 10));
                 roomData.uid = uid || app.user.uid;
                 roomData.isSelf = true;
@@ -84,6 +85,7 @@ define('chat', [
             const rooms = data.rooms.filter(room => room.teaser);
 
             translator.toggleTimeagoShorthand(() => {
+                /* eslint-disable no-restricted-syntax */
                 for (const room of rooms) {
                     room.teaser.timeago = $.timeago(new Date(Number.parseInt(room.teaser.timestamp, 10)));
                 }
@@ -127,6 +129,7 @@ define('chat', [
             addMessageToModal(data);
         } else if (!ajaxify.data.template.chats) {
             api.get(`/chats/${data.roomId}`, {}).then((roomData) => {
+                /* eslint-disable-next-line max-len */
                 roomData.users = roomData.users.filter(user => user && Number.parseInt(user.uid, 10) !== Number.parseInt(app.user.uid, 10));
                 roomData.silent = true;
                 roomData.uid = app.user.uid;

@@ -65,7 +65,7 @@ describe('Categories', () => {
 
     it('should return null if category does not exist', (done) => {
         Categories.getCategoryById({
-            cid: 123_123_123,
+            cid: 123123123,
             start: 0,
             stop: -1,
         }, (error, categoryData) => {

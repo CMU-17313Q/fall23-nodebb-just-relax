@@ -19,7 +19,7 @@ define('admin/modules/search', ['mousetrap', 'alerts'], (mousetrap, alerts) => {
             // and wrap the match in a `.search-match` element
                 .replaceAll(
                     new RegExp('^[\\s\\S]*?(.{0,25})(' + escaped + ')(.{0,25})[\\s\\S]*?$', 'gmi'),
-                    '...$1<span class="search-match">$2</span>$3...<br>',
+                    '...$1<span class="search-match">$2</span>$3...<br>'
                 )
             // Collapse whitespace
                 .replaceAll(/(?:\n ?)+/g, '\n')
@@ -27,18 +27,18 @@ define('admin/modules/search', ['mousetrap', 'alerts'], (mousetrap, alerts) => {
 
             title = title.replaceAll(
                 new RegExp('(^.*?)(' + escaped + ')(.*?$)', 'gi'),
-                '$1<span class="search-match">$2</span>$3',
+                '$1<span class="search-match">$2</span>$3'
             );
 
-            return '<li role="presentation" class="result">'
-                + '<a role= "menuitem" href= "' + config.relative_path + '/' + namespace + '" >'
-                    + title
-                    + '<br>' + (results ? ('<small><code>'
-                        + results
-                    + '</small></code>')
-                : '')
-                + '</a>'
-            + '</li>';
+            return '<li role="presentation" class="result">' +
+                '<a role= "menuitem" href= "' + config.relative_path + '/' + namespace + '" >' +
+                    title +
+                    '<br>' + (results ? ('<small><code>' +
+                        results +
+                    '</small></code>') :
+                '') +
+                '</a>' +
+            '</li>';
         }).join('');
         return html;
     }

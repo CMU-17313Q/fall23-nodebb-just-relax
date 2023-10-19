@@ -48,7 +48,7 @@ define('forum/chats/messages', [
                     title: '[[global:alert.error]]',
                     message: error.message,
                     type: 'danger',
-                    timeout: 10_000,
+                    timeout: 10000,
                 });
             });
         }
@@ -67,8 +67,8 @@ define('forum/chats/messages', [
         const lastSpeaker = Number.parseInt(chatContentElement.find('.chat-message').last().attr('data-uid'), 10);
         const lasttimestamp = Number.parseInt(chatContentElement.find('.chat-message').last().attr('data-timestamp'), 10);
         if (!Array.isArray(data)) {
-            data.newSet = lastSpeaker !== Number.parseInt(data.fromuid, 10)
-                || Number.parseInt(data.timestamp, 10) > Number.parseInt(lasttimestamp, 10) + (1000 * 60 * 3);
+            data.newSet = lastSpeaker !== Number.parseInt(data.fromuid, 10) ||
+                Number.parseInt(data.timestamp, 10) > Number.parseInt(lasttimestamp, 10) + (1000 * 60 * 3);
         }
 
         messages.parseMessage(data, (html) => {
@@ -166,6 +166,7 @@ define('forum/chats/messages', [
     };
 
     function onChatMessageEdited(data) {
+        /* eslint-disable no-restricted-syntax */
         for (const message of data.messages) {
             const self = Number.parseInt(message.fromuid, 10) === Number.parseInt(app.user.uid, 10);
             message.self = self ? 1 : 0;

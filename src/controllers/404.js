@@ -23,9 +23,9 @@ exports.handle404 = function handle404(request, res) {
         res.type('text/javascript').status(404).send('Not Found');
     } else if (
         !res.locals.isAPI && (
-            request.path.startsWith(`${relativePath}/assets/uploads`)
-            || (request.get('accept') && !request.get('accept').includes('text/html'))
-            || request.path === '/favicon.ico'
+            request.path.startsWith(`${relativePath}/assets/uploads`) ||
+            (request.get('accept') && !request.get('accept').includes('text/html')) ||
+            request.path === '/favicon.ico'
         )
     ) {
         meta.errors.log404(request.path || '');

@@ -201,7 +201,7 @@ describe('Messaging Library', () => {
         });
 
         it('should fail to add users to room if user does not exist', async () => {
-            const { statusCode, body } = await callv3API('post', `/chats/${roomId}/users`, { uids: [98_237_498_234] }, 'foo');
+            const { statusCode, body } = await callv3API('post', `/chats/${roomId}/users`, { uids: [98237498234] }, 'foo');
             assert.strictEqual(statusCode, 400);
             assert.strictEqual(body.status.message, await translator.translate('[[error:no-user]]'));
         });
@@ -217,7 +217,7 @@ describe('Messaging Library', () => {
             assert.strictEqual(statusCode, 400);
             assert.strictEqual(body.status.message, await translator.translate('[[error:required-parameters-missing, uids]]'));
 
-            ({ statusCode, body } = await callv3API('delete', `/chats/${roomId}/users`, { uids: [98_237_423] }, 'foo'));
+            ({ statusCode, body } = await callv3API('delete', `/chats/${roomId}/users`, { uids: [98237423] }, 'foo'));
             assert.strictEqual(statusCode, 400);
             assert.strictEqual(body.status.message, await translator.translate('[[error:no-user]]'));
         });
@@ -352,8 +352,8 @@ describe('Messaging Library', () => {
             assert.equal(messageData.content, 'first chat message');
             assert(messageData.fromUser);
             assert(messageData.roomId, roomId);
-            const raw
-                = await util.promisify(socketModules.chats.getRaw)(socketMock, { mid: messageData.mid });
+            const raw =
+                await util.promisify(socketModules.chats.getRaw)(socketMock, { mid: messageData.mid });
             assert.equal(raw, 'first chat message');
         });
 
@@ -407,7 +407,7 @@ describe('Messaging Library', () => {
             assert(roomId);
 
             await callv3API('post', `/chats/${roomId}/users`, { uids: [mocks.users.herp.uid] }, 'foo');
-            await db.sortedSetAdd('users:online', Date.now() - ((meta.config.onlineCutoff * 60_000) + 50_000), mocks.users.herp.uid);
+            await db.sortedSetAdd('users:online', Date.now() - ((meta.config.onlineCutoff * 60000) + 50000), mocks.users.herp.uid);
 
             await callv3API('post', `/chats/${roomId}`, { roomId, message: 'second chat message **bold** text' }, 'foo');
             await sleep(3000);
@@ -542,7 +542,7 @@ describe('Messaging Library', () => {
                 assert.equal(error.message, '[[error:invalid-data]]');
                 socketModules.chats.getRecentChats({ uid: mocks.users.foo.uid }, { after: null }, (error) => {
                     assert.equal(error.message, '[[error:invalid-data]]');
-
+                    /* eslint-disable-next-line max-len */
                     socketModules.chats.getRecentChats({ uid: mocks.users.foo.uid }, { after: 0, uid: null }, (error) => {
                         assert.equal(error.message, '[[error:invalid-data]]');
                         done();
@@ -651,7 +651,7 @@ describe('Messaging Library', () => {
                 assert.equal(error.message, '[[error:invalid-data]]');
                 socketModules.chats.delete({ uid: mocks.users.foo.uid }, { roomId: null }, (error) => {
                     assert.equal(error.message, '[[error:invalid-data]]');
-
+                    /* eslint-disable-next-line max-len */
                     socketModules.chats.delete({ uid: mocks.users.foo.uid }, { roomId: 1, messageId: null }, (error) => {
                         assert.equal(error.message, '[[error:invalid-data]]');
                         done();

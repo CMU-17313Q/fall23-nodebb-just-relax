@@ -314,7 +314,7 @@ const prepareExport = async (request, res) => {
         res.set('ETag', `"${crypto.createHash('md5').update(String(stat.mtimeMs)).digest('hex')}"`);
         res.status(204);
         return true;
-    } catch {
+    } catch (error) {
         res.status(404);
         return false;
     }

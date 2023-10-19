@@ -43,6 +43,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], (ace, al
             const emailPath = $('#email-editor-selector').val();
             let original;
 
+            /* eslint-disable no-restricted-syntax */
             for (const email of ajaxify.data.emails) {
                 if (email.path === emailPath) {
                     original = email.original;
@@ -54,6 +55,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], (ace, al
         });
 
         $('button[data-action="email.revert"]').off('click').on('click', () => {
+            /* eslint-disable no-restricted-syntax */
             for (const email of ajaxify.data.emails) {
                 if (email.path === $('#email-editor-selector').val()) {
                     emailEditor.getSession().setValue(email.original);
@@ -66,6 +68,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], (ace, al
     }
 
     function updateEmailEditor() {
+        /* eslint-disable no-restricted-syntax */
         for (const email of ajaxify.data.emails) {
             if (email.path === $('#email-editor-selector').val()) {
                 emailEditor.getSession().setValue(email.text);

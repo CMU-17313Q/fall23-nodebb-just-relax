@@ -123,29 +123,29 @@ define('admin/manage/group', [
             const action = btnElement.attr('data-action');
 
             switch (action) {
-                case 'toggleOwnership': {
-                    api[isOwner ? 'del' : 'put'](`/groups/${ajaxify.data.group.slug}/ownership/${uid}`, {}).then(() => {
-                        ownerFlagElement.toggleClass('invisible');
+            case 'toggleOwnership': {
+                api[isOwner ? 'del' : 'put'](`/groups/${ajaxify.data.group.slug}/ownership/${uid}`, {}).then(() => {
+                    ownerFlagElement.toggleClass('invisible');
+                }).catch(alerts.error);
+                break;
+            }
+
+            case 'kick': {
+                bootbox.confirm('[[admin/manage/groups:edit.confirm-remove-user]]', (confirm) => {
+                    if (!confirm) {
+                        return;
+                    }
+
+                    api.del('/groups/' + ajaxify.data.group.slug + '/membership/' + uid).then(() => {
+                        userRow.slideUp().remove();
                     }).catch(alerts.error);
-                    break;
-                }
+                });
+                break;
+            }
 
-                case 'kick': {
-                    bootbox.confirm('[[admin/manage/groups:edit.confirm-remove-user]]', (confirm) => {
-                        if (!confirm) {
-                            return;
-                        }
-
-                        api.del('/groups/' + ajaxify.data.group.slug + '/membership/' + uid).then(() => {
-                            userRow.slideUp().remove();
-                        }).catch(alerts.error);
-                    });
-                    break;
-                }
-
-                default: {
-                    break;
-                }
+            default: {
+                break;
+            }
             }
         });
     }

@@ -56,7 +56,7 @@ async function getInstalledPlugins() {
         try {
             fs.accessSync(path.join(paths.nodeModules, pkgName, '.git'));
             return false;
-        } catch {
+        } catch (error) {
             return true;
         }
     });

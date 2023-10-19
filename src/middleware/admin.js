@@ -143,12 +143,12 @@ middleware.checkPrivileges = helpers.try(async (request, res, next) => {
 
     // Reject if they need to re-login (due to ACP timeout), otherwise extend logout timer
     const loginTime = request.session.meta ? request.session.meta.datetime : 0;
-    const adminReloginDuration = meta.config.adminReloginDuration * 60_000;
+    const adminReloginDuration = meta.config.adminReloginDuration * 60000;
     const disabled = meta.config.adminReloginDuration === 0;
     if (disabled || (loginTime && Number.parseInt(loginTime, 10) > Date.now() - adminReloginDuration)) {
         const timeLeft = Number.parseInt(loginTime, 10) - (Date.now() - adminReloginDuration);
-        if (request.session.meta && timeLeft < Math.min(60_000, adminReloginDuration)) {
-            request.session.meta.datetime += Math.min(60_000, adminReloginDuration);
+        if (request.session.meta && timeLeft < Math.min(60000, adminReloginDuration)) {
+            request.session.meta.datetime += Math.min(60000, adminReloginDuration);
         }
 
         return next();

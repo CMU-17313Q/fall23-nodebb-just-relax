@@ -61,9 +61,9 @@ Exclude.test = async function (clientIp) {
     }
 
     if (
-        !Exclude._rules.ipv4.includes(clientIp) // Not explicitly specified in ipv4 list
-        && !Exclude._rules.ipv6.includes(clientIp) // Not explicitly specified in ipv6 list
-        && !Exclude._rules.cidr.some((subnet) => {
+        !Exclude._rules.ipv4.includes(clientIp) && // Not explicitly specified in ipv4 list
+        !Exclude._rules.ipv6.includes(clientIp) && // Not explicitly specified in ipv6 list
+        !Exclude._rules.cidr.some((subnet) => {
             const cidr = ipaddr.parseCIDR(subnet);
             if (addr.kind() !== cidr[0].kind()) {
                 return false;
@@ -117,14 +117,14 @@ Exclude.validate = function (rules) {
         let isRange = false;
         try {
             addr = ipaddr.parse(rule);
-        } catch {
+        } catch (error) {
             // Do nothing
         }
 
         try {
             addr = ipaddr.parseCIDR(rule);
             isRange = true;
-        } catch {
+        } catch (error) {
             // Do nothing
         }
 

@@ -46,7 +46,7 @@ describe('Utility Methods', () => {
     });
 
     it('should work if a number is passed in', (done) => {
-        assert.strictEqual(slugify(12_345), '12345');
+        assert.strictEqual(slugify(12345), '12345');
         done();
     });
 
@@ -223,7 +223,7 @@ describe('Utility Methods', () => {
 
     it('should return passed in value if invalid', (done) => {
         // eslint-disable-next-line no-loss-of-precision
-        const bigInt = -111_111_111_111_111_111;
+        const bigInt = -111111111111111111;
         const result = utils.toISOString(bigInt);
         assert.equal(bigInt, result);
         done();

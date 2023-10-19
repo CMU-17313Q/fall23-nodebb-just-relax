@@ -10,7 +10,7 @@ module.exports = {
         let configJSON;
         try {
             configJSON = require('../../../config.json') || { [process.env.database]: true };
-        } catch {
+        } catch (error) {
             configJSON = { [process.env.database]: true };
         }
 

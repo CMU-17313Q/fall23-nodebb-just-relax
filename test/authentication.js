@@ -477,7 +477,7 @@ describe('authentication', () => {
                     });
                     user.bans.unban(bannedUser.uid, (error_) => {
                         assert.ifError(error_);
-                        const expiry = Date.now() + 10_000;
+                        const expiry = Date.now() + 10000;
                         user.bans.ban(bannedUser.uid, expiry, '', (error_) => {
                             assert.ifError(error_);
                             helpers.loginUser(bannedUser.username, bannedUser.pw, (error, data) => {

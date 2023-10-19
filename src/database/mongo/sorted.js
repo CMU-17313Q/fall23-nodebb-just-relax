@@ -536,7 +536,7 @@ module.exports = function (module) {
         let regex;
         try {
             regex = new RegExp(match);
-        } catch {
+        } catch (error) {
             return [];
         }
 

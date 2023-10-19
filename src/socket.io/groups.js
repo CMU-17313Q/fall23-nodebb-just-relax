@@ -51,9 +51,9 @@ async function isOwner(socket, data) {
         group: groups.getGroupData(data.groupName),
     });
 
-    const isOwner = results.isOwner
-        || results.hasAdminPrivilege
-        || (results.isGlobalModerator && !results.group.system);
+    const isOwner = results.isOwner ||
+        results.hasAdminPrivilege ||
+        (results.isGlobalModerator && !results.group.system);
     if (!isOwner) {
         throw new Error('[[error:no-privileges]]');
     }

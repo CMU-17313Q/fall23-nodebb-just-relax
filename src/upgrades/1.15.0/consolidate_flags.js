@@ -21,15 +21,15 @@ module.exports = {
             await Promise.all(subset.map(async (flagObject) => {
                 const methods = [];
                 switch (flagObject.type) {
-                    case 'post': {
-                        methods.push(posts.setPostField.bind(posts, flagObject.targetId, 'flagId', flagObject.flagId));
-                        break;
-                    }
+                case 'post': {
+                    methods.push(posts.setPostField.bind(posts, flagObject.targetId, 'flagId', flagObject.flagId));
+                    break;
+                }
 
-                    case 'user': {
-                        methods.push(user.setUserField.bind(user, flagObject.targetId, 'flagId', flagObject.flagId));
-                        break;
-                    }
+                case 'user': {
+                    methods.push(user.setUserField.bind(user, flagObject.targetId, 'flagId', flagObject.flagId));
+                    break;
+                }
                 }
 
                 methods.push(

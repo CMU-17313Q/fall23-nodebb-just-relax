@@ -151,7 +151,7 @@ module.exports = function (Plugins) {
         try {
             const stats = await fs.stat(pluginDir);
             return stats.isDirectory();
-        } catch {
+        } catch (error) {
             return false;
         }
     };

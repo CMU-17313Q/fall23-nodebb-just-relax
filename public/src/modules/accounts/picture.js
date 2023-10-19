@@ -119,6 +119,7 @@ define('accounts/picture', [
         }
 
         if (iconBgColor) {
+            /* eslint-disable no-restricted-syntax */
             for (const element of document.querySelectorAll('[component="navbar"] [component="avatar/icon"]')) {
                 element.style['background-color'] = iconBgColor;
             }

@@ -175,7 +175,7 @@ describe('API', async () => {
 
         // Create a sample flag
         const { flagId } = await flags.create('post', 1, unprivUid, 'sample reasons', Date.now()); // Deleted in DELETE /api/v3/flags/1
-        await flags.appendNote(flagId, 1, 'test note', 1_626_446_956_652);
+        await flags.appendNote(flagId, 1, 'test note', 1626446956652);
         await flags.create('post', 2, unprivUid, 'sample reasons', Date.now()); // For testing flag notes (since flag 1 deleted)
 
         // Create a new chat room
@@ -330,9 +330,10 @@ describe('API', async () => {
             for (const _method of Object.keys(context)) {
                 // Only test GET routes in the Read API
                 if (api.info.title === 'NodeBB Read API' && _method !== 'get') {
+                    /* eslint-disable no-continue */
                     continue;
                 }
-
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should have each path parameter defined in its context`, () => {
                     method = _method;
                     if (!context[method].parameters) {
@@ -343,7 +344,7 @@ describe('API', async () => {
                     const schemaParameters = new Set(context[method].parameters.map(parameter => (parameter.in === 'path' ? parameter.name : null)).filter(Boolean));
                     assert(pathParameters.every(parameter => schemaParameters.has(parameter)), `${method.toUpperCase()} ${path} has path parameters specified but not defined`);
                 });
-
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should have examples when parameters are present`, () => {
                     let { parameters } = context[method];
                     let testPath = path;
@@ -355,27 +356,27 @@ describe('API', async () => {
                             assert(parameter.example !== null && parameter.example !== undefined, `${method.toUpperCase()} ${path} has parameters without examples`);
 
                             switch (parameter.in) {
-                                case 'path': {
-                                    testPath = testPath.replace(`{${parameter.name}}`, parameter.example);
-                                    break;
-                                }
+                            case 'path': {
+                                testPath = testPath.replace(`{${parameter.name}}`, parameter.example);
+                                break;
+                            }
 
-                                case 'header': {
-                                    headers[parameter.name] = parameter.example;
-                                    break;
-                                }
+                            case 'header': {
+                                headers[parameter.name] = parameter.example;
+                                break;
+                            }
 
-                                case 'query': {
-                                    qs[parameter.name] = parameter.example;
-                                    break;
-                                }
+                            case 'query': {
+                                qs[parameter.name] = parameter.example;
+                                break;
+                            }
                             }
                         }
                     }
 
                     url = nconf.get('url') + (prefix || '') + testPath;
                 });
-
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should contain a valid request body (if present) with application/json or multipart/form-data type if POST/PUT/DELETE`, () => {
                     if (['post', 'put', 'delete'].includes(method) && context[method].hasOwnProperty('requestBody')) {
                         const failMessage = `${method.toUpperCase()} ${path} has a malformed request body`;
@@ -394,6 +395,7 @@ describe('API', async () => {
                     }
                 });
 
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should not error out when called`, async () => {
                     await setupData();
 
@@ -438,6 +440,7 @@ describe('API', async () => {
                     }
                 });
 
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: response status code should match one of the schema defined responses`, () => {
                     // HACK: allow HTTP 418 I am a teapot, for now   👇
                     assert(context[method].responses.hasOwnProperty('418') || Object.keys(context[method].responses).includes(String(response.statusCode)), `${method.toUpperCase()} ${path} sent back unexpected HTTP status code: ${response.statusCode} ${JSON.stringify(response.body)}`);
@@ -445,6 +448,7 @@ describe('API', async () => {
 
                 // Recursively iterate through schema properties, comparing type
 
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: response body should match schema definition`, async () => {
                     const http302 = context[method].responses['302'];
                     if (http302 && response.statusCode === 302) {
@@ -479,6 +483,7 @@ describe('API', async () => {
                     // TODO someday: text/csv, binary file type checking?
                 });
 
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should successfully re-login if needed`, async () => {
                     const reloginPaths = ['PUT /users/{uid}/password', 'DELETE /users/{uid}/sessions/{uuid}'];
                     if (reloginPaths.includes(`${method.toUpperCase()} ${path}`)) {
@@ -496,6 +501,7 @@ describe('API', async () => {
                     }
                 });
 
+                /* eslint-disable-next-line no-loop-func */
                 it(`${_method.toUpperCase()} ${path}: should back out of a registration interstitial if needed`, async () => {
                     const affectedPaths = ['GET /api/user/{userslug}/edit/email'];
                     if (affectedPaths.includes(`${method.toUpperCase()} ${path}`)) {
@@ -529,7 +535,7 @@ describe('API', async () => {
                 } else {
                     try {
                         required = required.concat(object.required ? object.required : Object.keys(object.properties));
-                    } catch {
+                    } catch (error) {
                         assert.fail(`Syntax error re: allOf, perhaps you allOf'd an array? (path: ${method} ${path}, context: ${context})`);
                     }
                 }
@@ -555,6 +561,7 @@ describe('API', async () => {
 
                 // Don't proceed with type-check if the value could possibly be unset (nullable: true, in spec)
                 if (response[prop] === null && schema[prop].nullable === true) {
+                    /* eslint-disable no-continue */
                     continue;
                 }
 
@@ -562,43 +569,43 @@ describe('API', async () => {
                 assert(response[prop] !== null, `"${prop}" was null, but schema does not specify it to be a nullable property (path: ${method} ${path}, context: ${context})`);
 
                 switch (schema[prop].type) {
-                    case 'string': {
-                        assert.strictEqual(typeof response[prop], 'string', `"${prop}" was expected to be a string, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
-                        break;
-                    }
+                case 'string': {
+                    assert.strictEqual(typeof response[prop], 'string', `"${prop}" was expected to be a string, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
+                    break;
+                }
 
-                    case 'boolean': {
-                        assert.strictEqual(typeof response[prop], 'boolean', `"${prop}" was expected to be a boolean, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
-                        break;
-                    }
+                case 'boolean': {
+                    assert.strictEqual(typeof response[prop], 'boolean', `"${prop}" was expected to be a boolean, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
+                    break;
+                }
 
-                    case 'object': {
-                        assert.strictEqual(typeof response[prop], 'object', `"${prop}" was expected to be an object, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
-                        compare(schema[prop], response[prop], method, path, context ? [context, prop].join('.') : prop);
-                        break;
-                    }
+                case 'object': {
+                    assert.strictEqual(typeof response[prop], 'object', `"${prop}" was expected to be an object, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
+                    compare(schema[prop], response[prop], method, path, context ? [context, prop].join('.') : prop);
+                    break;
+                }
 
-                    case 'array': {
-                        assert.strictEqual(Array.isArray(response[prop]), true, `"${prop}" was expected to be an array, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
+                case 'array': {
+                    assert.strictEqual(Array.isArray(response[prop]), true, `"${prop}" was expected to be an array, but was ${typeof response[prop]} instead (path: ${method} ${path}, context: ${context})`);
 
-                        if (schema[prop].items) {
+                    if (schema[prop].items) {
                         // Ensure the array items have a schema defined
-                            assert(schema[prop].items.type || schema[prop].items.allOf, `"${prop}" is defined to be an array, but its items have no schema defined (path: ${method} ${path}, context: ${context})`);
+                        assert(schema[prop].items.type || schema[prop].items.allOf, `"${prop}" is defined to be an array, but its items have no schema defined (path: ${method} ${path}, context: ${context})`);
 
-                            // Compare types
-                            if (schema[prop].items.type === 'object' || Array.isArray(schema[prop].items.allOf)) {
-                                for (const res of response[prop]) {
-                                    compare(schema[prop].items, res, method, path, context ? [context, prop].join('.') : prop);
-                                }
-                            } else if (response[prop].length > 0) { // For now
-                                for (const item of response[prop]) {
-                                    assert.strictEqual(typeof item, schema[prop].items.type, `"${prop}" should have ${schema[prop].items.type} items, but found ${typeof items} instead (path: ${method} ${path}, context: ${context})`);
-                                }
+                        // Compare types
+                        if (schema[prop].items.type === 'object' || Array.isArray(schema[prop].items.allOf)) {
+                            for (const res of response[prop]) {
+                                compare(schema[prop].items, res, method, path, context ? [context, prop].join('.') : prop);
                             }
-
-                            break;
+                        } else if (response[prop].length > 0) { // For now
+                            for (const item of response[prop]) {
+                                assert.strictEqual(typeof item, schema[prop].items.type, `"${prop}" should have ${schema[prop].items.type} items, but found ${typeof items} instead (path: ${method} ${path}, context: ${context})`);
+                            }
                         }
+
+                        break;
                     }
+                }
                 }
             }
         }
@@ -606,6 +613,7 @@ describe('API', async () => {
         // Compare the response to the schema
         for (const prop of Object.keys(response)) {
             if (additionalProperties) { // All bets are off
+                /* eslint-disable no-continue */
                 continue;
             }
 

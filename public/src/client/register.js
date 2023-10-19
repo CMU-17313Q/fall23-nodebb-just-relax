@@ -116,8 +116,8 @@ define('forum/register', [
 
         const username_notify = $('#username-notify');
         const userslug = slugify(username);
-        if (username.length < ajaxify.data.minimumUsernameLength
-            || userslug.length < ajaxify.data.minimumUsernameLength) {
+        if (username.length < ajaxify.data.minimumUsernameLength ||
+            userslug.length < ajaxify.data.minimumUsernameLength) {
             showError(username_notify, '[[error:username-too-short]]');
         } else if (username.length > ajaxify.data.maximumUsernameLength) {
             showError(username_notify, '[[error:username-too-long]]');

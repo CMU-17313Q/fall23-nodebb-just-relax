@@ -66,9 +66,9 @@ async function getWatchStates(uids, tid, cid) {
 }
 
 function filterTidCidIgnorers(uids, watchStates) {
-    return uids.filter((uid, index) => watchStates.topicFollowed[index]
-        || (!watchStates.topicIgnored[index]
-            && watchStates.categoryWatchStates[index] !== categories.watchStates.ignoring));
+    return uids.filter((uid, index) => watchStates.topicFollowed[index] ||
+        (!watchStates.topicIgnored[index] &&
+            watchStates.categoryWatchStates[index] !== categories.watchStates.ignoring));
 }
 
 SocketHelpers.sendNotificationToPostOwner = async function (pid, fromuid, command, notification) {

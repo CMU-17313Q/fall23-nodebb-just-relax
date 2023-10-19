@@ -17,10 +17,10 @@ module.exports = function (SocketTopics) {
             categories.getTagWhitelist([data.cid]),
             user.isPrivileged(socket.uid),
         ]);
-        return isPrivileged
-            || (
-                !systemTags.includes(data.tag)
-                && (tagInclude[0].length === 0 || tagInclude[0].includes(data.tag))
+        return isPrivileged ||
+            (
+                !systemTags.includes(data.tag) &&
+                (tagInclude[0].length === 0 || tagInclude[0].includes(data.tag))
             );
     };
 

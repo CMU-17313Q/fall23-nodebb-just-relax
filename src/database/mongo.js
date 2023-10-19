@@ -31,7 +31,7 @@ mongoModule.questions = [
     {
         name: 'mongo:port',
         description: 'Host port of your MongoDB instance',
-        default: nconf.get('mongo:port') || 27_017,
+        default: nconf.get('mongo:port') || 27017,
         ask: isUriNotSpecified,
     },
     {

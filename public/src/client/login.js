@@ -49,9 +49,9 @@ define('forum/login', ['hooks', 'translator', 'jquery-form'], (hooks, translator
                         if (data.status === 403 && data.responseText === 'Forbidden') {
                             window.location.href = config.relative_path + '/login?error=csrf-invalid';
                         } else if (errorInfo && errorInfo.hasOwnProperty('banned_until')) {
-                            message = errorInfo.banned_until
-                                ? translator.compile('error:user-banned-reason-until', (new Date(errorInfo.banned_until).toLocaleString()), errorInfo.reason)
-                                : '[[error:user-banned-reason, ' + errorInfo.reason + ']]';
+                            message = errorInfo.banned_until ?
+                                translator.compile('error:user-banned-reason-until', (new Date(errorInfo.banned_until).toLocaleString()), errorInfo.reason) :
+                                '[[error:user-banned-reason, ' + errorInfo.reason + ']]';
                         }
 
                         errorElement.find('p').translateText(message);
