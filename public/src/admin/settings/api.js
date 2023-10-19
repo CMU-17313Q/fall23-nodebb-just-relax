@@ -22,7 +22,7 @@ define('admin/settings/api', ['settings', 'alerts', 'hooks'], (settings, alerts,
         settings.save('core.api', $('.core-api-settings'), () => {
             alerts.alert({
                 type: 'success',
-                alert_id: 'core.api-saved',
+                alertId: 'core.api-saved',
                 title: 'Settings Saved',
                 timeout: 5000,
             });
