@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Check that environment variables have been defined
 if [[ -z "${REDIS_HOST+x}" ]]; then
   # var is not defined
