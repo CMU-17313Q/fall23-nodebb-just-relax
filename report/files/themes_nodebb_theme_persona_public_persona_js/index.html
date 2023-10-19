@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - themes/nodebb-theme-persona/public/persona.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>themes/nodebb-theme-persona/public/persona.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">71.22</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">486</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">43.38</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">5.71</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&#039;use strict&#039;;
+
+$(document).ready(function () {
+    setupNProgress();
+    setupTaskbar();
+    setupEditedByIcon();
+    setupMobileMenu();
+    setupQuickReply();
+    configureNavbarHiding();
+
+    $(window).on(&#039;resize&#039;, utils.debounce(configureNavbarHiding, 200));
+    $(window).on(&#039;resize&#039;, updatePanelOffset);
+
+    var lastBSEnv = &#039;&#039;;
+    function configureNavbarHiding() {
+        if (!$.fn.autoHidingNavbar) {
+            return;
+        }
+
+        require([&#039;hooks&#039;, &#039;storage&#039;], (hooks, Storage) =&gt; {
+            let preference = [&#039;xs&#039;, &#039;sm&#039;];
+
+            try {
+                preference = JSON.parse(Storage.getItem(&#039;persona:navbar:autohide&#039;)) || preference;
+            } catch (e) {
+                console.warn(&#039;[persona/settings] Unable to parse value for navbar autohiding&#039;);
+            }
+            var env = utils.findBootstrapEnvironment();
+            // if env didn&#039;t change don&#039;t destroy and recreate
+            if (env === lastBSEnv) {
+                return;
+            }
+            lastBSEnv = env;
+            var navbarEl = $(&#039;.navbar-fixed-top&#039;);
+            navbarEl.autoHidingNavbar(&#039;destroy&#039;).removeData(&#039;plugin_autoHidingNavbar&#039;);
+            navbarEl.css(&#039;top&#039;, &#039;&#039;);
+
+            hooks
+                .on(&#039;filter:navigator.scroll&#039;, (data) =&gt; {
+                    navbarEl.autoHidingNavbar(&#039;setDisableAutohide&#039;, true);
+                    return data;
+                })
+                .on(&#039;action:navigator.scrolled&#039;, () =&gt; {
+                    navbarEl.autoHidingNavbar(&#039;setDisableAutohide&#039;, false);
+                });
+
+            hooks.fire(&#039;filter:persona.configureNavbarHiding&#039;, {
+                resizeEnvs: preference,
+            }).then(({ resizeEnvs }) =&gt; {
+                if (resizeEnvs.includes(env)) {
+                    navbarEl.autoHidingNavbar({
+                        showOnBottom: false,
+                    });
+                }
+
+                function fixTopCss(topValue) {
+                    if (ajaxify.data.template.topic) {
+                        $(&#039;.topic .topic-header&#039;).css({ top: topValue });
+                    } else {
+                        var topicListHeader = $(&#039;.topic-list-header&#039;);
+                        if (topicListHeader.length) {
+                            topicListHeader.css({ top: topValue });
+                        }
+                    }
+                }
+
+                navbarEl.off(&#039;show.autoHidingNavbar&#039;)
+                    .on(&#039;show.autoHidingNavbar&#039;, function () {
+                        fixTopCss(&#039;&#039;);
+                    });
+
+                navbarEl.off(&#039;hide.autoHidingNavbar&#039;)
+                    .on(&#039;hide.autoHidingNavbar&#039;, function () {
+                        fixTopCss(&#039;0px&#039;);
+                    });
+            });
+        });
+    }
+
+    function setupNProgress() {
+        require([&#039;nprogress&#039;], function (NProgress) {
+            if (typeof NProgress === &#039;undefined&#039;) {
+                return;
+            }
+
+            $(window).on(&#039;action:ajaxify.start&#039;, function () {
+                NProgress.set(0.7);
+            });
+
+            $(window).on(&#039;action:ajaxify.end&#039;, function (ev, data) {
+                NProgress.done();
+                setupHoverCards();
+
+                if (data.url &amp;&amp; data.url.match(&#039;user/&#039;)) {
+                    setupFavouriteButtonOnProfile();
+                }
+            });
+        });
+    }
+
+    function setupTaskbar() {
+        require([&#039;hooks&#039;], (hooks) =&gt; {
+            hooks.on(&#039;filter:taskbar.push&#039;, (data) =&gt; {
+                data.options.className = &#039;taskbar-&#039; + data.module;
+                if (data.module === &#039;composer&#039;) {
+                    data.options.icon = &#039;fa-commenting-o&#039;;
+                } else if (data.module === &#039;chat&#039;) {
+                    if (data.element.length &amp;&amp; !data.element.hasClass(&#039;active&#039;)) {
+                        increaseChatCount(data.element);
+                    }
+                }
+            });
+            hooks.on(&#039;action:taskbar.pushed&#039;, (data) =&gt; {
+                if (data.module === &#039;chat&#039;) {
+                    createChatIcon(data);
+                    var elData = data.element.data();
+                    if (elData &amp;&amp; elData.options &amp;&amp; !elData.options.isSelf) {
+                        increaseChatCount(data.element);
+                    }
+                }
+            });
+        });
+
+        socket.on(&#039;event:chats.markedAsRead&#039;, function (data) {
+            $(&#039;#taskbar [data-roomid=&quot;&#039; + data.roomId + &#039;&quot;]&#039;)
+                .removeClass(&#039;new&#039;)
+                .attr(&#039;data-content&#039;, 0);
+        });
+
+        function createChatIcon(data) {
+            $.getJSON(config.relative_path + &#039;/api/user/&#039; + app.user.userslug + &#039;/chats/&#039; + data.options.roomId, function (chatObj) {
+                var el = $(&#039;#taskbar [data-uuid=&quot;&#039; + data.uuid + &#039;&quot;] a&#039;);
+                el.parent(&#039;[data-uuid]&#039;).attr(&#039;data-roomId&#039;, data.options.roomId);
+
+                if (chatObj.users.length === 1) {
+                    var user = chatObj.users[0];
+                    el.find(&#039;i&#039;).remove();
+
+                    if (user.picture) {
+                        el.css(&#039;background-image&#039;, &#039;url(&#039; + user.picture + &#039;)&#039;);
+                        el.css(&#039;background-size&#039;, &#039;cover&#039;);
+                    } else {
+                        el.css(&#039;background-color&#039;, user[&#039;icon:bgColor&#039;])
+                            .text(user[&#039;icon:text&#039;])
+                            .addClass(&#039;user-icon&#039;);
+                    }
+                }
+            });
+        }
+
+        function increaseChatCount(el) {
+            var count = (parseInt($(el).attr(&#039;data-content&#039;), 10) || 0) + 1;
+            $(el).attr(&#039;data-content&#039;, count);
+        }
+    }
+
+    function setupEditedByIcon() {
+        function activateEditedTooltips() {
+            $(&#039;[data-pid] [component=&quot;post/editor&quot;]&#039;).each(function () {
+                var el = $(this);
+                var icon;
+
+                if (!el.attr(&#039;data-editor&#039;)) {
+                    return;
+                }
+
+                icon = el.closest(&#039;[data-pid]&#039;).find(&#039;.edit-icon&#039;).first();
+                icon.prop(&#039;title&#039;, el.text()).tooltip(&#039;fixTitle&#039;).removeClass(&#039;hidden&#039;);
+            });
+        }
+
+        $(window).on(&#039;action:posts.edited&#039;, function (ev, data) {
+            var parent = $(&#039;[data-pid=&quot;&#039; + data.post.pid + &#039;&quot;]&#039;);
+            var icon = parent.find(&#039;.edit-icon&#039;).filter(function (index, el) {
+                return parseInt($(el).closest(&#039;[data-pid]&#039;).attr(&#039;data-pid&#039;), 10) === parseInt(data.post.pid, 10);
+            });
+            var el = parent.find(&#039;[component=&quot;post/editor&quot;]&#039;).first();
+            icon.prop(&#039;title&#039;, el.text()).tooltip(&#039;fixTitle&#039;).removeClass(&#039;hidden&#039;);
+        });
+
+        $(window).on(&#039;action:topic.loaded&#039;, activateEditedTooltips);
+        $(window).on(&#039;action:posts.loaded&#039;, activateEditedTooltips);
+    }
+
+    function setupMobileMenu() {
+        if (!window.addEventListener) {
+            return;
+        }
+
+        require([&#039;pulling/build/pulling-drawer&#039;, &#039;storage&#039;, &#039;alerts&#039;, &#039;search&#039;], function (Pulling, Storage, alerts, search) {
+            if (!Pulling) {
+                return;
+            }
+
+            // initialization
+
+            var chatMenuVisible = app.user &amp;&amp; parseInt(app.user.uid, 10);
+            var swapped = !!Storage.getItem(&#039;persona:menus:legacy-layout&#039;);
+            var margin = window.innerWidth;
+
+            if (swapped) {
+                $(&#039;#mobile-menu&#039;).removeClass(&#039;pull-left&#039;);
+                $(&#039;#mobile-chats&#039;).addClass(&#039;pull-left&#039;);
+            }
+
+            if (document.documentElement.getAttribute(&#039;data-dir&#039;) === &#039;rtl&#039;) {
+                swapped = !swapped;
+            }
+
+            var navSlideout = Pulling.create({
+                panel: document.getElementById(&#039;panel&#039;),
+                menu: document.getElementById(&#039;menu&#039;),
+                width: 256,
+                margin: margin,
+                side: swapped ? &#039;right&#039; : &#039;left&#039;,
+            });
+            $(&#039;#menu&#039;).removeClass(&#039;hidden&#039;);
+
+            var chatsSlideout;
+            if (chatMenuVisible) {
+                chatsSlideout = Pulling.create({
+                    panel: document.getElementById(&#039;panel&#039;),
+                    menu: document.getElementById(&#039;chats-menu&#039;),
+                    width: 256,
+                    margin: margin,
+                    side: swapped ? &#039;left&#039; : &#039;right&#039;,
+                });
+                $(&#039;#chats-menu&#039;).removeClass(&#039;hidden&#039;);
+            }
+
+            // all menus
+
+            function closeOnClick() {
+                navSlideout.close();
+                if (chatsSlideout) { chatsSlideout.close(); }
+            }
+
+            function onBeforeOpen() {
+                document.documentElement.classList.add(&#039;slideout-open&#039;);
+            }
+
+            function onClose() {
+                $(&#039;#mobile-menu&#039;).blur();
+                document.documentElement.classList.remove(&#039;slideout-open&#039;);
+                $(&#039;#panel&#039;).off(&#039;click&#039;, closeOnClick);
+            }
+
+            $(window).on(&#039;resize action:ajaxify.start&#039;, function () {
+                navSlideout.close();
+                if (chatsSlideout) {
+                    chatsSlideout.close();
+                }
+            });
+
+            navSlideout
+                .ignore(&#039;code, code *, .preventSlideout, .preventSlideout *&#039;)
+                .on(&#039;closed&#039;, onClose)
+                .on(&#039;beforeopen&#039;, onBeforeOpen)
+                .on(&#039;opened&#039;, function () {
+                    $(&#039;#panel&#039;).one(&#039;click&#039;, closeOnClick);
+                });
+
+            if (chatMenuVisible) {
+                chatsSlideout
+                    .ignore(&#039;code, code *, .preventSlideout, .preventSlideout *&#039;)
+                    .on(&#039;closed&#039;, onClose)
+                    .on(&#039;beforeopen&#039;, onBeforeOpen)
+                    .on(&#039;opened&#039;, function () {
+                        $(&#039;#panel&#039;).one(&#039;click&#039;, closeOnClick);
+                    });
+            }
+
+            // left slideout navigation menu
+
+            $(&#039;#mobile-menu&#039;).on(&#039;click&#039;, function () {
+                navSlideout.enable().toggle();
+            });
+
+            if (chatMenuVisible) {
+                navSlideout.on(&#039;beforeopen&#039;, function () {
+                    chatsSlideout.close();
+                    chatsSlideout.disable();
+                }).on(&#039;closed&#039;, function () {
+                    chatsSlideout.enable();
+                });
+            }
+
+            $(&#039;#menu [data-section=&quot;navigation&quot;] ul&#039;).html(
+                $(&#039;#main-nav&#039;).html() +
+                ($(&#039;#logged-out-menu&#039;).html() || &#039;&#039;)
+            );
+
+            $(&#039;#user-control-list&#039;).children().clone(true, true).appendTo($(&#039;#chats-menu [data-section=&quot;profile&quot;] ul&#039;));
+
+            socket.on(&#039;event:user_status_change&#039;, function (data) {
+                if (parseInt(data.uid, 10) === app.user.uid) {
+                    app.updateUserStatus($(&#039;#chats-menu [component=&quot;user/status&quot;]&#039;), data.status);
+                    navSlideout.close();
+                }
+            });
+
+            // right slideout notifications &amp; chats menu
+
+            function loadNotificationsAndChats() {
+                require([&#039;notifications&#039;, &#039;chat&#039;], function (notifications, chat) {
+                    const notifList = $(&#039;#chats-menu [data-section=&quot;notifications&quot;] ul&#039;);
+                    notifications.loadNotifications(notifList, function () {
+                        notifList.find(&#039;.deco-none&#039;).removeClass(&#039;deco-none&#039;);
+                        chat.loadChatsDropdown($(&#039;#chats-menu .chat-list&#039;));
+                    });
+                });
+            }
+
+            if (chatMenuVisible) {
+                $(&#039;#mobile-chats&#039;).removeClass(&#039;hidden&#039;).on(&#039;click&#039;, function () {
+                    navSlideout.close();
+                    chatsSlideout.enable().toggle();
+                });
+                $(&#039;#chats-menu&#039;).on(&#039;click&#039;, &#039;li[data-roomid]&#039;, function () {
+                    chatsSlideout.close();
+                });
+
+                chatsSlideout
+                    .on(&#039;opened&#039;, loadNotificationsAndChats)
+                    .on(&#039;beforeopen&#039;, function () {
+                        navSlideout.close().disable();
+                    })
+                    .on(&#039;closed&#039;, function () {
+                        navSlideout.enable();
+                    });
+            }
+
+            const searchInputEl = $(&#039;.navbar-header .navbar-search input[name=&quot;term&quot;]&#039;);
+            const searchButton = $(&#039;.navbar-header .navbar-search button[type=&quot;button&quot;]&#039;);
+            searchButton.off(&#039;click&#039;).on(&#039;click&#039;, function () {
+                if (!config.loggedIn &amp;&amp; !app.user.privileges[&#039;search:content&#039;]) {
+                    alerts.alert({
+                        message: &#039;[[error:search-requires-login]]&#039;,
+                        timeout: 3000,
+                    });
+                    ajaxify.go(&#039;login&#039;);
+                    return false;
+                }
+
+                searchButton.addClass(&#039;hidden&#039;);
+                searchInputEl.removeClass(&#039;hidden&#039;).focus();
+                return false;
+            });
+            searchInputEl.on(&#039;blur&#039;, function () {
+                searchInputEl.addClass(&#039;hidden&#039;);
+                searchButton.removeClass(&#039;hidden&#039;);
+            });
+            search.enableQuickSearch({
+                searchElements: {
+                    inputEl: searchInputEl,
+                    resultEl: $(&#039;.navbar-header .navbar-search .quick-search-container&#039;),
+                },
+                searchOptions: {
+                    in: config.searchDefaultInQuick,
+                },
+            });
+        });
+    }
+
+    function setupHoverCards() {
+        require([&#039;components&#039;], function (components) {
+            components.get(&#039;topic&#039;)
+                .on(&#039;click&#039;, &#039;[component=&quot;user/picture&quot;],[component=&quot;user/status&quot;]&#039;, generateUserCard);
+        });
+
+        $(window).on(&#039;action:posts.loading&#039;, function (ev, data) {
+            for (var i = 0, ii = data.posts.length; i &lt; ii; i++) {
+                (ajaxify.data.topics || ajaxify.data.posts)[data.posts[i].index] = data.posts[i];
+            }
+        });
+    }
+
+    function generateUserCard(ev) {
+        var avatar = $(this);
+        var uid = avatar.parents(&#039;[data-uid]&#039;).attr(&#039;data-uid&#039;);
+        var data = (ajaxify.data.topics || ajaxify.data.posts);
+
+        for (var i = 0, ii = data.length; i &lt; ii; i++) {
+            if (parseInt(data[i].uid, 10) === parseInt(uid, 10)) {
+                data = data[i].user;
+                break;
+            }
+        }
+
+        $(&#039;.persona-usercard&#039;).remove();
+
+        if (parseInt(data.uid, 10) === 0) {
+            return false;
+        }
+
+        socket.emit(&#039;user.isFollowing&#039;, { uid: data.uid }, function (err, isFollowing) {
+            if (err) {
+                return err;
+            }
+
+            app.parseAndTranslate(&#039;modules/usercard&#039;, data, function (html) {
+                var card = $(html);
+                avatar.parents(&#039;a&#039;).after(card.hide());
+
+                if (parseInt(app.user.uid, 10) === parseInt(data.uid, 10) || !app.user.uid) {
+                    card.find(&#039;.btn-morph&#039;).hide();
+                } else {
+                    setupFavouriteMorph(card, data.uid, data.username);
+
+                    if (isFollowing) {
+                        $(&#039;.btn-morph&#039;).addClass(&#039;heart&#039;);
+                    } else {
+                        $(&#039;.btn-morph&#039;).addClass(&#039;plus&#039;);
+                    }
+                }
+
+                utils.makeNumbersHumanReadable(card.find(&#039;.human-readable-number&#039;));
+                setupCardRemoval(card);
+                card.fadeIn();
+            });
+        });
+
+        ev.preventDefault();
+        return false;
+    }
+
+    function setupFavouriteButtonOnProfile() {
+        setupFavouriteMorph($(&#039;[component=&quot;account/cover&quot;]&#039;), ajaxify.data.uid, ajaxify.data.username);
+    }
+
+    function setupCardRemoval(card) {
+        function removeCard(ev) {
+            if ($(ev.target).closest(&#039;.persona-usercard&#039;).length === 0) {
+                card.fadeOut(function () {
+                    card.remove();
+                });
+
+                $(document).off(&#039;click&#039;, removeCard);
+            }
+        }
+
+        $(document).on(&#039;click&#039;, removeCard);
+    }
+
+    function setupFavouriteMorph(parent, uid, username) {
+        require([&#039;api&#039;, &#039;alerts&#039;], function (api, alerts) {
+            parent.find(&#039;.btn-morph&#039;).click(function (ev) {
+                var type = $(this).hasClass(&#039;plus&#039;) ? &#039;follow&#039; : &#039;unfollow&#039;;
+                var method = $(this).hasClass(&#039;plus&#039;) ? &#039;put&#039; : &#039;del&#039;;
+
+                api[method](&#039;/users/&#039; + uid + &#039;/follow&#039;).then(() =&gt; {
+                    alerts.success(&#039;[[global:alert.&#039; + type + &#039;, &#039; + username + &#039;]]&#039;);
+                });
+
+                $(this).toggleClass(&#039;plus&#039;).toggleClass(&#039;heart&#039;);
+                $(this).translateAttr(&#039;title&#039;, type === &#039;follow&#039; ? &#039;[[global:unfollow]]&#039; : &#039;[[global:follow]]&#039;);
+
+                if ($(this).find(&#039;b.drop&#039;).length === 0) {
+                    $(this).prepend(&#039;&lt;b class=&quot;drop&quot;&gt;&lt;/b&gt;&#039;);
+                }
+
+                var drop = $(this).find(&#039;b.drop&#039;).removeClass(&#039;animate&#039;);
+                var x = ev.pageX - (drop.width() / 2) - $(this).offset().left;
+                var y = ev.pageY - (drop.height() / 2) - $(this).offset().top;
+
+                drop.css({ top: y + &#039;px&#039;, left: x + &#039;px&#039; }).addClass(&#039;animate&#039;);
+            });
+        });
+    }
+
+    function setupQuickReply() {
+        $(window).on(&#039;action:ajaxify.end&#039;, function (ev, data) {
+            if (data.url &amp;&amp; data.url.match(&#039;^topic/&#039;)) {
+                if (config.enableQuickReply) {
+                    require([&#039;persona/quickreply&#039;], function (quickreply) {
+                        if (quickreply) {
+                            quickreply.init();
+                        }
+                    });
+                }
+
+                $(&#039;.topic-main-buttons [title]&#039;).tooltip();
+            }
+        });
+    }
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

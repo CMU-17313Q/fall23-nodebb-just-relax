@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - build/public/3216.087253d8b954621f9993.min.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>build/public/3216.087253d8b954621f9993.min.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">76.41</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">1</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">80.02</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">9.12</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&quot;use strict&quot;;(self.webpackChunknodebb=self.webpackChunknodebb||[]).push([[3216,3034],{93216:(g,x,c)=&gt;{var A,p;A=[c(7237),c(27145),c(32230),c(85233),c(31369),c(7927),c(74344)],p=function(E,f,h,d,C,l,I){const o={};let n=!1;o.openChat=function(t,e){if(!app.user.uid)return l.error(&quot;[[error:not-logged-in]]&quot;);function a(s){o.load(s.attr(&quot;data-uuid&quot;)),o.center(s),o.focusInput(s)}o.modalExists(t)?a(o.getModal(t)):I.get(`/chats/${t}`,{uid:e||app.user.uid}).then(s=&gt;{s.users=s.users.filter(function(u){return u&amp;&amp;parseInt(u.uid,10)!==parseInt(app.user.uid,10)}),s.uid=e||app.user.uid,s.isSelf=!0,o.createModal(s,a)}).catch(l.error)},o.newChat=function(t,e){function a(){I.post(&quot;/chats&quot;,{uids:[t]}).then(({roomId:s})=&gt;{ajaxify.data.template.chats?ajaxify.go(&quot;chats/&quot;+s):o.openChat(s),e(null,s)}).catch(l.error)}if(e=e||function(){},!app.user.uid)return l.error(&quot;[[error:not-logged-in]]&quot;);if(parseInt(t,10)===parseInt(app.user.uid,10))return l.error(&quot;[[error:cant-chat-with-yourself]]&quot;);socket.emit(&quot;modules.chats.isDnD&quot;,t,function(s,u){if(s)return l.error(s);if(!u)return a();C.confirm(&quot;[[modules:chat.confirm-chat-with-dnd-user]]&quot;,function(m){m&amp;&amp;a()})})},o.loadChatsDropdown=function(t){socket.emit(&quot;modules.chats.getRecentChats&quot;,{uid:app.user.uid,after:0},function(e,a){if(e)return l.error(e);const s=a.rooms.filter(function(u){return u.teaser});h.toggleTimeagoShorthand(function(){for(let u=0;u&lt;s.length;u+=1)s[u].teaser.timeago=$.timeago(new Date(parseInt(s[u].teaser.timestamp,10)));h.toggleTimeagoShorthand(),app.parseAndTranslate(&quot;partials/chats/dropdown&quot;,{rooms:s},function(u){t.find(&quot;*&quot;).not(&quot;.navigation-link&quot;).remove(),t.prepend(u),app.createUserTooltips(t,&quot;right&quot;),t.off(&quot;click&quot;).on(&quot;click&quot;,&quot;[data-roomid]&quot;,function(m){if($(m.target).parents(&quot;.user-link&quot;).length)return;const i=$(this).attr(&quot;data-roomid&quot;);ajaxify.currentPage.match(/^chats\//)?ajaxify.go(&quot;user/&quot;+app.user.userslug+&quot;/chats/&quot;+i):o.openChat(i)}),$(&#039;[component=&quot;chats/mark-all-read&quot;]&#039;).off(&quot;click&quot;).on(&quot;click&quot;,function(){socket.emit(&quot;modules.chats.markAllRead&quot;,function(m){if(m)return l.error(m)})})})})})},o.onChatMessageReceived=function(t){const e=t.self===1;t.message.self=t.self,n=t.self===0,o.modalExists(t.roomId)?r(t):ajaxify.data.template.chats||I.get(`/chats/${t.roomId}`,{}).then(a=&gt;{a.users=a.users.filter(function(s){return s&amp;&amp;parseInt(s.uid,10)!==parseInt(app.user.uid,10)}),a.silent=!0,a.uid=app.user.uid,a.isSelf=e,o.createModal(a)}).catch(l.error)};function r(t){const e=o.getModal(t.roomId),a=t.message.fromUser.username,s=t.self===1;c.e(6862).then(function(){var u=[c(46862)];(function(m){e.find(&#039;[data-mid=&quot;&#039;+t.message.messageId+&#039;&quot;]&#039;).length||m.appendChatMessage(e.find(&quot;.chat-content&quot;),t.message),e.is(&quot;:visible&quot;)?(f.updateActive(e.attr(&quot;data-uuid&quot;)),m.isAtBottom(e.find(&quot;.chat-content&quot;))&amp;&amp;m.scrollToBottom(e.find(&quot;.chat-content&quot;))):ajaxify.data.template.chats||o.toggleNew(e.attr(&quot;data-uuid&quot;),!0,!0),!s&amp;&amp;(!e.is(&quot;:visible&quot;)||!app.isFocused)&amp;&amp;f.push(&quot;chat&quot;,e.attr(&quot;data-uuid&quot;),{title:&quot;[[modules:chat.chatting_with]] &quot;+(t.roomName||a),touid:t.message.fromUser.uid,roomId:t.roomId,isSelf:!1})}).apply(null,u)}).catch(c.oe)}return o.onUserStatusChange=function(t){const e=o.getModal(t.uid);app.updateUserStatus(e.find(&#039;[component=&quot;user/status&quot;]&#039;),t.status)},o.onRoomRename=function(t){const e=$(&quot;&lt;div&gt;&lt;/div&gt;&quot;).html(t.newName).text(),a=o.getModal(t.roomId);a.find(&#039;[component=&quot;chat/room/name&quot;]&#039;).text(e),f.update(&quot;chat&quot;,a.attr(&quot;data-uuid&quot;),{title:e}),d.fire(&quot;action:chat.renamed&quot;,Object.assign(t,{modal:a}))},o.getModal=function(t){return $(&quot;#chat-modal-&quot;+t)},o.modalExists=function(t){return $(&quot;#chat-modal-&quot;+t).length!==0},o.createModal=function(t,e){e=e||function(){},Promise.all([c.e(2441),c.e(4074),c.e(524),c.e(9789)]).then(function(){var a=[c(75203),c(30524),c(46862)];(function(s,u,m){app.parseAndTranslate(&quot;chat&quot;,t,function(i){if(o.modalExists(t.roomId))return e(o.getModal(t.roomId));const y=utils.generateUUID();let R=!1;i.attr(&quot;id&quot;,&quot;chat-modal-&quot;+t.roomId),i.attr(&quot;data-roomid&quot;,t.roomId),i.attr(&quot;intervalId&quot;,0),i.attr(&quot;data-uuid&quot;,y),i.css(&quot;position&quot;,&quot;fixed&quot;),i.appendTo($(&quot;body&quot;)),i.find(&quot;.timeago&quot;).timeago(),o.center(i),app.loadJQueryUI(function(){i.find(&quot;.modal-content&quot;).resizable({handles:&quot;n, e, s, w, se&quot;,minHeight:250,minWidth:400}),i.find(&quot;.modal-content&quot;).on(&quot;resize&quot;,function(v,B){B.originalSize.height!==B.size.height&amp;&amp;i.find(&quot;.modal-body&quot;).css(&quot;height&quot;,o.calculateChatListHeight(i))}),i.draggable({start:function(){f.updateActive(y)},stop:function(){o.focusInput(i)},distance:10,handle:&quot;.modal-header&quot;})}),s.apply(i.find(&#039;[component=&quot;chat/messages&quot;]&#039;)),i.find(&quot;#chat-close-btn&quot;).on(&quot;click&quot;,function(){o.close(i)});function b(){const v=E.get(&quot;chat/input&quot;).val();$(window).one(&quot;action:ajaxify.end&quot;,function(){E.get(&quot;chat/input&quot;).val(v)}),ajaxify.go(&quot;user/&quot;+app.user.userslug+&quot;/chats/&quot;+i.attr(&quot;data-roomid&quot;)),o.close(i)}i.find(&quot;.modal-header&quot;).on(&quot;dblclick&quot;,b),i.find(&#039;button[data-action=&quot;maximize&quot;]&#039;).on(&quot;click&quot;,b),i.find(&#039;button[data-action=&quot;minimize&quot;]&#039;).on(&quot;click&quot;,function(){const v=i.attr(&quot;data-uuid&quot;);o.minimize(v)}),i.on(&quot;mouseup&quot;,function(){f.updateActive(i.attr(&quot;data-uuid&quot;)),R&amp;&amp;(R=!1)}),i.on(&quot;mousemove&quot;,function(v){v.which===1&amp;&amp;(R=!0)}),i.on(&quot;mousemove keypress click&quot;,function(){n&amp;&amp;(socket.emit(&quot;modules.chats.markRead&quot;,t.roomId),n=!1)}),u.addActionHandlers(i.find(&#039;[component=&quot;chat/messages&quot;]&#039;),t.roomId),u.addRenameHandler(i.attr(&quot;data-roomid&quot;),i.find(&#039;[data-action=&quot;rename&quot;]&#039;),t.roomName),u.addLeaveHandler(i.attr(&quot;data-roomid&quot;),i.find(&#039;[data-action=&quot;leave&quot;]&#039;)),u.addSendHandlers(i.attr(&quot;data-roomid&quot;),i.find(&quot;.chat-input&quot;),i.find(&#039;[data-action=&quot;send&quot;]&#039;)),u.addMemberHandler(i.attr(&quot;data-roomid&quot;),i.find(&#039;[data-action=&quot;members&quot;]&#039;)),u.createAutoComplete(i.find(&#039;[component=&quot;chat/input&quot;]&#039;)),u.addScrollHandler(i.attr(&quot;data-roomid&quot;),t.uid,i.find(&quot;.chat-content&quot;)),u.addScrollBottomHandler(i.find(&quot;.chat-content&quot;)),u.addCharactersLeftHandler(i),u.addIPHandler(i),u.addUploadHandler({dragDropAreaEl:i.find(&quot;.modal-content&quot;),pasteEl:i,uploadFormEl:i.find(&#039;[component=&quot;chat/upload&quot;]&#039;),inputEl:i.find(&#039;[component=&quot;chat/input&quot;]&#039;)}),m.addSocketListeners(),f.push(&quot;chat&quot;,i.attr(&quot;data-uuid&quot;),{title:&quot;[[modules:chat.chatting_with]] &quot;+(t.roomName||(t.users.length?t.users[0].username:&quot;&quot;)),roomId:t.roomId,icon:&quot;fa-comment&quot;,state:&quot;&quot;,isSelf:t.isSelf},function(){f.toggleNew(i.attr(&quot;data-uuid&quot;),!t.isSelf),d.fire(&quot;action:chat.loaded&quot;,i),typeof e==&quot;function&quot;&amp;&amp;e(i)})})}).apply(null,a)}).catch(c.oe)},o.focusInput=function(t){setTimeout(function(){t.find(&#039;[component=&quot;chat/input&quot;]&#039;).focus()},20)},o.close=function(t){const e=t.attr(&quot;data-uuid&quot;);clearInterval(t.attr(&quot;intervalId&quot;)),t.attr(&quot;intervalId&quot;,0),t.remove(),t.data(&quot;modal&quot;,null),f.discard(&quot;chat&quot;,e),t.attr(&quot;data-mobile&quot;)&amp;&amp;o.disableMobileBehaviour(t),d.fire(&quot;action:chat.closed&quot;,{uuid:e,modal:t})},o.closeByUUID=function(t){const e=$(&#039;.chat-modal[data-uuid=&quot;&#039;+t+&#039;&quot;]&#039;);o.close(e)},o.center=function(t){let e=!1;return t.hasClass(&quot;hide&quot;)&amp;&amp;(t.removeClass(&quot;hide&quot;),e=!0),t.css(&quot;left&quot;,Math.max(0,($(window).width()-$(t).outerWidth())/2+$(window).scrollLeft())+&quot;px&quot;),t.css(&quot;top&quot;,Math.max(0,$(window).height()/2-$(t).outerHeight()/2)+&quot;px&quot;),e&amp;&amp;t.addClass(&quot;hide&quot;),t},o.load=function(t){c.e(6862).then(function(){var e=[c(46862)];(function(a){const s=$(&#039;.chat-modal[data-uuid=&quot;&#039;+t+&#039;&quot;]&#039;);s.removeClass(&quot;hide&quot;),f.updateActive(t),a.scrollToBottom(s.find(&quot;.chat-content&quot;)),o.focusInput(s),socket.emit(&quot;modules.chats.markRead&quot;,s.attr(&quot;data-roomid&quot;));const u=utils.findBootstrapEnvironment();(u===&quot;xs&quot;||u===&quot;sm&quot;)&amp;&amp;o.enableMobileBehaviour(s)}).apply(null,e)}).catch(c.oe)},o.enableMobileBehaviour=function(t){app.toggleNavbar(!1),t.attr(&quot;data-mobile&quot;,&quot;1&quot;);const e=t.find(&quot;.modal-body&quot;);e.css(&quot;height&quot;,o.calculateChatListHeight(t));function a(){e.css(&quot;height&quot;,o.calculateChatListHeight(t)),c.e(6862).then(function(){var s=[c(46862)];(function(u){u.scrollToBottom(t.find(&quot;.chat-content&quot;))}).apply(null,s)}).catch(c.oe)}$(window).on(&quot;resize&quot;,a),$(window).one(&quot;action:ajaxify.start&quot;,function(){o.close(t),$(window).off(&quot;resize&quot;,a)})},o.disableMobileBehaviour=function(){app.toggleNavbar(!0)},o.calculateChatListHeight=function(t){return t.find(&quot;.modal-content&quot;).outerHeight()-t.find(&quot;.modal-header&quot;).outerHeight()},o.minimize=function(t){const e=$(&#039;.chat-modal[data-uuid=&quot;&#039;+t+&#039;&quot;]&#039;);e.addClass(&quot;hide&quot;),f.minimize(&quot;chat&quot;,t),clearInterval(e.attr(&quot;intervalId&quot;)),e.attr(&quot;intervalId&quot;,0),d.fire(&quot;action:chat.minimized&quot;,{uuid:t,modal:e})},o.toggleNew=f.toggleNew,o}.apply(x,A),p!==void 0&amp;&amp;(g.exports=p)},27145:(g,x,c)=&gt;{g=c.nmd(g);var A,p;A=[c(59006),c(32230),c(85233)],p=function(E,f,h){const d={};d.init=function(){const n=this;E.render(&quot;modules/taskbar&quot;,{}).then(function(r){n.taskbar=$(r),n.tasklist=n.taskbar.find(&quot;ul&quot;),$(document.body).append(n.taskbar),n.taskbar.on(&quot;click&quot;,&quot;li&quot;,async function(){const t=$(this),e=t.attr(&quot;data-module&quot;),a=t.attr(&quot;data-uuid&quot;),s=await app.require(e);return t.hasClass(&quot;active&quot;)?s.minimize(a):(l(),s.load(a),d.toggleNew(a,!1),d.tasklist.removeClass(&quot;active&quot;),t.addClass(&quot;active&quot;)),!1})}),$(window).on(&quot;action:app.loggedOut&quot;,function(){d.closeAll()})},d.close=async function(n,r){const t=d.tasklist.find(&#039;[data-module=&quot;&#039;+g+&#039;&quot;][data-uuid=&quot;&#039;+r+&#039;&quot;]&#039;);let e=&quot;close&quot;;if(n===&quot;chat&quot;&amp;&amp;(e=&quot;closeByUUID&quot;),t.length){const a=await app.require(n);a&amp;&amp;typeof a[e]==&quot;function&quot;&amp;&amp;a[e](r)}},d.closeAll=function(n){let r=&quot;[data-uuid]&quot;;n&amp;&amp;(r=&#039;[data-module=&quot;&#039;+n+&#039;&quot;]&#039;+r),d.tasklist.find(r).each(function(t,e){d.close(n||e.getAttribute(&quot;data-module&quot;),e.getAttribute(&quot;data-uuid&quot;))})},d.discard=function(n,r){d.tasklist.find(&#039;[data-module=&quot;&#039;+n+&#039;&quot;][data-uuid=&quot;&#039;+r+&#039;&quot;]&#039;).remove(),C()},d.push=function(n,r,t,e){e=e||function(){};const a=d.tasklist.find(&#039;li[data-uuid=&quot;&#039;+r+&#039;&quot;]&#039;),s={module:n,uuid:r,options:t,element:a};h.fire(&quot;filter:taskbar.push&quot;,s),!a.length&amp;&amp;s.module?I(s,e):e(a)},d.get=function(n){return $(&#039;[data-module=&quot;&#039;+n+&#039;&quot;]&#039;).map(function(t,e){return $(e).data()})},d.minimize=function(n,r){d.tasklist.find(&#039;[data-module=&quot;&#039;+n+&#039;&quot;][data-uuid=&quot;&#039;+r+&#039;&quot;]&#039;).toggleClass(&quot;active&quot;,!1)},d.toggleNew=function(n,r,t){d.tasklist.find(&#039;[data-uuid=&quot;&#039;+n+&#039;&quot;]&#039;).toggleClass(&quot;new&quot;,r),t||h.fire(&quot;action:taskbar.toggleNew&quot;,n)},d.updateActive=function(n){const r=d.tasklist.find(&quot;li&quot;);r.removeClass(&quot;active&quot;),r.filter(&#039;[data-uuid=&quot;&#039;+n+&#039;&quot;]&#039;).addClass(&quot;active&quot;),$(&quot;[data-uuid]:not([data-module])&quot;).toggleClass(&quot;modal-unfocused&quot;,!0),$(&#039;[data-uuid=&quot;&#039;+n+&#039;&quot;]:not([data-module])&#039;).toggleClass(&quot;modal-unfocused&quot;,!1)},d.isActive=function(n){return d.tasklist.find(&#039;li[data-uuid=&quot;&#039;+n+&#039;&quot;]&#039;).hasClass(&quot;active&quot;)};function C(){d.tasklist.find(&quot;li&quot;).length&gt;0?d.taskbar.attr(&quot;data-active&quot;,&quot;1&quot;):d.taskbar.removeAttr(&quot;data-active&quot;)}function l(){d.tasklist.find(&quot;.active&quot;).removeClass(&quot;active&quot;)}function I(n,r){f.translate(n.options.title,function(t){const e=$(&quot;&lt;div&gt;&lt;/div&gt;&quot;).text(t||&quot;NodeBB Task&quot;).html(),a=$(&quot;&lt;li&gt;&lt;/li&gt;&quot;).addClass(n.options.className).html(&#039;&lt;a href=&quot;#&quot;&#039;+(n.options.image?` style=&quot;background-image: url(&#039;`+n.options.image.replace(/&amp;#x2F;/g,&quot;/&quot;)+`&#039;); background-size: cover;&quot;`:&quot;&quot;)+&quot;&gt;&quot;+(n.options.icon?&#039;&lt;i class=&quot;fa &#039;+n.options.icon+&#039;&quot;&gt;&lt;/i&gt; &#039;:&quot;&quot;)+&#039;&lt;span aria-label=&quot;&#039;+e+&#039;&quot; component=&quot;taskbar/title&quot;&gt;&#039;+e+&quot;&lt;/span&gt;&lt;/a&gt;&quot;).attr({title:e,&quot;data-module&quot;:n.module,&quot;data-uuid&quot;:n.uuid}).addClass(n.options.state!==void 0?n.options.state:&quot;active&quot;);(!n.options.state||n.options.state===&quot;active&quot;)&amp;&amp;l(),d.tasklist.append(a),C(),n.element=a,a.data(n),h.fire(&quot;action:taskbar.pushed&quot;,n),r(a)})}const o=function(n,r,t){switch(r){case&quot;title&quot;:n.find(&#039;[component=&quot;taskbar/title&quot;]&#039;).text(t);break;case&quot;icon&quot;:n.find(&quot;i&quot;).attr(&quot;class&quot;,&quot;fa fa-&quot;+t);break;case&quot;image&quot;:n.find(&quot;a&quot;).css(&quot;background-image&quot;,t?&#039;url(&quot;&#039;+t.replace(/&amp;#x2F;/g,&quot;/&quot;)+&#039;&quot;)&#039;:&quot;&quot;);break;case&quot;background-color&quot;:n.find(&quot;a&quot;).css(&quot;background-color&quot;,t);break}};return d.update=function(n,r,t){const e=d.tasklist.find(&#039;[data-module=&quot;&#039;+n+&#039;&quot;][data-uuid=&quot;&#039;+r+&#039;&quot;]&#039;);if(!e.length)return;const a=e.data();Object.keys(t).forEach(function(s){a[s]=t[s],o(e,s,t[s])}),e.data(a)},d}.apply(x,A),p!==void 0&amp;&amp;(g.exports=p)}}]);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
