@@ -5,7 +5,7 @@ const pagination = require('../../pagination');
 
 const digestController = module.exports;
 
-digestController.get = async function (request, res) {
+digestController.get = async function (request, response) {
     const page = Number.parseInt(request.query.page, 10) || 1;
     const resultsPerPage = 50;
     const start = Math.max(0, page - 1) * resultsPerPage;
@@ -13,7 +13,7 @@ digestController.get = async function (request, res) {
     const delivery = await digest.getDeliveryTimes(start, stop);
 
     const pageCount = Math.ceil(delivery.count / resultsPerPage);
-    res.render('admin/manage/digest', {
+    response.render('admin/manage/digest', {
         title: '[[admin/menu:manage/digest]]',
         delivery: delivery.users,
         default: meta.config.dailyDigestFreq,

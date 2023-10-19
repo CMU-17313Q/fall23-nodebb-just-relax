@@ -5,7 +5,7 @@ const accountHelpers = require('./helpers');
 
 const groupsController = module.exports;
 
-groupsController.get = async function (request, res, next) {
+groupsController.get = async function (request, response, next) {
     const userData = await accountHelpers.getUserDataByUserSlug(request.params.userslug, request.uid, request.query);
     if (!userData) {
         return next();
@@ -22,5 +22,5 @@ groupsController.get = async function (request, res, next) {
     userData.groups = groupsData;
     userData.title = `[[pages:account/groups, ${userData.username}]]`;
     userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[global:header.groups]]' }]);
-    res.render('account/groups', userData);
+    response.render('account/groups', userData);
 };

@@ -9,8 +9,8 @@ define('forum/topic/votes', [
         components.get('topic').on('mouseenter', '[data-pid] [component="post/vote-count"]', loadDataAndCreateTooltip);
     };
 
-    function loadDataAndCreateTooltip(e) {
-        e.stopPropagation();
+    function loadDataAndCreateTooltip(event) {
+        event.stopPropagation();
 
         const $this = $(this);
         const element = $this.parent();

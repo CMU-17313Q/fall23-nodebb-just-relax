@@ -27,8 +27,8 @@ module.exports = function (SocketTopics) {
         }
 
         topicData.privileges = userPrivileges;
-        const result = await plugins.hooks.fire('filter:topic.thread_tools', { topic: topicData, uid: socket.uid, tools: [] });
-        result.topic.thread_tools = result.tools;
+        const result = await plugins.hooks.fire('filter:topic.threadTools', { topic: topicData, uid: socket.uid, tools: [] });
+        result.topic.threadTools = result.tools;
         return result.topic;
     };
 

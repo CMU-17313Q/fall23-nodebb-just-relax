@@ -7,7 +7,7 @@ const accountHelpers = require('./helpers');
 
 const blocksController = module.exports;
 
-blocksController.getBlocks = async function (request, res, next) {
+blocksController.getBlocks = async function (request, response, next) {
     const page = Number.parseInt(request.query.page, 10) || 1;
     const resultsPerPage = 50;
     const start = Math.max(0, page - 1) * resultsPerPage;
@@ -35,5 +35,5 @@ blocksController.getBlocks = async function (request, res, next) {
 
     userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[user:blocks]]' }]);
 
-    res.render('account/blocks', userData);
+    response.render('account/blocks', userData);
 };

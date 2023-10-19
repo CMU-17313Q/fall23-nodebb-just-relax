@@ -38,14 +38,14 @@ define('forum/account/edit', [
 
         hooks.fire('action:profile.update', userData);
 
-        api.put('/users/' + userData.uid, userData).then((res) => {
+        api.put('/users/' + userData.uid, userData).then((result) => {
             alerts.success('[[user:profile_update_success]]');
 
-            if (res.picture) {
-                $('#user-current-picture').attr('src', res.picture);
+            if (result.picture) {
+                $('#user-current-picture').attr('src', result.picture);
             }
 
-            picture.updateHeader(res.picture);
+            picture.updateHeader(result.picture);
         }).catch(alerts.error);
 
         return false;

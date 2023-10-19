@@ -7,7 +7,7 @@ const accountHelpers = require('./helpers');
 
 const infoController = module.exports;
 
-infoController.get = async function (request, res, next) {
+infoController.get = async function (request, response, next) {
     const userData = await accountHelpers.getUserDataByUserSlug(request.params.userslug, request.uid, request.query);
     if (!userData) {
         return next();
@@ -40,7 +40,7 @@ infoController.get = async function (request, res, next) {
     userData.title = '[[pages:account/info]]';
     userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[user:account_info]]' }]);
 
-    res.render('account/info', userData);
+    response.render('account/info', userData);
 };
 
 async function getNotes(userData, start, stop) {

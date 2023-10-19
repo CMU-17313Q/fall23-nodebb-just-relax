@@ -3,7 +3,7 @@ const nconf = require('nconf');
 
 const databaseController = module.exports;
 
-databaseController.get = async function (request, res) {
+databaseController.get = async function (request, response) {
     const results = {};
     if (nconf.get('redis')) {
         const rdb = require('../../database/redis');
@@ -20,5 +20,5 @@ databaseController.get = async function (request, res) {
         results.postgres = await pdb.info(pdb.pool);
     }
 
-    res.render('admin/advanced/database', results);
+    response.render('admin/advanced/database', results);
 };

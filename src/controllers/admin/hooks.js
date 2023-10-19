@@ -4,7 +4,7 @@ const plugins = require('../../plugins');
 
 const hooksController = module.exports;
 
-hooksController.get = function (request, res) {
+hooksController.get = function (request, response) {
     const hooks = [];
     for (const [hookIndex, key] of Object.keys(plugins.loadedHooks).entries()) {
         const current = {
@@ -28,5 +28,5 @@ hooksController.get = function (request, res) {
 
     hooks.sort((a, b) => b.count - a.count);
 
-    res.render('admin/advanced/hooks', { hooks });
+    response.render('admin/advanced/hooks', { hooks });
 };

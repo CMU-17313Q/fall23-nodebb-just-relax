@@ -5,7 +5,7 @@ const meta = require('../../meta');
 
 const logsController = module.exports;
 
-logsController.get = async function (request, res) {
+logsController.get = async function (request, response) {
     let logs = '';
     try {
         logs = await meta.logs.get();
@@ -13,7 +13,7 @@ logsController.get = async function (request, res) {
         winston.error(error.stack);
     }
 
-    res.render('admin/advanced/logs', {
+    response.render('admin/advanced/logs', {
         data: validator.escape(logs),
     });
 };

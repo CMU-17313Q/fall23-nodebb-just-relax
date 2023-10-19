@@ -8,7 +8,7 @@ const accountHelpers = require('./helpers');
 
 const categoriesController = module.exports;
 
-categoriesController.get = async function (request, res, next) {
+categoriesController.get = async function (request, response, next) {
     const userData = await accountHelpers.getUserDataByUserSlug(request.params.userslug, request.uid, request.query);
     if (!userData) {
         return next();
@@ -40,5 +40,5 @@ categoriesController.get = async function (request, res, next) {
         { text: '[[pages:categories]]' },
     ]);
     userData.pagination = pagination.create(page, pageCount, request.query);
-    res.render('account/categories', userData);
+    response.render('account/categories', userData);
 };

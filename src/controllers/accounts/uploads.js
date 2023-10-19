@@ -9,7 +9,7 @@ const accountHelpers = require('./helpers');
 
 const uploadsController = module.exports;
 
-uploadsController.get = async function (request, res, next) {
+uploadsController.get = async function (request, response, next) {
     const userData = await accountHelpers.getUserDataByUserSlug(request.params.userslug, request.uid, request.query);
     if (!userData) {
         return next();
@@ -33,5 +33,5 @@ uploadsController.get = async function (request, res, next) {
     userData.privateUploads = meta.config.privateUploads === 1;
     userData.title = `[[pages:account/uploads, ${userData.username}]]`;
     userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[global:uploads]]' }]);
-    res.render('account/uploads', userData);
+    response.render('account/uploads', userData);
 };

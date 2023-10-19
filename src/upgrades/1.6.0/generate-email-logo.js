@@ -23,7 +23,7 @@ module.exports = {
                     return setImmediate(next);
                 }
 
-                fs.access(sourcePath, (error) => {
+                fs.promises.access(sourcePath, (error) => {
                     if (error || path.extname(sourcePath) === '.svg') {
                         skip = true;
                         return setImmediate(next);

@@ -10,7 +10,7 @@ const categoriesController = require('./categories');
 
 const AdminsMods = module.exports;
 
-AdminsMods.get = async function (request, res) {
+AdminsMods.get = async function (request, response) {
     const rootCid = Number.parseInt(request.query.cid, 10) || 0;
 
     const cidsCount = await db.sortedSetCard(`cid:${rootCid}:children`);
@@ -32,7 +32,7 @@ AdminsMods.get = async function (request, res) {
         categoriesController.buildBreadCrumbs(selectedCategory, '/admin/manage/admins-mods'),
     ]);
 
-    res.render('admin/manage/admins-mods', {
+    response.render('admin/manage/admins-mods', {
         admins,
         globalMods,
         categoryMods: moderators,

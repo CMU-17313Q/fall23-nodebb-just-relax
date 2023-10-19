@@ -9,7 +9,7 @@ module.exports = function (module) {
         }
 
         if (Array.isArray(score) && Array.isArray(value)) {
-            return await sortedSetAddBulk(key, score, value);
+            return sortedSetAddBulk(key, score, value);
         }
 
         if (!utils.isNumber(score)) {

@@ -8,7 +8,7 @@ const themesController = module.exports;
 
 const defaultScreenshotPath = path.join(__dirname, '../../../public/images/themes/default.png');
 
-themesController.get = async function (request, res, next) {
+themesController.get = async function (request, response, next) {
     const themeDir = path.join(paths.themes, request.params.theme);
     const themeConfigPath = path.join(themeDir, 'theme.json');
 
@@ -26,5 +26,5 @@ themesController.get = async function (request, res, next) {
 
     const screenshotPath = themeConfig.screenshot ? path.join(themeDir, themeConfig.screenshot) : defaultScreenshotPath;
     const exists = await file.exists(screenshotPath);
-    res.sendFile(exists ? screenshotPath : defaultScreenshotPath);
+    response.sendFile(exists ? screenshotPath : defaultScreenshotPath);
 };
