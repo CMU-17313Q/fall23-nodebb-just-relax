@@ -1,0 +1,56 @@
+2023-10-17T10:15:55.918Z [24034] - [32minfo[39m: NodeBB Setup Triggered via Command Line
+2023-10-17T10:17:48.785Z [24034] - [32minfo[39m: 
+Now configuring redis database:
+2023-10-17T10:17:55.508Z [24034] - [36mverbose[39m: [minifier] utilizing a maximum of 7 additional threads
+2023-10-17T10:17:55.540Z [24034] - [33mwarn[39m: [cache-buster] could not read cache buster ENOENT: no such file or directory, open '/home/hjoad/projects/project3/fall23-nodebb-just-relax/build/cache-buster' {"code":"ENOENT","errno":-2,"path":"/home/hjoad/projects/project3/fall23-nodebb-just-relax/build/cache-buster","stack":"Error: ENOENT: no such file or directory, open '/home/hjoad/projects/project3/fall23-nodebb-just-relax/build/cache-buster'","syscall":"open"}
+2023-10-17T10:17:55.618Z [24034] - [33mwarn[39m: No administrators have been detected, running initial user setup
+
+2023-10-17T10:18:09.543Z [24034] - [36mverbose[39m: [UserReset.cleanByUid] No tokens found for uid (1).
+2023-10-17T10:18:09.643Z [24034] - [32minfo[39m: [install/defaultPlugins] customDefaults undefined
+2023-10-17T10:18:09.644Z [24034] - [32minfo[39m: [install/enableDefaultPlugins] activating default plugins {"0":"nodebb-plugin-composer-default","1":"nodebb-plugin-markdown","2":"nodebb-plugin-mentions","3":"nodebb-widget-essentials","4":"nodebb-rewards-essentials","5":"nodebb-plugin-emoji","6":"nodebb-plugin-emoji-android"}
+2023-10-17T10:18:09.647Z [24034] - [31merror[39m: Cannot copy favicon.ico
+Error: ENOENT: no such file or directory, copyfile '/home/hjoad/projects/project3/fall23-nodebb-just-relax/public/favicon.ico' -> 'public/uploads/system/favicon.ico'
+2023-10-17T10:18:09.868Z [24034] - [36mverbose[39m: [build] Querying CPU core count for build strategy
+2023-10-17T10:18:09.869Z [24034] - [36mverbose[39m: [build] System returned 8 cores, opting for parallel build strategy
+2023-10-17T10:18:09.871Z [24034] - [36mverbose[39m: [build] building the following targets: plugin static dirs, requirejs modules, client js bundle, admin js bundle, client side styles, admin control panel styles, templates, languages
+2023-10-17T10:18:09.879Z [24034] - [36mverbose[39m: [plugins] loading the following fields from plugin data: staticDirs, modules, clientScripts, acpScripts, cssFiles, lessFiles, acpLessFiles, languageData
+2023-10-17T10:18:09.891Z [24034] - [36mverbose[39m: [plugins] Found 1 less file(s) for plugin nodebb-plugin-composer-default
+2023-10-17T10:18:09.893Z [24034] - [36mverbose[39m: [plugins] Found 1 less file(s) for plugin nodebb-plugin-markdown
+2023-10-17T10:18:09.894Z [24034] - [36mverbose[39m: [plugins] Found 1 css file(s) for plugin nodebb-widget-essentials
+2023-10-17T10:18:09.896Z [24034] - [36mverbose[39m: [plugins] Found 1 less file(s) for plugin nodebb-plugin-emoji
+2023-10-17T10:18:09.896Z [24034] - [36mverbose[39m: [plugins] Found 1 acpLess file(s) for plugin nodebb-plugin-emoji
+2023-10-17T10:18:09.898Z [24034] - [36mverbose[39m: [plugins] Found 12 AMD-style module(s) for plugin nodebb-plugin-composer-default
+2023-10-17T10:18:09.899Z [24034] - [36mverbose[39m: [plugins] Found 1 js file(s) for plugin nodebb-plugin-markdown
+2023-10-17T10:18:09.899Z [24034] - [36mverbose[39m: [plugins] Found 1 AMD-style module(s) for plugin nodebb-plugin-markdown
+2023-10-17T10:18:09.901Z [24034] - [36mverbose[39m: [plugins] Found 1 AMD-style module(s) for plugin nodebb-plugin-mentions
+2023-10-17T10:18:09.901Z [24034] - [36mverbose[39m: [plugins] Found 1 js file(s) for plugin nodebb-plugin-mentions
+2023-10-17T10:18:09.906Z [24034] - [36mverbose[39m: [plugins] Found 1 js file(s) for plugin nodebb-rewards-essentials
+2023-10-17T10:18:09.906Z [24034] - [36mverbose[39m: [plugins] Found 5 AMD-style module(s) for plugin nodebb-plugin-emoji
+2023-10-17T10:18:09.907Z [24034] - [36mverbose[39m: [plugins] Found 1 js file(s) for plugin nodebb-plugin-emoji
+2023-10-17T10:18:09.907Z [24034] - [36mverbose[39m: [plugins] Found 1 js file(s) for plugin nodebb-plugin-emoji
+2023-10-17T10:18:09.912Z [24034] - [36mverbose[39m: [plugins] found 1 static directories for nodebb-rewards-essentials
+2023-10-17T10:18:09.913Z [24034] - [36mverbose[39m: [plugins] found 1 static directories for nodebb-plugin-emoji
+2023-10-17T10:18:09.916Z [24034] - [36mverbose[39m: [plugins] Found 2 js file(s) for plugin nodebb-plugin-composer-default
+2023-10-17T10:18:09.917Z [24034] - [36mverbose[39m: [plugins] found 1 static directories for nodebb-plugin-markdown
+2023-10-17T10:18:09.925Z [24034] - [32minfo[39m: [build] Building in parallel mode
+2023-10-17T10:18:09.926Z [24034] - [32minfo[39m: [build] Building TypeScript files
+2023-10-17T10:18:14.247Z [24034] - [32minfo[39m: [build] TypeScript building complete
+2023-10-17T10:18:14.248Z [24034] - [32minfo[39m: [build]         plugin static dirs  build started
+2023-10-17T10:18:14.251Z [24034] - [32minfo[39m: [build]          requirejs modules  build started
+2023-10-17T10:18:14.252Z [24034] - [32minfo[39m: [build]           client js bundle  build started
+2023-10-17T10:18:14.253Z [24034] - [32minfo[39m: [build]            admin js bundle  build started
+2023-10-17T10:18:14.253Z [24034] - [32minfo[39m: [build]         client side styles  build started
+2023-10-17T10:18:14.253Z [24034] - [32minfo[39m: [build] admin control panel styles  build started
+2023-10-17T10:18:14.254Z [24034] - [32minfo[39m: [build]                  templates  build started
+2023-10-17T10:18:14.255Z [24034] - [32minfo[39m: [build]                  languages  build started
+2023-10-17T10:18:14.644Z [24034] - [32minfo[39m: [build]         plugin static dirs  build completed in 0.396sec
+2023-10-17T10:18:15.211Z [24034] - [32minfo[39m: [build]           client js bundle  build completed in 0.959sec
+2023-10-17T10:18:15.223Z [24034] - [32minfo[39m: [build]            admin js bundle  build completed in 0.97sec
+2023-10-17T10:18:18.584Z [24034] - [32minfo[39m: [build]                  languages  build completed in 4.328sec
+2023-10-17T10:18:18.931Z [24034] - [36mverbose[39m: [meta/templates] Successfully compiled templates.
+2023-10-17T10:18:18.931Z [24034] - [32minfo[39m: [build]                  templates  build completed in 4.677sec
+2023-10-17T10:18:19.209Z [24034] - [32minfo[39m: [build]          requirejs modules  build completed in 4.958sec
+2023-10-17T10:18:19.209Z [24034] - [32minfo[39m: [build] Bundling with Webpack.
+2023-10-17T10:18:20.724Z [24034] - [32minfo[39m: [build] admin control panel styles  build completed in 6.471sec
+2023-10-17T10:18:39.718Z [24034] - [32minfo[39m: [build]         client side styles  build completed in 25.465sec
+2023-10-17T10:18:39.721Z [24034] - [32minfo[39m: [build] Asset compilation successful. Completed in 29.793sec.

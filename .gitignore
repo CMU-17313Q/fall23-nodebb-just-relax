@@ -23,15 +23,15 @@ feeds/recent.rss
 .svn
 dump.rdb
 
-logs/
+# logs/
 
 pidfile
 
-# templates
-/public/templates
+# # templates
+# /public/templates
 
-/public/uploads
-/test/uploads
+# /public/uploads
+# /test/uploads
 
 # compiled files
 /public/stylesheet.css
@@ -45,33 +45,33 @@ pidfile
 /public/bootstrap.min.css
 /public/logo.png
 
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
-*.iml
+# # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
+# *.iml
 
-## Directory-based project format:
-.idea/
-.vscode/
+# ## Directory-based project format:
+# .idea/
+# .vscode/
 
 ## File-based project format:
 *.ipr
 *.iws
 
-## Transifex
-tx.exe
-.transifexrc
+# ## Transifex
+# tx.exe
+# .transifexrc
 
 ##Coverage output
 coverage
 .nyc_output
 
-*.log
-test/files/normalise.jpg.png
-test/files/normalise-resized.jpg
-package-lock.json
-/package.json
-*.mongodb
-link-plugins.sh
-test.sh
+# *.log
+# test/files/normalise.jpg.png
+# test/files/normalise-resized.jpg
+# package-lock.json
+# # /package.json
+# *.mongodb
+# link-plugins.sh
+# test.sh
 
 # Theme ignore
 theme/*.css
