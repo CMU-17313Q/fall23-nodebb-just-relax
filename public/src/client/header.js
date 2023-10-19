@@ -21,7 +21,7 @@ define('forum/header', [
     };
 
     function handleStatusChange() {
-        $('[component="header/usercontrol"] [data-status]').off('click').on('click', function (e) {
+        $('[component="header/usercontrol"] [data-status]').off('click').on('click', function (event) {
             const status = $(this).attr('data-status');
             socket.emit('user.setStatus', status, (error) => {
                 if (error) {
@@ -36,7 +36,7 @@ define('forum/header', [
                 });
                 app.user.status = status;
             });
-            e.preventDefault();
+            event.preventDefault();
         });
     }
 

@@ -65,7 +65,7 @@ define('forum/topic/move', ['categorySelector', 'alerts', 'hooks'], (categorySel
             };
             if (config.undoTimeout > 0) {
                 return alerts.alert({
-                    alert_id: 'tids_move_' + (Move.tids ? Move.tids.join('-') : 'all'),
+                    alertId: 'tids_move_' + (Move.tids ? Move.tids.join('-') : 'all'),
                     title: '[[topic:thread_tools.move]]',
                     message,
                     type: 'success',

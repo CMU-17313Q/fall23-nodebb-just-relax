@@ -1,7 +1,5 @@
 // Webpack config for webinstaller
 
-
-
 const path = require('node:path');
 
 module.exports = {

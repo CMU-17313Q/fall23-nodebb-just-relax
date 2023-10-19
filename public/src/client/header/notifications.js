@@ -8,8 +8,8 @@ define('forum/header/notifications', ['components'], (components) => {
         const notifTrigger = notifContainer.children('a');
         const notifList = components.get('notifications/list');
 
-        notifTrigger.on('click', (e) => {
-            e.preventDefault();
+        notifTrigger.on('click', (event) => {
+            event.preventDefault();
             if (notifContainer.hasClass('open')) {
                 return;
             }

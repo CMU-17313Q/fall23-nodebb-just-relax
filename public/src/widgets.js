@@ -18,7 +18,6 @@ module.exports.render = function (template) {
         const widgetsAtLocation = ajaxify.data.widgets[location] || [];
         let html = '';
 
-        /* eslint-disable no-restricted-syntax */
         for (const widget of widgetsAtLocation) {
             html += widget.html;
         }

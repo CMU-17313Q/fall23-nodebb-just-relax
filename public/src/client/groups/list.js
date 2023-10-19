@@ -14,8 +14,8 @@ define('forum/groups/list', [
                 if (name && name.length > 0) {
                     api.post('/groups', {
                         name,
-                    }).then((res) => {
-                        ajaxify.go('groups/' + res.slug);
+                    }).then((response) => {
+                        ajaxify.go('groups/' + response.slug);
                     }).catch(alerts.error);
                 }
             });

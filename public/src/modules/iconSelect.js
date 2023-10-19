@@ -102,8 +102,8 @@ define('iconSelect', ['benchpress', 'bootbox'], (Benchpress, bootbox) => {
                     changeSelection($(this));
                 });
 
-                searchElement.on('keyup', (e) => {
-                    if (e.keyCode === 13) {
+                searchElement.on('keyup', (event) => {
+                    if (event.keyCode === 13) {
                         submitElement.click();
                     } else {
                         // Filter

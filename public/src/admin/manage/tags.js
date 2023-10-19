@@ -21,8 +21,8 @@ define('admin/manage/tags', [
         const createTagName = $('#create-tag-name');
         const createModalGo = $('#create-modal-go');
 
-        createModal.on('keypress', (e) => {
-            if (e.keyCode === 13) {
+        createModal.on('keypress', (event) => {
+            if (event.keyCode === 13) {
                 createModalGo.click();
             }
         });
