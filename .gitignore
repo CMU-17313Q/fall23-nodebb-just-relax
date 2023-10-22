@@ -1,9 +1,14 @@
 dist/
 yarn.lock
 npm-debug.log
+add-jshint
 node_modules/
 !node_modules/nodebb-plugin-composer-default/static
 !node_modules/jshint
+
+node_modules/*
+!node_modules/nodebb-plugin-composer-default
+main
 sftp-config.json
 config.json
 jsconfig.json
