@@ -2,4 +2,3 @@
 */
 !export
 !.gitignore
-!build/public

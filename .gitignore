@@ -29,6 +29,7 @@ pidfile
 
 # templates
 /public/templates
+!build/public/templates
 
 /public/uploads
 /test/uploads
