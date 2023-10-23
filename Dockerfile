@@ -24,14 +24,4 @@ ENV NODE_ENV=production \
 
 EXPOSE 4567
 
-# Create a shell script for the build process
-RUN echo '#!/bin/sh' > /build_nodebb.sh && \
-    echo './nodebb build' >> /build_nodebb.sh && \
-    chmod +x /build_nodebb.sh
-
-# Run the NodeBB setup and build shell script, then start NodeBB
-CMD ./create_config.sh -n "${SETUP}" && \
-    ./nodebb setup && \
-    /build_nodebb.sh && \
-    /build_nodebb.sh && \
-    node ./nodebb start
+CMD  ./create_config.sh -n "${SETUP}" && ./nodebb setup && ./nodebb build  && ./nodebb build; node ./nodebb start
