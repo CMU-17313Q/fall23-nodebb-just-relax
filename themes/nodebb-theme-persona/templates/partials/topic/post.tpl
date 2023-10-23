@@ -1,4 +1,63 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resolveButton = document.getElementById('resolveButton');
+    const topicId = '{posts.topic.tid}'; // Replace this with how you retrieve the topic ID
+    const storageKey = `resolvedState_${topicId}`;
+    
+    // Function to update button appearance and behavior
+    function updateButtonState() {
+        const isResolved = localStorage.getItem(storageKey);
+        if (isResolved === 'true') {
+            // Post is resolved
+            resolveButton.style.backgroundColor = '#ff0000'; // Red
+            resolveButton.style.color = 'white';
+            resolveButton.textContent = 'Resolved';
+            resolveButton.disabled = true; // Disable the button
+        }
+    }
+
+    // Check if the post is resolved when the page loads
+    updateButtonState();
+
+    resolveButton.addEventListener('click', function() {
+        if (!resolveButton.disabled) {
+            // Mark the post as resolved locally
+            localStorage.setItem(storageKey, 'true');
+
+            // Update button appearance
+            updateButtonState();
+
+            // You can also display an alert here if needed
+            alert('You have marked this post as resolved');
+
+            // Add your fetch request here
+            fetch(window.location.href + "/isResolved", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server if needed
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+});
+</script>
+
+
+
+
+
+
 <div class="clearfix post-header">
+
     <div class="icon pull-left">
         <a href="<!-- IF posts.user.userslug -->{config.relative_path}/user/{posts.user.userslug}<!-- ELSE -->#<!-- ENDIF posts.user.userslug -->">
             {buildAvatar(posts.user, "sm2x", true, "", "user/picture")}
@@ -113,6 +172,11 @@
         .custom-button:hover {
             background-color: #555; /* Grey color on hover */
         }
+
+        .custom-button:active {
+            background-color: #ff0000; /* Red color when button is pressed */
+        }
+
         .button-container {
             text-align: right;
             margin-top: 20px;
@@ -120,12 +184,8 @@
         .custom-button.red {
             background-color: #ff0000; /* Red color when set with the 'red' class */
         }
-        </style>
+    </style>
     <body>
-
-    <div class="button-container">
-        <button class="custom-button" id="myButton">Resolve</button>
-    </div>
 
      <!-- The overlay and modal content -->
 
@@ -147,100 +207,14 @@
         </div>
     </div>
 
-    <script>
-        // variable that assigns the status of resolve to false
-        let resolveStatus = false;
-
-        // Store the original button text and class
-        const originalButtonText = document.getElementById("myButton").textContent;
-        const originalButtonClass = document.getElementById("myButton").className;
-
-        document.getElementById("myButton").addEventListener("click", function () {
-            // Show the overlay and modal
-            document.getElementById("myModal").style.display = "block";
-        });
-
-        // Function to close the modal
-        function closeModal() {
-            document.getElementById("myModal").style.display = "none";
-        }
-
-        // Add event listener to the resolve checkbox
-        document.getElementById("resolveCheckbox").addEventListener("change", function () {
-            if (this.checked) {
-                // if the checkbox is pressed the status of the resolve becomes true
-                resolveStatus = true;
-
-                // Checkbox is checked, update the button appearance
-                document.getElementById("myButton").textContent = "Resolved!";
-                document.getElementById("myButton").classList.add("red");
-                document.getElementById("myButton").disabled = true;
-
-                // Replace 'unique_topic_id_here' with the actual topic ID
-                const tid = 'unique_topic_id_here'; // Replace with the actual topic ID
-                // sessionStorage 
-                localStorage.setItem(`topic:${tid}_resolved`, 'true');
-                updateButtonAppearance(tid); // Update the button appearance
-
-                // Send an HTTP GET request to a URL formed by appending "/isResolved" to the current page's URL
-                fetch(window.location.href + "/isResolved", {
-                    method: 'GET', // Use the GET method to retrieve data
-                      headers: {
-                        'Accept': 'application/json', // Indicate that the client prefers JSON responses
-                        'Content-Type': 'application/json' // Specify that the request body (if any) will be in JSON format
-                     }
-                })
-                .then(response => response.json()) // Parse the response as JSON
-                .then(data => {
-                    // Handle the response from the server if needed
-                    console.log(data); // Log the parsed JSON data to the console
-                })
-                .catch(error => {
-                    // Handle any errors that occur during the request or response
-                    console.error('Error:', error); // Log the error to the console
-                });
-                closeModal(); // Close the modal
-            }
-        });
-
-        // Add event listener to the cancel checkbox
-        document.getElementById("cancelCheckbox").addEventListener("change", function () {
-            if (this.checked) {
-                // Revert the button to its original state
-                document.getElementById("myButton").textContent = originalButtonText;
-                document.getElementById("myButton").className = originalButtonClass;
-                document.getElementById("myButton").disabled = false;
-                closeModal(); // Close the modal
-            }
-        });
-
-        // Function to check if a question is resolved based on its unique identifier
-        function isQuestionResolved(tid) {
-            return localStorage.getItem(`topic:${tid}_resolved`) === 'true';
-        }
-
-        // Function to update the button appearance based on the resolved state of a question
-        function updateButtonAppearance(tid) {
-            const button = document.getElementById('myButton');
-            if (isQuestionResolved(tid)) {
-                button.textContent = "Resolved!";
-                button.classList.add("red");
-                button.disabled = true;
-            } else {
-                button.textContent = originalButtonText;
-                button.className = originalButtonClass;
-                button.disabled = false;
-            }
-        }
-
-        // Add an event listener to handle page load
-        window.addEventListener('load', function () {
-            // Replace 'unique_topic_id_here' with the actual topic ID
-            const tid = 'unique_topic_id_here';
-            // Update the button appearance based on the resolved state of this question
-            updateButtonAppearance(tid);
-        });
-    </script>
+    <!-- IF posts.selfPost -->
+    <button id="resolveButton" 
+    style="background-color: lightgrey; color: #000; float: right;" 
+    component="post/resolve" 
+    class="custom-button">
+        Mark as Resolved
+    </button>
+    <!-- ENDIF posts.selfPost -->
     
     <small class="pull-right">
         <!-- IMPORT partials/topic/reactions.tpl -->
