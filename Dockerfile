@@ -24,4 +24,11 @@ ENV NODE_ENV=production \
 
 EXPOSE 4567
 
-CMD  ./create_config.sh -n "${SETUP}" && ./nodebb setup && ./nodebb build  && ./nodebb build; node ./nodebb start
+
+# Create a shell script that runs the sequence twice
+RUN echo '#!/bin/sh' > /start_nodebb.sh && \
+    echo './create_config.sh -n "${SETUP}" && ./nodebb setup && ./nodebb build; node ./nodebb start' >> /start_nodebb.sh && \
+    chmod +x /start_nodebb.sh
+
+# Run the shell script twice
+CMD /start_nodebb.sh && /start_nodebb.sh
