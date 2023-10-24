@@ -13,6 +13,9 @@ COPY --chown=node:node install/package.json /usr/src/app/package.json
 
 USER node
 
+RUN npm install && \
+    npm cache clean --force
+
 COPY --chown=node:node . /usr/src/app
 
 ENV NODE_ENV=production \
