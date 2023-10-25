@@ -41,3 +41,26 @@ It's important to note that the owner of the post will still be the only one who
 - We tested this feature by creating a new topic within our test file and setting the topics' _isResolved_ attribute to true, since the default value is false. This test is crucial because it validates recent codebase modifications, including the introduction of the _isResolved_ attribute and its integration into both the backend and frontend, to ensure they function as intended. It also ensures that the controller functions and routes correctly handle the _isResolved_ attribute, which was subsequently saved in the database to reflect the resolved status of the topic.
 - The test can be found in the file located at [https://github.com/CMU-17313Q/fall23-nodebb-just-relax/blob/main/test/topics.js](https://github.com/CMU-17313Q/fall23-nodebb-just-relax/blob/main/test/posts.js) from lines 415-422.
 
+# For Developers
+
+When cloning this repository, **please** follow these steps:
+1. Clone the repository
+1. `cd` into the repository
+1. In the command line, run `redis-server`
+1. In a second terminal, run `npm install nconf`
+1. `npm install lodash`
+1. `npm install grunt`
+1. `npm install grunt-cli --save-dev`
+1. `sudo npm install -g grunt-cli`
+1. `npm install eslint-config-nodebb --save-dev`
+1. `npm update`
+1. `npm fund`
+1. `npm ci`
+1. `./nodebb setup`
+1. `./nodebb build`
+1. `npx tsc`
+1. `npm run lint`
+1. `npm run test`
+1. In a third terminal, run `grunt`
+
+These steps will ensure that NodeBB runs as intended and reflects the changes made by team Just Relax.
