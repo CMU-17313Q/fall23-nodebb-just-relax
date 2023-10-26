@@ -23,7 +23,7 @@ SocketGroups.addMember = async (socket, data) => {
         throw new Error('[[error:invalid-data]]');
     }
     data.uid = !Array.isArray(data.uid) ? [data.uid] : data.uid;
-    if (data.uid.filter(uid => !(parseInt(uid, 10) > 0)).length) {
+    if (data.uid.filter(uid => parseInt(uid, 10) <= 0).length) {
         throw new Error('[[error:invalid-uid]]');
     }
     for (const uid of data.uid) {

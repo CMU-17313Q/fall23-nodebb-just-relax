@@ -1,5 +1,6 @@
 node_modules/
 logs/
+public/
 /public/templates
 /coverage
 /build
@@ -8,3 +9,11 @@ themes/nodebb-theme-persona
 install
 .tx
 .husky
+src/types/index.js
+src/social.js
+src/privileges/helpers.js
+src/database/mongo/sorted/intersect.js
+src/controllers/composer.js
+loader.js
+src/controllers/helpers.js
+src/topics/unread.js

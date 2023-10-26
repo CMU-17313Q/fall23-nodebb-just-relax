@@ -22,7 +22,7 @@
         "utils": true, 
         "util": true, 
         "process": true,
-        "global": true,
+        "global": false,
         "socketModules": true,
         "exports": true, 
         "setImmediate": true, 
@@ -42,7 +42,10 @@
         "body": true, 
         "nconf": true, 
         "afterEach": true, 
-        "this": true
+        "this": true, 
+        "URL": true, 
+        "clearTimeout": true, 
+        "__filename": true
       },
     "esversion": 11, 
     "undef": true,
@@ -88,7 +91,7 @@
     "proto" : false, // true: Tolerate using the `__proto__` property
     "scripturl" : false, // true: Tolerate script-targeted URLs
     "smarttabs" : false, // true: Tolerate mixed tabs/spaces when used for alignment
-    "shadow" : false, // true: Allows re-define variables later in code e.g. `var x=1; x=2;`
+    "shadow" : true, // true: Allows re-define variables later in code e.g. `var x=1; x=2;`
     "sub" : false, // true: Tolerate using `[]` notation when it can still be expressed in dot notation
     "supernew" : false, // true: Tolerate `new function () { ... };` and `new Object;`
     "validthis" : false, // true: Tolerate using this in a non-constructor function
@@ -97,5 +100,5 @@
     "nomen" : false, // true: Prohibit dangling `_` in variables
     "onevar" : false, // true: Allow only one `var` statement per function
     "passfail" : false, // true: Stop on first error
-    "white" : false // true: Check against strict whitespace and indentation rules}
+    "white" : false  // true: Check against strict whitespace and indentation rules}
 }
