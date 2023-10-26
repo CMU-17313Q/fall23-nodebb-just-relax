@@ -22,7 +22,7 @@
         "utils": true, 
         "util": true, 
         "process": true,
-        "global": false,
+        "global": true,
         "socketModules": true,
         "exports": true, 
         "setImmediate": true, 

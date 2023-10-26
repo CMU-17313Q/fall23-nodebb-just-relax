@@ -1,4 +1,7 @@
 node_modules/
+*.sublime-project
+*.sublime-workspace
+
 logs/
 public/
 /public/templates
