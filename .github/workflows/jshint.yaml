@@ -1,0 +1,33 @@
+name: JSHint
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.js'
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  jshint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    steps:
+    - uses: actions/checkout@v3
+    - run: cp install/package.json package.json
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm run jshint
