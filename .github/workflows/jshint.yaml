@@ -1,11 +1,12 @@
 name: JSHint
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
-    paths:
-      - '**.js'
 
 defaults:
   run:
@@ -16,18 +17,32 @@ permissions:
 
 jobs:
   jshint:
-    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+    name: JSHint
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        os: [ubuntu-latest]
+        node: [16]
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v3
-    - run: cp install/package.json package.json
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm run jshint
+      - uses: actions/checkout@v3
+
+      - run: cp install/package.json package.json
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: NPM Install
+        uses: bahmutov/npm-install@v1
+        with:
+          useLockFile: false
+
+      - name: Run JSHint
+        run: npm run jshint 
+
