@@ -18,3 +18,5 @@ src/controllers/composer.js
 loader.js
 src/controllers/helpers.js
 src/topics/unread.js
+test/files/1.js
+test/files/2.js
