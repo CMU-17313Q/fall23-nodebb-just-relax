@@ -179,23 +179,3 @@ jobs:
 
       - name: Extract coverage info
         run: npm run coverage
-
-      - name: Test coverage
-        uses: coverallsapp/github-action@1.1.3
-        if: matrix.coverage
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{ matrix.os }}-node-${{ matrix.node }}-db-${{ matrix.database }}
-          parallel: true
-
-  finish:
-    permissions:
-      checks: write  # for coverallsapp/github-action to create new checks
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
