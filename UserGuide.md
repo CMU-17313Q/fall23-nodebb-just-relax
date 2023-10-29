@@ -9,7 +9,7 @@ NodeBB is a versatile and modern forum software powered by Node.js, offering sup
 ### Anonymous Posts
 
 #### How to use & user test:
-1- When selecting "Write Questions," you will be prompted with two options: "Post Anonymously" and "Post Privately."
+1- When selecting "New Question," you will be prompted with two options: "Post Anonymously" and "Post Privately."
 
 2- After selecting "Post Anonymously," check the anonymity box before posting your question.
 
