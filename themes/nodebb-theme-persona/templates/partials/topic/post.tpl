@@ -75,7 +75,172 @@
         <i class="fa fa-fw fa-spin fa-spinner hidden" component="post/replies/loading"></i>
     </a>
     {{{ end }}}
+    <style>
+        /* Center the checkbox label */
+        .checkbox-label {
+            text-align: center;
+        }
+        /* Add space between the question and options */
+        .modal h2 {
+            margin-bottom: 10px;
+        }
+        /* Styles for the modal content */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            width: 350px; /* Adjust the width as needed */
+            height: 200px; /* Adjust the height as needed */
+            padding: 20px;
+            border: 2px solid #000; /* Black outline */
+            border-radius: 5px;
+            z-index: 2;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .custom-button {
+            display: inline-block;
+            padding: 8px 18px;
+            background-color: white; /* Default blue color */
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
+        .custom-button:hover {
+            background-color: #555; /* Grey color on hover */
+        }
+        .button-container {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .custom-button.red {
+            background-color: #ff0000; /* Red color when set with the 'red' class */
+        }
+        </style>
+    <body>
+
+    <div class="button-container">
+        <button class="custom-button" id="myButton">Resolve</button>
+    </div>
+
+     <!-- The overlay and modal content -->
+
+    <div class="modal" id="myModal">
+        <h2 style="text-align: center; font-style: italic;">Are you sure you want to resolve this question?</h2>
+        <br>
+        <!-- Checkbox option -->
+        <div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="resolveCheckbox"> Yes, resolve
+            </label>
+        </div>
+        <br>
+        <!-- Checkbox for "Cancel" -->
+        <div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="cancelCheckbox"> Cancel
+            </label>
+        </div>
+    </div>
+
+    <script>
+        // variable that assigns the status of resolve to false
+        let resolveStatus = false;
+
+        // Store the original button text and class
+        const originalButtonText = document.getElementById("myButton").textContent;
+        const originalButtonClass = document.getElementById("myButton").className;
+
+        document.getElementById("myButton").addEventListener("click", function () {
+            // Show the overlay and modal
+            document.getElementById("myModal").style.display = "block";
+        });
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Add event listener to the resolve checkbox
+        document.getElementById("resolveCheckbox").addEventListener("change", function () {
+            if (this.checked) {
+                // if the checkbox is pressed the status of the resolve becomes true
+                resolveStatus = true;
+
+                // Checkbox is checked, update the button appearance
+                document.getElementById("myButton").textContent = "Resolved!";
+                document.getElementById("myButton").classList.add("red");
+                document.getElementById("myButton").disabled = true;
+
+                // Replace 'unique_topic_id_here' with the actual topic ID
+                const tid = 'unique_topic_id_here'; // Replace with the actual topic ID
+                localStorage.setItem(`topic:${tid}_resolved`, 'true');
+                updateButtonAppearance(tid); // Update the button appearance
+
+                // Send an HTTP GET request to a URL formed by appending "/isResolved" to the current page's URL
+                fetch(window.location.href + "/isResolved", {
+                    method: 'GET', // Use the GET method to retrieve data
+                      headers: {
+                        'Accept': 'application/json', // Indicate that the client prefers JSON responses
+                        'Content-Type': 'application/json' // Specify that the request body (if any) will be in JSON format
+                     }
+                })
+                .then(response => response.json()) // Parse the response as JSON
+                .then(data => {
+                    // Handle the response from the server if needed
+                    console.log(data); // Log the parsed JSON data to the console
+                })
+                .catch(error => {
+                    // Handle any errors that occur during the request or response
+                    console.error('Error:', error); // Log the error to the console
+                });
+                closeModal(); // Close the modal
+            }
+        });
+
+        // Add event listener to the cancel checkbox
+        document.getElementById("cancelCheckbox").addEventListener("change", function () {
+            if (this.checked) {
+                // Revert the button to its original state
+                document.getElementById("myButton").textContent = originalButtonText;
+                document.getElementById("myButton").className = originalButtonClass;
+                document.getElementById("myButton").disabled = false;
+                closeModal(); // Close the modal
+            }
+        });
+
+        // Function to check if a question is resolved based on its unique identifier
+        function isQuestionResolved(tid) {
+            return localStorage.getItem(`topic:${tid}_resolved`) === 'true';
+        }
+
+        // Function to update the button appearance based on the resolved state of a question
+        function updateButtonAppearance(tid) {
+            const button = document.getElementById('myButton');
+            if (isQuestionResolved(tid)) {
+                button.textContent = "Resolved!";
+                button.classList.add("red");
+                button.disabled = true;
+            } else {
+                button.textContent = originalButtonText;
+                button.className = originalButtonClass;
+                button.disabled = false;
+            }
+        }
+
+        // Add an event listener to handle page load
+        window.addEventListener('load', function () {
+            // Replace 'unique_topic_id_here' with the actual topic ID
+            const tid = 'unique_topic_id_here';
+            // Update the button appearance based on the resolved state of this question
+            updateButtonAppearance(tid);
+        });
+    </script>
+    
     <small class="pull-right">
         <!-- IMPORT partials/topic/reactions.tpl -->
         <span class="post-tools">

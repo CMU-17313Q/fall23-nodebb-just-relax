@@ -480,7 +480,7 @@ async function createWelcomePost() {
         console.log('Creating welcome post!');
         await Topics.post({
             uid: 1,
-            cid: 2,
+            cid: 1,
             title: 'Welcome to your NodeBB!',
             content: content,
         });

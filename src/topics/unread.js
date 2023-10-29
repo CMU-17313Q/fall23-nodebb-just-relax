@@ -326,7 +326,7 @@ module.exports = function (Topics) {
     };
 
     Topics.hasReadTopics = async function (tids, uid) {
-        if (!(parseInt(uid, 10) > 0)) {
+        if (parseInt(uid, 10) <= 0) {
             return tids.map(() => false);
         }
         const [topicScores, userScores, tids_unread, blockedUids] = await Promise.all([
