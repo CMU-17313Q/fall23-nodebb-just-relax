@@ -4,7 +4,7 @@ This file provides a detailed outline of how to use and user test the new featur
 
 NodeBB is a versatile and modern forum software powered by Node.js, offering support for databases such as Redis, MongoDB, or PostgreSQL. It boasts real-time interactions and notifications through web sockets, making it ideal for engaging online communities. NodeBB preserves the traditional bulletin board format with categorical hierarchies, local user accounts, and asynchronous messaging, while also incorporating contemporary web features like mobile responsiveness and rich RESTful APIs. The platform's theming engine is highly flexible, allowing users to customize the design to their preferences. Whether for discussion forums, Q&A communities, or other collaborative spaces, NodeBB provides a robust and adaptable solution for online community management.
 
-## Features!
+## Features
 
 ### Anonymous Posts
 
