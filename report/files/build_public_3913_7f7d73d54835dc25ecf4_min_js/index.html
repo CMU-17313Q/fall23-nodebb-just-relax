@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - build/public/3913.7f7d73d54835dc25ecf4.min.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>build/public/3913.7f7d73d54835dc25ecf4.min.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">72.13</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">1</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">58.55</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">4.64</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&quot;use strict&quot;;(self.webpackChunknodebb=self.webpackChunknodebb||[]).push([[3913],{98166:(E,_,x)=&gt;{var w,T;w=[x(59006),x(31369),x(7927)],T=function(p,f,y){const c={},i={timestamp:0,open:!1,edit:!1,posts:{}};let b=[],v;const t={el:null,icon:null,defaultText:&quot;&quot;,activeText:&quot;&quot;};let n,e;$(window).on(&quot;action:composer.activate&quot;,r),c.init=function(a,l){i.timestamp=0,i.posts=l,b=a[0].querySelectorAll(&quot;.display-scheduler&quot;),v=a[0].querySelectorAll(&quot;.display-scheduler i&quot;),t.el=a[0].querySelector(&quot;.composer-submit:not(.btn-sm)&quot;),t.icon=t.el.querySelector(&quot;i&quot;),t.defaultText=t.el.lastChild.textContent,t.activeText=t.el.getAttribute(&quot;data-text-variant&quot;),v.forEach(m=&gt;m.addEventListener(&quot;click&quot;,o))},c.getTimestamp=function(){return!c.isActive()||isNaN(i.timestamp)?0:i.timestamp},c.isActive=function(){return i.timestamp&gt;0},c.isOpen=function(){return i.open},c.reset=function(){i.timestamp=0},c.onChangeCategory=function(a){k(a.privileges[&quot;topics:schedule&quot;]),A(!1),c.reset()};async function o(){const a=await p.render(&quot;modals/topic-scheduler&quot;);f.dialog({message:a,title:&quot;[[modules:composer.schedule-for]]&quot;,className:&quot;topic-scheduler&quot;,onShown:s,onHidden:d,onEscape:!0,buttons:{cancel:{label:i.timestamp?&quot;[[modules:composer.cancel-scheduling]]&quot;:&quot;[[modules:bootbox.cancel]]&quot;,className:(i.timestamp?&quot;btn-warning&quot;:&quot;btn-default&quot;)+(i.edit?&quot; hidden&quot;:&quot;&quot;),callback:h},set:{label:&quot;[[modules:composer.set-schedule-date]]&quot;,className:&quot;btn-primary&quot;,callback:g}}})}function s(a){i.open=!0;const l=a.target.querySelector(&quot;.datetime-picker&quot;);n=l.querySelector(&#039;input[type=&quot;date&quot;]&#039;),e=l.querySelector(&#039;input[type=&quot;time&quot;]&#039;),u()}function d(){i.open=!1}function r(a,{post_uuid:l}){i.edit=!1;const m=i.posts[l];m&amp;&amp;m.isMain&amp;&amp;m.timestamp&gt;Date.now()&amp;&amp;(i.timestamp=m.timestamp,i.edit=!0,A())}function u(){const a=new Date,l=new Date(a.getTime()-a.getTimezoneOffset()*6e4).toJSON();if(n.setAttribute(&quot;min&quot;,l.slice(0,10)),e.setAttribute(&quot;min&quot;,l.slice(11,-8)),c.isActive()){const m=new Date(i.timestamp-a.getTimezoneOffset()*6e4).toJSON();n.value=m.slice(0,10),e.value=m.slice(11,-8)}}function g(){const a=n.value&amp;&amp;e.value,l=new Date(`${n.value} ${e.value}`).getTime();if(!a||isNaN(l)||l&lt;Date.now()){i.timestamp=0;const m=l&lt;Date.now()?&quot;[[error:scheduling-to-past]]&quot;:&quot;[[error:invalid-schedule-date]]&quot;;return y.alert({type:&quot;danger&quot;,timeout:3e3,title:&quot;&quot;,alert_id:&quot;post_error&quot;,message:m}),!1}i.timestamp||A(!0),i.timestamp=l}function h(){i.timestamp&amp;&amp;(A(!1),i.timestamp=0)}function A(a=!0){v.forEach(l=&gt;l.classList.toggle(&quot;active&quot;,a)),t.icon&amp;&amp;(t.icon.classList.toggle(&quot;fa-check&quot;,!a),t.icon.classList.toggle(&quot;fa-clock-o&quot;,a)),t.el.lastChild.textContent=a?t.activeText:t.defaultText}function k(a){b.forEach(l=&gt;l.classList.toggle(&quot;hidden&quot;,!a))}return c}.apply(_,w),T!==void 0&amp;&amp;(E.exports=T)},88186:(E,_,x)=&gt;{var w,T;w=[x(7927)],T=function(p){var f={},y,c;f.init=function(t,n){var e=t.find(&quot;.tags&quot;);if(e.length){y=ajaxify.data.hasOwnProperty(&quot;minTags&quot;)?ajaxify.data.minTags:config.minimumTagsPerTopic,c=ajaxify.data.hasOwnProperty(&quot;maxTags&quot;)?ajaxify.data.maxTags:config.maximumTagsPerTopic,e.tagsinput({confirmKeys:[13,44],trimValue:!0});var o=t.find(&quot;.bootstrap-tagsinput input&quot;);i(t,n,ajaxify.data),app.loadJQueryUI(function(){o.autocomplete({delay:100,position:{my:&quot;left bottom&quot;,at:&quot;left top&quot;,collision:&quot;flip&quot;},appendTo:t.find(&quot;.bootstrap-tagsinput&quot;),open:function(){$(this).autocomplete(&quot;widget&quot;).css(&quot;z-index&quot;,2e4)},source:function(r,u){socket.emit(&quot;topics.autocompleteTags&quot;,{query:r.term,cid:n.cid},function(g,h){if(g)return p.error(g);h&amp;&amp;u(h),$(&quot;.ui-autocomplete a&quot;).attr(&quot;data-ajaxify&quot;,&quot;false&quot;)})},select:function(){b(o)}}),v(n.tags,e),e.on(&quot;beforeItemAdd&quot;,function(r){var u=c&amp;&amp;c&lt;=f.getTags(t.attr(&quot;data-uuid&quot;)).length,g=utils.cleanUpTag(r.item,config.maximumTagLength),h=g!==r.item;if(r.cancel=h||r.item.length&lt;config.minimumTagLength||r.item.length&gt;config.maximumTagLength||u,r.item.length&lt;config.minimumTagLength)return p.error(&quot;[[error:tag-too-short, &quot;+config.minimumTagLength+&quot;]]&quot;);if(r.item.length&gt;config.maximumTagLength)return p.error(&quot;[[error:tag-too-long, &quot;+config.maximumTagLength+&quot;]]&quot;);if(u)return p.error(&quot;[[error:too-many-tags, &quot;+c+&quot;]]&quot;);h&amp;&amp;e.tagsinput(&quot;add&quot;,g)});var s=!1,d=!1;e.on(&quot;itemRemoved&quot;,function(r){if(d){d=!1;return}r.item&amp;&amp;socket.emit(&quot;topics.canRemoveTag&quot;,{tag:r.item},function(u,g){if(u)return p.error(u);g||(p.error(&quot;[[error:cant-remove-system-tag]]&quot;),s=!0,e.tagsinput(&quot;add&quot;,r.item))})}),e.on(&quot;itemAdded&quot;,function(r){if(s){s=!1;return}var u=n.hasOwnProperty(&quot;cid&quot;)?n.cid:ajaxify.data.cid;socket.emit(&quot;topics.isTagAllowed&quot;,{tag:r.item,cid:u||0},function(g,h){if(g)return p.error(g);if(!h)return d=!0,e.tagsinput(&quot;remove&quot;,r.item);$(window).trigger(&quot;action:tag.added&quot;,{cid:u,tagEl:e,tag:r.item}),o.length&amp;&amp;o.autocomplete(&quot;close&quot;)})})}),o.attr(&quot;tabIndex&quot;,e.attr(&quot;tabIndex&quot;)),o.on(&quot;blur&quot;,function(){b(o)}),$(&#039;[component=&quot;composer/tag/dropdown&quot;]&#039;).on(&quot;click&quot;,&quot;li&quot;,function(){var s=$(this).attr(&quot;data-tag&quot;);return s&amp;&amp;v([s],e),!1})}},f.isEnoughTags=function(t){return f.getTags(t).length&gt;=y},f.minTagCount=function(){return y},f.onChangeCategory=function(t,n,e,o){var s=t.find(&#039;[component=&quot;composer/tag/dropdown&quot;]&#039;);s.length&amp;&amp;(i(t,n,o),s.toggleClass(&quot;hidden&quot;,!o.tagWhitelist||!o.tagWhitelist.length),o.tagWhitelist&amp;&amp;app.parseAndTranslate(&quot;composer&quot;,&quot;tagWhitelist&quot;,{tagWhitelist:o.tagWhitelist},function(d){s.find(&quot;.dropdown-menu&quot;).html(d)}))};function i(t,n,e){var o=t.find(&quot;.tags&quot;),s=t.find(&quot;.bootstrap-tagsinput input&quot;);s.length&amp;&amp;(e.hasOwnProperty(&quot;minTags&quot;)&amp;&amp;(y=e.minTags),e.hasOwnProperty(&quot;maxTags&quot;)&amp;&amp;(c=e.maxTags),e.tagWhitelist&amp;&amp;e.tagWhitelist.length?(s.attr(&quot;readonly&quot;,&quot;&quot;),s.attr(&quot;placeholder&quot;,&quot;&quot;),o.tagsinput(&quot;items&quot;).slice().forEach(function(d){e.tagWhitelist.indexOf(d)===-1&amp;&amp;o.tagsinput(&quot;remove&quot;,d)})):(s.removeAttr(&quot;readonly&quot;),s.attr(&quot;placeholder&quot;,t.find(&quot;input.tags&quot;).attr(&quot;placeholder&quot;))),t.find(&quot;.tags-container&quot;).toggleClass(&quot;hidden&quot;,e.privileges&amp;&amp;e.privileges.hasOwnProperty(&quot;topics:tag&quot;)&amp;&amp;!e.privileges[&quot;topics:tag&quot;]||c===0&amp;&amp;!n&amp;&amp;!n.tags&amp;&amp;!n.tags.length),e.privileges&amp;&amp;e.privileges.hasOwnProperty(&quot;topics:tag&quot;)&amp;&amp;!e.privileges[&quot;topics:tag&quot;]&amp;&amp;o.tagsinput(&quot;removeAll&quot;),$(window).trigger(&quot;action:tag.toggleInput&quot;,{postContainer:t,tagWhitelist:e.tagWhitelist,tagsInput:s}))}function b(t){var n=jQuery.Event(&quot;keypress&quot;);n.which=13,n.keyCode=13,setTimeout(function(){t.trigger(n)},100)}function v(t,n){if(t&amp;&amp;t.length)for(var e=0;e&lt;t.length;++e)n.tagsinput(&quot;add&quot;,t[e])}return f.getTags=function(t){return $(&#039;.composer[data-uuid=&quot;&#039;+t+&#039;&quot;] .tags&#039;).tagsinput(&quot;items&quot;)},f}.apply(_,w),T!==void 0&amp;&amp;(E.exports=T)}}]);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

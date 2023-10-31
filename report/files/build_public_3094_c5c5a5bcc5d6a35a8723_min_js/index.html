@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - build/public/3094.c5c5a5bcc5d6a35a8723.min.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>build/public/3094.c5c5a5bcc5d6a35a8723.min.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">75.33</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">1</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">47.82</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">2.30</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&quot;use strict&quot;;(self.webpackChunknodebb=self.webpackChunknodebb||[]).push([[3094],{53094:(_,b,l)=&gt;{var p,f;p=[l(7237),l(3547),l(32230),l(7927),l(74344)],f=function(P,t,r,c,u){const m={};let o,d,s;m.init=function(n){o||(s=ajaxify.data.tid,app.parseAndTranslate(&quot;modals/move-post&quot;,{},function(i){o=i,d=o.find(&quot;#move_posts_confirm&quot;),$(&quot;body&quot;).append(o),o.find(&quot;.close,#move_posts_cancel&quot;).on(&quot;click&quot;,y),o.find(&quot;#topicId&quot;).on(&quot;keyup&quot;,utils.debounce(g,200)),t.init(E),v(),n&amp;&amp;t.togglePostSelection(n,n.attr(&quot;data-pid&quot;)),$(window).off(&quot;action:ajaxify.end&quot;,e).on(&quot;action:ajaxify.end&quot;,e),d.on(&quot;click&quot;,function(){const h=a();if(!h)return;d.attr(&quot;disabled&quot;,!0);const A={pids:t.pids.slice(),tid:h};if(config.undoTimeout&gt;0)return c.alert({alert_id:&quot;pids_move_&quot;+t.pids.join(&quot;-&quot;),title:&quot;[[topic:thread_tools.move-posts]]&quot;,message:&quot;[[topic:topic_move_posts_success]]&quot;,type:&quot;success&quot;,timeout:1e4,timeoutfn:function(){x(A)},clickfn:function(I,C){delete C.timeoutfn,c.success(&quot;[[topic:topic_move_posts_undone]]&quot;),d.removeAttr(&quot;disabled&quot;)}});x(A)})}))};function e(){if(!o)return;const n=o.find(&quot;#topicId&quot;);let i=null;ajaxify.data.template.topic&amp;&amp;ajaxify.data.tid&amp;&amp;parseInt(ajaxify.data.tid,10)!==s&amp;&amp;(i=ajaxify.data.tid),i&amp;&amp;!n.val()&amp;&amp;n.val(i),g()}function a(){const n=o.find(&quot;#topicId&quot;);return n.length&amp;&amp;n.val()?n.val():ajaxify.data.template.topic&amp;&amp;ajaxify.data.tid}function v(){if(!o)return;const n=a();t.pids.length?n&amp;&amp;parseInt(n,10)!==parseInt(s,10)?u.get(&quot;/topics/&quot;+n,{}).then(function(i){if(!i||!i.tid)return c.error(&quot;[[error:no-topic]]&quot;);if(i.scheduled)return c.error(&quot;[[error:cant-move-posts-to-scheduled]]&quot;);const h=r.compile(&quot;topic:x-posts-will-be-moved-to-y&quot;,t.pids.length,i.title);o.find(&quot;#pids&quot;).translateHtml(h)}):o.find(&quot;#pids&quot;).translateHtml(&quot;[[topic:x-posts-selected, &quot;+t.pids.length+&quot;]]&quot;):o.find(&quot;#pids&quot;).translateHtml(&quot;[[topic:no-posts-selected]]&quot;)}function g(){if(!o)return;const n=a();t.pids.length&amp;&amp;n&amp;&amp;parseInt(n,10)!==parseInt(s,10)?d.removeAttr(&quot;disabled&quot;):d.attr(&quot;disabled&quot;,!0),v()}function E(){g()}function x(n){n.tid&amp;&amp;Promise.all(n.pids.map(i=&gt;u.put(`/posts/${i}/move`,{tid:n.tid}))).then(()=&gt;{n.pids.forEach(function(i){P.get(&quot;post&quot;,&quot;pid&quot;,i).fadeOut(500,function(){$(this).remove()})}),y()}).catch(c.error)}function y(){o&amp;&amp;(o.remove(),o=null,t.disable(),$(window).off(&quot;action:ajaxify.end&quot;,e))}return m}.apply(b,p),f!==void 0&amp;&amp;(_.exports=f)},3547:(_,b,l)=&gt;{var p,f;p=[l(7237)],f=function(P){const t={};let r;t.pids=[];let c=!1;t.init=function(s,e){t.pids.length=0,r=s,e=e||{},c=e.allowMainPostSelect||!1,$(&quot;#content&quot;).on(&quot;click&quot;,&#039;[component=&quot;topic&quot;] [component=&quot;post&quot;]&#039;,u),o()};function u(s){s.stopPropagation();const e=$(this).attr(&quot;data-pid&quot;),a=$(&#039;[component=&quot;topic&quot;] [data-pid=&quot;&#039;+e+&#039;&quot;]&#039;);!c&amp;&amp;parseInt($(this).attr(&quot;data-index&quot;),10)===0||t.togglePostSelection(a,e)}t.disable=function(){t.pids.forEach(function(s){P.get(&quot;post&quot;,&quot;pid&quot;,s).toggleClass(&quot;bg-success&quot;,!1)}),$(&quot;#content&quot;).off(&quot;click&quot;,&#039;[component=&quot;topic&quot;] [component=&quot;post&quot;]&#039;,u),d()},t.togglePostSelection=function(s,e){if(e){const a=t.pids.indexOf(e);a===-1?(t.pids.push(e),s.toggleClass(&quot;bg-success&quot;,!0)):(t.pids.splice(a,1),s.toggleClass(&quot;bg-success&quot;,!1)),t.pids.length&amp;&amp;t.pids.sort(function(v,g){return v-g}),typeof r==&quot;function&quot;&amp;&amp;r()}};function m(){return!1}function o(){$(&quot;#content&quot;).on(&quot;click&quot;,&#039;[component=&quot;post&quot;] button, [component=&quot;post&quot;] a&#039;,m)}function d(){$(&quot;#content&quot;).off(&quot;click&quot;,&#039;[component=&quot;post&quot;] button, [component=&quot;post&quot;] a&#039;,m)}return t}.apply(b,p),f!==void 0&amp;&amp;(_.exports=f)}}]);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

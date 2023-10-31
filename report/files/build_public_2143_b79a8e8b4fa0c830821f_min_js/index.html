@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - build/public/2143.b79a8e8b4fa0c830821f.min.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>build/public/2143.b79a8e8b4fa0c830821f.min.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">72.31</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">1</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">76.41</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">9.71</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&quot;use strict&quot;;(self.webpackChunknodebb=self.webpackChunknodebb||[]).push([[2143],{22905:(w,S,g)=&gt;{var v,m;v=[g(7927)],m=function(h){const p={};return p.init=function(l,a){let e=null;a=a||{},a.privilege=a.privilege||&quot;topics:read&quot;,a.states=a.states||[&quot;watching&quot;,&quot;notwatching&quot;,&quot;ignoring&quot;];let t=[];Array.isArray(a.localCategories)&amp;&amp;(t=a.localCategories.map(s=&gt;({...s}))),a.selectedCids=a.selectedCids||ajaxify.data.selectedCids||[];const n=l.find(&#039;[component=&quot;category-selector-search&quot;]&#039;);if(!n.length)return;const i=n.parent(&#039;[component=&quot;category/dropdown&quot;]&#039;).length&gt;0||n.parent(&#039;[component=&quot;category-selector&quot;]&#039;).length&gt;0;l.on(&quot;show.bs.dropdown&quot;,function(){i&amp;&amp;(l.find(&quot;.dropdown-toggle&quot;).addClass(&quot;hidden&quot;),n.removeClass(&quot;hidden&quot;));function s(){const d=n.find(&quot;input&quot;).val();d.length&gt;1||!d&amp;&amp;!e?r(d,function(C){e=e||C,o(C)}):!d&amp;&amp;e&amp;&amp;(e.forEach(function(C){C.selected=a.selectedCids.includes(C.cid)}),o(e))}n.on(&quot;click&quot;,function(d){d.preventDefault(),d.stopPropagation()}),n.find(&quot;input&quot;).val(&quot;&quot;).on(&quot;keyup&quot;,utils.debounce(s,300)),s()}),l.on(&quot;shown.bs.dropdown&quot;,function(){n.find(&quot;input&quot;).focus()}),l.on(&quot;hide.bs.dropdown&quot;,function(){i&amp;&amp;(l.find(&quot;.dropdown-toggle&quot;).removeClass(&quot;hidden&quot;),n.addClass(&quot;hidden&quot;)),n.off(&quot;click&quot;),n.find(&quot;input&quot;).off(&quot;keyup&quot;)});function r(s,d){socket.emit(&quot;categories.categorySearch&quot;,{search:s,query:utils.params(),parentCid:a.parentCid||0,selectedCids:a.selectedCids,privilege:a.privilege,states:a.states,showLinks:a.showLinks},function(C,N){if(C)return h.error(C);d(t.concat(N))})}function o(s){app.parseAndTranslate(a.template,{categoryItems:s.slice(0,200),selectedCategory:ajaxify.data.selectedCategory,allCategoriesUrl:ajaxify.data.allCategoriesUrl},function(d){l.find(&#039;[component=&quot;category/list&quot;]&#039;).replaceWith(d.find(&#039;[component=&quot;category/list&quot;]&#039;)),l.find(&#039;[component=&quot;category/list&quot;] [component=&quot;category/no-matches&quot;]&#039;).toggleClass(&quot;hidden&quot;,!!s.length)})}},p}.apply(S,v),m!==void 0&amp;&amp;(w.exports=m)},50548:(w,S,g)=&gt;{var v,m;v=[g(22905),g(31369),g(85233)],m=function(h,p,l){const a={};return a.init=function(e,t){if(!e||!e.length)return;t=t||{};const n=t.onSelect||function(){};t.states=t.states||[&quot;watching&quot;,&quot;notwatching&quot;,&quot;ignoring&quot;],t.template=&quot;partials/category-selector&quot;,l.fire(&quot;action:category.selector.options&quot;,{el:e,options:t}),h.init(e,t);const i={el:e,selectedCategory:null};e.on(&quot;click&quot;,&quot;[data-cid]&quot;,function(){const o=$(this);if(o.hasClass(&quot;disabled&quot;))return!1;i.selectCategory(o.attr(&quot;data-cid&quot;)),n(i.selectedCategory)});const r=i.el.find(&#039;[component=&quot;category-selector-selected&quot;]&#039;).html();return i.selectCategory=function(o){const s=i.el.find(&#039;[data-cid=&quot;&#039;+o+&#039;&quot;]&#039;);i.selectedCategory={cid:o,name:s.attr(&quot;data-name&quot;)},s.length?i.el.find(&#039;[component=&quot;category-selector-selected&quot;]&#039;).html(s.find(&#039;[component=&quot;category-markup&quot;]&#039;).html()):i.el.find(&#039;[component=&quot;category-selector-selected&quot;]&#039;).html(r)},i.getSelectedCategory=function(){return i.selectedCategory},i.getSelectedCid=function(){return i.selectedCategory?i.selectedCategory.cid:0},i},a.modal=function(e){e=e||{},e.onSelect=e.onSelect||function(){},e.onSubmit=e.onSubmit||function(){},app.parseAndTranslate(&quot;admin/partials/categories/select-category&quot;,{message:e.message},function(t){const n=p.dialog({title:e.title||&quot;[[modules:composer.select_category]]&quot;,message:t,buttons:{save:{label:&quot;[[global:select]]&quot;,className:&quot;btn-primary&quot;,callback:r}}}),i=a.init(n.find(&#039;[component=&quot;category-selector&quot;]&#039;),e);function r(o){return o.preventDefault(),i.selectedCategory&amp;&amp;(e.onSubmit(i.selectedCategory),n.modal(&quot;hide&quot;)),!1}e.openOnLoad&amp;&amp;n.on(&quot;shown.bs.modal&quot;,function(){n.find(&quot;.dropdown-toggle&quot;).dropdown(&quot;toggle&quot;)}),n.find(&quot;form&quot;).on(&quot;submit&quot;,r)})},a}.apply(S,v),m!==void 0&amp;&amp;(w.exports=m)},98755:(w,S,g)=&gt;{var v,m;v=[g(50548),g(27145),g(74344)],m=function(h,p,l){var a={},e;a.init=function(r,o){var s=r.find(&quot;.category-list-container&quot;);s.length&amp;&amp;(r.on(&quot;action:composer.resize&quot;,function(){t(r)}),a.updateTaskbar(r,o),e=h.init(s.find(&#039;[component=&quot;category-selector&quot;]&#039;),{privilege:&quot;topics:create&quot;,states:[&quot;watching&quot;,&quot;notwatching&quot;,&quot;ignoring&quot;],onSelect:function(d){o.hasOwnProperty(&quot;cid&quot;)&amp;&amp;i(r,o,d)}}),e&amp;&amp;(o.cid&amp;&amp;o.category?e.selectedCategory={cid:o.cid,name:o.category.name}:ajaxify.data.template.compose&amp;&amp;ajaxify.data.selectedCategory&amp;&amp;(e.selectedCategory={cid:ajaxify.data.cid,name:ajaxify.data.selectedCategory}),r.find(&quot;.category-name&quot;).translateText(e.selectedCategory?e.selectedCategory.name:&quot;[[modules:composer.select_category]]&quot;).on(&quot;click&quot;,function(){h.modal({privilege:&quot;topics:create&quot;,states:[&quot;watching&quot;,&quot;notwatching&quot;,&quot;ignoring&quot;],openOnLoad:!0,showLinks:!1,onSelect:function(d){r.find(&quot;.category-name&quot;).text(d.name),e.selectCategory(d.cid),o.hasOwnProperty(&quot;cid&quot;)&amp;&amp;i(r,o,d)}})}),t(r)))};function t(r){r.find(&#039;.category-list-container [component=&quot;category-selector&quot;]&#039;).toggleClass(&quot;dropup&quot;,r.outerHeight()&lt;$(window).height()/2)}a.getSelectedCid=function(){var r;return e&amp;&amp;(r=e.getSelectedCategory()),r?r.cid:0},a.updateTaskbar=function(r,o){parseInt(o.cid,10)&amp;&amp;l.get(`/categories/${o.cid}`,{}).then(function(s){n(r,s)})};function n(r,o){if(o){var s=r.attr(&quot;data-uuid&quot;);p.update(&quot;composer&quot;,s,{image:o.backgroundImage,&quot;background-color&quot;:o.bgColor,icon:o.icon&amp;&amp;o.icon.slice(3)})}}async function i(r,o,s){o.cid=s.cid;const d=await window.fetch(`${config.relative_path}/api/category/${s.cid}`).then(C=&gt;C.json());o.category=d,n(r,d),g.e(3913).then(function(){var C=[g(98166),g(88186)];(function(N,P){N.onChangeCategory(d),P.onChangeCategory(r,o,s.cid,d),$(window).trigger(&quot;action:composer.changeCategory&quot;,{postContainer:r,postData:o,selectedCategory:s,categoryData:d})}).apply(null,C)}).catch(g.oe)}return a}.apply(S,v),m!==void 0&amp;&amp;(w.exports=m)},22143:(w,S,g)=&gt;{var v,m;v=[g(83713),g(98755),g(32230),g(7927),g(33371),g(86569)],m=function(h,p,l,a,e){var t={inProgress:{}},n=&quot;&quot;;t.initialize=function(c){s(c),d(c),i(c),r(c),l.translate(&quot;[[modules:composer.uploading, &quot;+0+&quot;%]]&quot;,function(f){n=f})};function i(c){var f=$(&#039;.composer[data-uuid=&quot;&#039;+c+&#039;&quot;]&#039;);f.find(&quot;#files&quot;).on(&quot;change&quot;,function(u){var E=(u.target||{}).files||($(this).val()?[{name:$(this).val(),type:utils.fileMimeType($(this).val())}]:null);E&amp;&amp;P({files:E,post_uuid:c,route:&quot;/api/post/upload&quot;})})}function r(c){var f=$(&#039;.composer[data-uuid=&quot;&#039;+c+&#039;&quot;]&#039;);f.on(&quot;click&quot;,&quot;.topic-thumb-clear-btn&quot;,function(u){f.find(&quot;input#topic-thumb-url&quot;).val(&quot;&quot;).trigger(&quot;change&quot;),o(f.find(&quot;input#topic-thumb-file&quot;)),$(this).addClass(&quot;hide&quot;),u.preventDefault()}),f.on(&quot;paste change keypress&quot;,&quot;input#topic-thumb-url&quot;,function(){var u=$(this);setTimeout(function(){var E=u.val();E?f.find(&quot;.topic-thumb-clear-btn&quot;).removeClass(&quot;hide&quot;):(o(f.find(&quot;input#topic-thumb-file&quot;)),f.find(&quot;.topic-thumb-clear-btn&quot;).addClass(&quot;hide&quot;)),f.find(&quot;img.topic-thumb-preview&quot;).attr(&quot;src&quot;,E)},100)})}function o(c){c.wrap(&quot;&lt;form /&gt;&quot;).closest(&quot;form&quot;).get(0).reset(),c.unwrap()}function s(c){var f=$(&#039;.composer[data-uuid=&quot;&#039;+c+&#039;&quot;]&#039;);e.handleDragDrop({container:f,callback:function(u){P({files:u.files,post_uuid:c,route:&quot;/api/post/upload&quot;,formData:u.formData})}})}function d(c){var f=$(&#039;.composer[data-uuid=&quot;&#039;+c+&#039;&quot;]&#039;);e.handlePaste({container:f,callback:function(u){P({files:u.files,fileNames:u.fileNames,post_uuid:c,route:&quot;/api/post/upload&quot;,formData:u.formData})}})}function C(c){return c.replace(/[-[\]{}()*+?.,\\^$|#\s]/g,&quot;\\$&amp;&quot;)}function N(c,f,u){return c.slice(0,f)+u+c.slice(f)}function P(c){var f=[...c.files],u=c.post_uuid,E=$(&#039;.composer[data-uuid=&quot;&#039;+u+&#039;&quot;]&#039;),_=E.find(&quot;textarea&quot;),j=_.val(),x=E.find(&quot;#fileForm&quot;),M=!1;x.attr(&quot;action&quot;,config.relative_path+c.route);var R=p.getSelectedCid();!R&amp;&amp;ajaxify.data.cid&amp;&amp;(R=ajaxify.data.cid);var b=0,k=!1;for(b=0;b&lt;f.length;++b)if(k=f[b].type.match(/image./),k&amp;&amp;!app.user.privileges[&quot;upload:post:image&quot;]||!k&amp;&amp;!app.user.privileges[&quot;upload:post:file&quot;])return a.error(&quot;[[error:no-privileges]]&quot;);var F=[];for(b=0;b&lt;f.length;++b){if(F.push(b+&quot;_&quot;+Date.now()+&quot;_&quot;+(c.fileNames?c.fileNames[b]:f[b].name)),k=f[b].type.match(/image./),f[b].size&gt;parseInt(config.maximumFileSize,10)*1024)return x[0].reset(),a.error(&quot;[[error:file-too-big, &quot;+config.maximumFileSize+&quot;]]&quot;);j=N(j,_.getCursorPosition(),(k?&quot;!&quot;:&quot;&quot;)+&quot;[&quot;+F[b]+&quot;](&quot;+n+&quot;) &quot;)}x.length&amp;&amp;E.find(&#039;[data-action=&quot;post&quot;]&#039;).prop(&quot;disabled&quot;,!0),_.val(j),$(window).trigger(&quot;action:composer.uploadStart&quot;,{post_uuid:u,files:F.map(function(T,A){return{filename:T.replace(/^\d+_\d{13}_/,&quot;&quot;),isImage:/image./.test(f[A].type)}}),text:n}),x.off(&quot;submit&quot;).submit(function(){function T(A,D,y){var L;y&amp;&amp;(L=A.replace(/^\d+_\d{13}_/,&quot;&quot;));var U=_.val(),I=new RegExp(C(A)+&quot;]\\([^)]+\\)&quot;,&quot;g&quot;);_.val(U.replace(I,(L||A)+&quot;](&quot;+D+&quot;)&quot;)),$(window).trigger(&quot;action:composer.uploadUpdate&quot;,{post_uuid:u,filename:A,text:D})}return t.inProgress[u]=t.inProgress[u]||[],t.inProgress[u].push(1),c.formData&amp;&amp;c.formData.append(&quot;cid&quot;,R),$(this).ajaxSubmit({headers:{&quot;x-csrf-token&quot;:config.csrf_token},resetForm:!0,clearForm:!0,formData:c.formData,data:{cid:R},error:function(A){M=!0,E.find(&#039;[data-action=&quot;post&quot;]&#039;).prop(&quot;disabled&quot;,!1);const D=B(A,u);for(var y=0;y&lt;f.length;++y)T(F[y],D,!0);h.render(E)},uploadProgress:function(A,D,y,L){l.translate(&quot;[[modules:composer.uploading, &quot;+L+&quot;%]]&quot;,function(U){if(!M)for(var I=0;I&lt;f.length;++I)T(F[I],U)})},success:function(A){const D=A.response.images;if(M=!0,D&amp;&amp;D.length)for(var y=0;y&lt;D.length;++y)D[y].filename=F[y].replace(/^\d+_\d{13}_/,&quot;&quot;),D[y].isImage=/image./.test(f[y].type),T(F[y],D[y].url,!0);h.render(E),_.focus(),E.find(&#039;[data-action=&quot;post&quot;]&#039;).prop(&quot;disabled&quot;,!1),$(window).trigger(&quot;action:composer.upload&quot;,{post_uuid:u,files:D})},complete:function(){x[0].reset(),t.inProgress[u].pop()}}),!1}),x.submit()}function B(c,f){var u=c.responseJSON&amp;&amp;(c.responseJSON.error||c.responseJSON.status&amp;&amp;c.responseJSON.status.message)||&quot;[[error:parse-error]]&quot;;return c&amp;&amp;c.status===413&amp;&amp;(u=c.statusText||&quot;Request Entity Too Large&quot;),a.error(u),$(window).trigger(&quot;action:composer.uploadError&quot;,{post_uuid:f,message:u}),u}return t}.apply(S,v),m!==void 0&amp;&amp;(w.exports=m)},33371:(w,S,g)=&gt;{var v,m;v=[g(7927)],m=function(h){const p={};return p.init=function(l){const a=l.uploadFormEl;a.length&amp;&amp;(a.attr(&quot;action&quot;,config.relative_path+l.route),l.dragDropAreaEl&amp;&amp;p.handleDragDrop({container:l.dragDropAreaEl,callback:function(e){p.ajaxSubmit({uploadForm:a,upload:e,callback:l.callback})}}),l.pasteEl&amp;&amp;p.handlePaste({container:l.pasteEl,callback:function(e){p.ajaxSubmit({uploadForm:a,upload:e,callback:l.callback})}}))},p.handleDragDrop=function(l){let a=!1;const e=l.container,t=l.container.find(&quot;.imagedrop&quot;);e.on(&quot;dragenter&quot;,function(){a||(t.css(&quot;top&quot;,&quot;0px&quot;),t.css(&quot;height&quot;,e.height()+&quot;px&quot;),t.css(&quot;line-height&quot;,e.height()+&quot;px&quot;),t.show(),t.on(&quot;dragleave&quot;,function(){t.hide(),t.off(&quot;dragleave&quot;)}))}),t.on(&quot;drop&quot;,function(r){r.preventDefault();const o=r.originalEvent.dataTransfer.files;if(o.length){let d;if(window.FormData){d=new FormData;for(var s=0;s&lt;o.length;++s)d.append(&quot;files[]&quot;,o[s],o[s].name)}l.callback({files:o,formData:d})}return t.hide(),!1});function n(i){return i.preventDefault(),!1}$(document).off(&quot;dragstart&quot;).on(&quot;dragstart&quot;,function(){a=!0}).off(&quot;dragend&quot;).on(&quot;dragend, mouseup&quot;,function(){a=!1}),t.on(&quot;dragover&quot;,n),t.on(&quot;dragenter&quot;,n)},p.handlePaste=function(l){l.container.on(&quot;paste&quot;,function(e){const t=(e.clipboardData||e.originalEvent.clipboardData||{}).items,n=[],i=[];let r=null;window.FormData&amp;&amp;(r=new FormData),[].forEach.call(t,function(o){const s=o.getAsFile();if(s){const d=utils.generateUUID()+&quot;-&quot;+s.name;r&amp;&amp;r.append(&quot;files[]&quot;,s,d),n.push(s),i.push(d)}}),n.length&amp;&amp;l.callback({files:n,fileNames:i,formData:r})})},p.ajaxSubmit=function(l){const a=[...l.upload.files];for(let t=0;t&lt;a.length;++t){const n=a[t].type.match(/image./);if(n&amp;&amp;!app.user.privileges[&quot;upload:post:image&quot;]||!n&amp;&amp;!app.user.privileges[&quot;upload:post:file&quot;])return h.error(&quot;[[error:no-privileges]]&quot;);if(a[t].size&gt;parseInt(config.maximumFileSize,10)*1024)return l.uploadForm[0].reset(),h.error(&quot;[[error:file-too-big, &quot;+config.maximumFileSize+&quot;]]&quot;)}const e=Date.now();l.uploadForm.off(&quot;submit&quot;).on(&quot;submit&quot;,function(){return $(this).ajaxSubmit({headers:{&quot;x-csrf-token&quot;:config.csrf_token},resetForm:!0,clearForm:!0,formData:l.upload.formData,error:function(t){let n=t.responseJSON&amp;&amp;(t.responseJSON.error||t.responseJSON.status&amp;&amp;t.responseJSON.status.message)||&quot;[[error:parse-error]]&quot;;t&amp;&amp;t.status===413&amp;&amp;(n=t.statusText||&quot;Request Entity Too Large&quot;),h.error(n),h.remove(e)},uploadProgress:function(t,n,i,r){h.alert({alert_id:e,message:&quot;[[modules:composer.uploading, &quot;+r+&quot;%]]&quot;})},success:function(t){const n=t.response.images;if(n&amp;&amp;n.length)for(var i=0;i&lt;n.length;++i)n[i].filename=a[i].name,n[i].isImage=/image./.test(a[i].type);l.callback(n)},complete:function(){l.uploadForm[0].reset(),setTimeout(h.remove,100,e)}}),!1}),l.uploadForm.submit()},p}.apply(S,v),m!==void 0&amp;&amp;(w.exports=m)}}]);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
